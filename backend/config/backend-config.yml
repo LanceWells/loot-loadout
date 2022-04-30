@@ -1,0 +1,36 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lootloadout-service
+spec:
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  selector:
+    app: loot-loadout-deployment
+status:
+  loadBalancer: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loot-loadout-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: loot-loadout-deployment
+  template:
+    metadata:
+      labels:
+        app: loot-loadout-deployment
+    spec:
+      containers:
+      - name: loot-loadout-backend
+        image: lantspants/loot-loadout-backend:0.1
+        ports:
+          - containerPort: 8080

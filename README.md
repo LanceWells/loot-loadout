@@ -16,3 +16,11 @@ You may need to add the following to VSCode settings:
   "experimentalWorkspaceModule": true
 }
 ```
+
+Install protobuf:
+```
+sudo apt install protobuf-compiler
+sudo apt install golang-goprotobuf-dev
+go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+```

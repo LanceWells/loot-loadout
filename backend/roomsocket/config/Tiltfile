@@ -1,0 +1,14 @@
+docker_build(
+  'lantspants/lootloadout/roomsocket',
+  '..',
+  dockerfile='../Dockerfile'
+)
+
+k8s_yaml(
+  kustomize('.')
+)
+
+k8s_resource(
+  'room-socket-deployment',
+  port_forwards=['8002:8080']
+)

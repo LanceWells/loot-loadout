@@ -1,1 +1,1 @@
-include('./backend/api/config/Tiltfile')
+include('./backend/publicapi/config/Tiltfile')

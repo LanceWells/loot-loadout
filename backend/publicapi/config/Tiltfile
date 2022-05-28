@@ -1,0 +1,14 @@
+docker_build(
+  'lantspants/lootloadout/public-api',
+  '..',
+  dockerfile='../Dockerfile'
+)
+
+k8s_yaml(
+  kustomize('.')
+)
+
+k8s_resource(
+  'public-api-deployment',
+  port_forwards=['8001:8080']
+)

@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/chatsocket/pkg/chatsocket"
+	"github.com/lantspants/lootloadout/api"
 )
 
 var addr = flag.String("addr", ":8080", "http service address")
@@ -27,14 +27,14 @@ func serveHome(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	flag.Parse()
-	hub := chatsocket.NewHub()
+	hub := api.NewHub()
 	go hub.Run()
 
 	log.Printf("Initializing WS service at %v", *addr)
 
 	http.HandleFunc("/", serveHome)
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		chatsocket.ServeWS(hub, w, r)
+		api.ServeWS(hub, w, r)
 	})
 
 	err := http.ListenAndServe(*addr, nil)

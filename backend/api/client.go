@@ -1,4 +1,4 @@
-package chatsocket
+package api
 
 import (
 	"bytes"

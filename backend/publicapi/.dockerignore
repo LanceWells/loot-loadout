@@ -1,0 +1,5 @@
+*dockerfile
+vendor
+config
+.dockerignore
+.vscode

@@ -1,0 +1,271 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "publicapi/publicapi.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "Rooms"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/rooms": {
+      "post": {
+        "summary": "CreateRoom creates a room with a new ID.",
+        "operationId": "Rooms_CreateRoom",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/roomsocketCreateRoomResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/roomsocketCreateRoomRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Rooms"
+        ]
+      }
+    },
+    "/v1/rooms/{roomId}": {
+      "delete": {
+        "summary": "DeleteRoom deletes a room with the specified ID.",
+        "operationId": "Rooms_DeleteRoom",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/roomsocketDeleteRoomResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "roomId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Rooms"
+        ]
+      }
+    },
+    "/v1/rooms/{roomId}/message": {
+      "post": {
+        "summary": "SendMessage sends a message to the chat room.",
+        "operationId": "Rooms_SendMessage",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/roomsocketChatCommandResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "roomId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "$ref": "#/definitions/roomsocketChatMessage",
+                  "description": "message, if provided, indicates that the given character has sent a chat message to the room."
+                },
+                "command": {
+                  "$ref": "#/definitions/roomsocketCharacterCommand",
+                  "description": "command, if provided, indicates that the given character has sent a command in regards to\ntheir state."
+                }
+              },
+              "description": "ChatCommand is a multi-purpose container for interacting with a room, and for informing the\nclient when something has happened in the room."
+            }
+          }
+        ],
+        "tags": [
+          "Rooms"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "CharacterCommandAnimation": {
+      "type": "object",
+      "properties": {
+        "animationId": {
+          "type": "string",
+          "description": "animation_id is the ID for the animation to render on the given character."
+        }
+      },
+      "description": "Animation is animation data about the given character."
+    },
+    "CharacterCommandExpression": {
+      "type": "object",
+      "properties": {
+        "expressionId": {
+          "type": "string",
+          "description": "expression_id is the ID for the expression to render on the given character."
+        }
+      },
+      "description": "Expression is expression data about the given character."
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "roomsocketCharacterCommand": {
+      "type": "object",
+      "properties": {
+        "characterId": {
+          "type": "string",
+          "description": "character_id is the ID for the character that either generated the message, or was impacted by\nthe message."
+        },
+        "location": {
+          "$ref": "#/definitions/roomsocketCharacterCommandLocation",
+          "description": "location, if provided, will update the given character's positional data."
+        },
+        "animation": {
+          "$ref": "#/definitions/CharacterCommandAnimation",
+          "description": "animation, if provided, will update the given character's animation data."
+        },
+        "expression": {
+          "$ref": "#/definitions/CharacterCommandExpression",
+          "description": "expression, if provided, will update the given character's expression data."
+        }
+      },
+      "description": "CharacterCommand indicates that a character's state has been updated."
+    },
+    "roomsocketCharacterCommandLocation": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "y": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "description": "Location is locational data about the given character."
+    },
+    "roomsocketChatCommand": {
+      "type": "object",
+      "properties": {
+        "roomId": {
+          "type": "string"
+        },
+        "message": {
+          "$ref": "#/definitions/roomsocketChatMessage",
+          "description": "message, if provided, indicates that the given character has sent a chat message to the room."
+        },
+        "command": {
+          "$ref": "#/definitions/roomsocketCharacterCommand",
+          "description": "command, if provided, indicates that the given character has sent a command in regards to\ntheir state."
+        }
+      },
+      "description": "ChatCommand is a multi-purpose container for interacting with a room, and for informing the\nclient when something has happened in the room."
+    },
+    "roomsocketChatCommandResponse": {
+      "type": "object",
+      "description": "ConnectToRoomResponse indicates a response to a request to connect to a given chat room."
+    },
+    "roomsocketChatMessage": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "message is the chat-based message sent by the character."
+        },
+        "characterId": {
+          "type": "string",
+          "description": "character_id is the ID for the character that either generated the message, or was impacted by\nthe message."
+        }
+      },
+      "description": "Message indicates that a text-based chat message has been transferred."
+    },
+    "roomsocketCreateRoomRequest": {
+      "type": "object",
+      "description": "CreateRoomRequest indicates a request to create a new room."
+    },
+    "roomsocketCreateRoomResponse": {
+      "type": "object",
+      "properties": {
+        "roomId": {
+          "type": "string"
+        }
+      },
+      "description": "CreateRoomResponse is the response to a request to create a new room."
+    },
+    "roomsocketDeleteRoomResponse": {
+      "type": "object",
+      "description": "DeleteRoomResponse is the response to a request to delete an existing room."
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

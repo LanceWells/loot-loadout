@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package lantspants.lootloadout.publicapi;
+
+import "roomsocket/roomsocket.proto";
+import "google/api/annotations.proto";
+
+option go_package = "github.com/lantspants/lootloadout/api/publicapi";
+
+service Rooms{
+  // ConnectToRoom is a server-streaming endpoint for interacting with the room.
+  rpc ConnectToRoom(roomsocket.ConnectToRoomRequest) returns (stream roomsocket.ChatCommand) {}
+
+  // SendMessage sends a message to the chat room.
+  rpc SendMessage(roomsocket.ChatCommand) returns (roomsocket.ChatCommandResponse) {
+    option (google.api.http) = {
+      post: "/v1/rooms/{room_id}/message"
+      body: "*"
+    };
+  }
+
+  // CreateRoom creates a room with a new ID.
+  rpc CreateRoom(roomsocket.CreateRoomRequest) returns (roomsocket.CreateRoomResponse) {
+    option (google.api.http) = {
+      post: "/v1/rooms"
+      body: "*"
+    };
+  }
+
+  // DeleteRoom deletes a room with the specified ID.
+  rpc DeleteRoom(roomsocket.DeleteRoomRequest) returns (roomsocket.DeleteRoomResponse) {
+    option (google.api.http) = {
+      delete: "/v1/rooms/{room_id}"
+    };
+  }
+}

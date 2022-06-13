@@ -1,26 +1,82 @@
 # Setup
 
-Install Docker-Desktop (or Rancher-Desktop)
+## Necessary Setup
 
-Install Tilt:
-  ```
-  curl -fsSL https://raw.githubusercontent.com/tilt-dev/tilt/master/scripts/install.sh | bash
-  ```
+* Install [Docker-Desktop](https://www.docker.com/products/docker-desktop/) or [Rancher-Desktop](https://rancherdesktop.io/)
 
-You may need to add the following to VSCode settings:
+* Install [Go](https://go.dev/doc/install)
 
-[Reference](https://earthly.dev/blog/golang-monorepo/#:~:text=of%20the%20article.-,Monorepo%20Layout%20in%20Go,and%20a%20single%20shared%20Library.)
+* Install [Buf](https://docs.buf.build/installation)
 
+* Install [Helm](https://helm.sh/docs/intro/install/)
+
+* Install necessary tools:
+```bash
+# GCC
+sudo apt install gcc -y
+
+# Make
+sudo apt install make -y
+
+# Tilt
+curl -fsSL https://raw.githubusercontent.com/tilt-dev/tilt/master/scripts/install.sh | bash
 ```
-"gopls": {
-  "experimentalWorkspaceModule": true
+
+* Install protobuf plugins:
+```bash
+# Protobuf Plugins
+go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+go install github.com/envoyproxy/protoc-gen-validate@latest
+go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@latest
+go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@latest
+```
+
+## Optional Setup
+
+* Install [Loft](https://loft.sh/docs/getting-started/install/cli)
+
+* Install [Evans](https://github.com/ktr0731/evans#readme)
+
+The following extensions are recommended for VS Code development:
+* [Go](https://marketplace.visualstudio.com/items?itemName=golang.Go)
+* [Docker](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-docker)
+* [Kubernetes](https://marketplace.visualstudio.com/items?itemName=ms-kubernetes-tools.vscode-kubernetes-tools)
+* [Tiltfile](https://marketplace.visualstudio.com/items?itemName=tilt-dev.Tiltfile)
+* [vscode-proto3](https://marketplace.visualstudio.com/items?itemName=zxh404.vscode-proto3)
+* [YAML](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml)
+
+If you've installed the vscode-proto3 extension, you may need to add the following to your local
+settings.json ([ref](https://github.com/zxh0/vscode-proto3/issues/31#issuecomment-409175121)):
+```json
+{
+  "protoc": {
+    "options": [
+      "--proto_path=api"
+    ]
+  }
 }
 ```
 
-Install protobuf:
+# Architecture
+
+[![](https://mermaid.ink/img/pako:eNp1kU1vwjAMhv9KlNMmgbj3MAlavm5osFPDIW1cGkESljibJsR_n9t0AiTWS6s8r5_Y9YXXTgHP-MHLc8t2hbCMnmkpxEcAz3ZeNo2uJ3s2HjNtNWqJwIh8EQzoQRptDwTf2Gwo7ZIBrGK1M0bS-w4W5Qwsti70vpMOCJah6yNzurPQoXZe3a5NZSFWqb9lvkkns8t0s752ksb5b0klt2Y8fEYI2Evz8t05s3X1EXCQFU8bXAzee-UD70V5OhlMiy58jhXN0T6Ely_lJlaTbaz2rym66svXtnFPJl-mTP4v6bs6ADJPElpDk-gqURpFWD7iBryRWtEyLx0QHFswIHhGn0r6o-DCXikXz4qWOFcanedZI08BRlxGdNsfW_MMfYS_UKEl_XgzpK6_kkSufA)](https://mermaid.live/edit#pako:eNp1kU1vwjAMhv9KlNMmgbj3MAlavm5osFPDIW1cGkESljibJsR_n9t0AiTWS6s8r5_Y9YXXTgHP-MHLc8t2hbCMnmkpxEcAz3ZeNo2uJ3s2HjNtNWqJwIh8EQzoQRptDwTf2Gwo7ZIBrGK1M0bS-w4W5Qwsti70vpMOCJah6yNzurPQoXZe3a5NZSFWqb9lvkkns8t0s752ksb5b0klt2Y8fEYI2Evz8t05s3X1EXCQFU8bXAzee-UD70V5OhlMiy58jhXN0T6Ely_lJlaTbaz2rym66svXtnFPJl-mTP4v6bs6ADJPElpDk-gqURpFWD7iBryRWtEyLx0QHFswIHhGn0r6o-DCXikXz4qWOFcanedZI08BRlxGdNsfW_MMfYS_UKEl_XgzpK6_kkSufA)
+
+<details>
+<summary>Mermaid.live Source</summary>
 ```
-sudo apt install protobuf-compiler
-sudo apt install golang-goprotobuf-dev
-go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+graph TD
+    A[\User Traffic/] -- initiate server streaming --> B
+    A -- send command --> B
+    D[Benthos] -- listen to --> E[\Discord Traffic/]
+    subgraph GCP
+    B{API} -- forward streaming request --> C[RoomSocket]
+    D -- send command --> F
+    B -- forward command --> F[RoomCommand]
+    F -- publish command --> G([Pub/Sub])
+    H[RoomInfo] -- listen to --> G
+    C -- listen to --> G
+    B -- get room info --> H
+    end
 ```
+</details>

@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: room-socket-deployment
+spec:
+  selector:
+    replicas: 1
+    matchLabels:
+      app: room-socket-deployment
+  template:
+    metadata:
+      labels:
+        app: room-socket-deployment
+    spec:
+      containers:
+      - name: roomsocket
+        image: lantspants/lootloadout/roomsocket:latest
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"

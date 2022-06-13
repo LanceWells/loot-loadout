@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: public-api-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: public-api-deployment
+  template:
+    metadata:
+      labels:
+        app: public-api-deployment
+    spec:
+      containers:
+      - name: public-api
+        image: lantspants/lootloadout/public-api:latest-dev
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"

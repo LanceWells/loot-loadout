@@ -1,0 +1,109 @@
+syntax = "proto3";
+
+package lantspants.lootloadout.roomsocket;
+
+import "validate/validate.proto";
+
+option go_package = "github.com/lantspants/lootloadout/api/roomsocket";
+
+// RoomSocket provides rpc endpoints used to interact with a room.
+service RoomSocket {
+  // ConnectToRoom is a server-streaming endpoint for interacting with the room.
+  rpc ConnectToRoom(ConnectToRoomRequest) returns (stream ChatCommand) {}
+
+  // SendMessage sends a message to the chat room.
+  rpc SendMessage(ChatCommand) returns (ChatCommandResponse) {}
+
+  // CreateRoom creates a room with a new ID.
+  rpc CreateRoom(CreateRoomRequest) returns (CreateRoomResponse) {}
+
+  // DeleteRoom deletes a room with the specified ID.
+  rpc DeleteRoom(DeleteRoomRequest) returns (DeleteRoomResponse) {}
+}
+
+// ChatCommand is a multi-purpose container for interacting with a room, and for informing the
+// client when something has happened in the room.
+message ChatCommand {
+  string room_id = 3 [(validate.rules).string.min_len = 1];
+
+  oneof chatCommandOptions {
+    option (validate.required) = true;
+
+    // message, if provided, indicates that the given character has sent a chat message to the room.
+    ChatMessage message = 1;
+
+    // command, if provided, indicates that the given character has sent a command in regards to
+    // their state.
+    CharacterCommand command = 2;
+  }
+}
+
+// Message indicates that a text-based chat message has been transferred.
+message ChatMessage {
+  // message is the chat-based message sent by the character.
+  string message = 1;
+
+  // character_id is the ID for the character that either generated the message, or was impacted by
+  // the message.
+  string character_id = 2;
+}
+
+// CharacterCommand indicates that a character's state has been updated.
+message CharacterCommand {
+  // Location is locational data about the given character.
+  message Location {
+    int32 x = 1;
+    int32 y = 2;
+  }
+
+  // Animation is animation data about the given character.
+  message Animation {
+    // animation_id is the ID for the animation to render on the given character.
+    string animation_id = 1 [(validate.rules).string.min_len = 1];
+  }
+
+  // Expression is expression data about the given character.
+  message Expression {
+    // expression_id is the ID for the expression to render on the given character.
+    string expression_id = 1 [(validate.rules).string.min_len = 1];
+  }
+
+  // character_id is the ID for the character that either generated the message, or was impacted by
+  // the message.
+  string character_id = 1 [(validate.rules).string.min_len = 1];
+
+  // location, if provided, will update the given character's positional data.
+  Location location = 2;
+
+  oneof displayOptions {
+    // animation, if provided, will update the given character's animation data.
+    Animation animation = 3;
+
+    // expression, if provided, will update the given character's expression data.
+    Expression expression = 4;
+  }
+}
+
+// ConnectToRoomRequest indicates a request to connect to a given chat room.
+message ConnectToRoomRequest {
+  string room_id = 1 [(validate.rules).string.min_len = 1];
+}
+
+// ConnectToRoomResponse indicates a response to a request to connect to a given chat room.
+message ChatCommandResponse {}
+
+// CreateRoomRequest indicates a request to create a new room.
+message CreateRoomRequest {}
+
+// CreateRoomResponse is the response to a request to create a new room.
+message CreateRoomResponse{
+  string room_id = 1;
+}
+
+// DeleteRoomRequest indicates a request to delete an existing room.
+message DeleteRoomRequest {
+  string room_id = 1 [(validate.rules).string.min_len = 1];
+}
+
+// DeleteRoomResponse is the response to a request to delete an existing room.
+message DeleteRoomResponse{}

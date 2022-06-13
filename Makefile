@@ -1,2 +1,3 @@
 proto-gen:
-	cd backend/api && make proto-gen
+	cd api && \
+	buf generate

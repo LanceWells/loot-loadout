@@ -1,4 +1,4 @@
-name: Deploy public-api
+name: Docker
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -13,13 +13,13 @@ on:
       - backend/publicapi/**
       - api/publicapi/**
     # Publish semver tags as releases.
-    tags:
-      - 'v*.*.*'
+    tags: [ 'v*.*.*' ]
 
 env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: ghcr.io
-  IMAGE_NAME: lantspants/lootloadout/public-api
+  # github.repository as <account>/<repo>
+  IMAGE_NAME: ${{ github.repository }}
 
 
 jobs:

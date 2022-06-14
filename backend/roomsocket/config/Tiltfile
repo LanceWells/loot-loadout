@@ -1,5 +1,5 @@
 docker_build(
-  'lantspants/lootloadout/roomsocket:latest-dev',
+  'ghcr.io/lancewells/loot-loadout/room-socket:latest-dev',
   '../../../',
   dockerfile='../dev.dockerfile'
 )

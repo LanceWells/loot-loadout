@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: public-api
-        image: lantspants/lootloadout/public-api:latest
+        image: ghcr.io/lancewells/loot-loadout/public-api:latest
         resources:
           limits:
             memory: "128Mi"

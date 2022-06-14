@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: roomsocket
-        image: lantspants/lootloadout/roomsocket:latest
+        image: ghcr.io/lancewells/loot-loadout/room-socket:latest
         resources:
           limits:
             memory: "128Mi"

@@ -1,5 +1,5 @@
 docker_build(
-  'lantspants/lootloadout/public-api:latest-dev',
+  'ghcr.io/lancewells/loot-loadout/public-api:latest-dev',
   '../../../',
   dockerfile='../dev.dockerfile'
 )

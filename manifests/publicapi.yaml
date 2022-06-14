@@ -31,7 +31,7 @@ spec:
         app: public-api-deployment
     spec:
       containers:
-      - image: lantspants/lootloadout/public-api:latest
+      - image: ghcr.io/lancewells/loot-loadout/public-api:latest
         name: public-api
         ports:
         - containerPort: 8080

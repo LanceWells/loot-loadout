@@ -10,5 +10,8 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 8080
+    - protocol: TCP
+      port: 443
+      targetPort: 9090
 status:
   loadBalancer: {}

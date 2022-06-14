@@ -10,6 +10,8 @@
 
 * Install [Helm](https://helm.sh/docs/intro/install/)
 
+* Install [Okteto CLI](https://www.okteto.com/docs/getting-started/#installing-okteto-cli)
+
 * Install necessary tools:
 ```bash
 # GCC
@@ -17,6 +19,12 @@ sudo apt install gcc -y
 
 # Make
 sudo apt install make -y
+
+# WSL-U (WSL2 systems only) (https://wslutiliti.es/wslu/install.html)
+sudo apt install ubuntu-wsl
+
+# You'll need to add this to your bashrc (or profile, I'm not a cop) if you've installed WSL-U:
+# export BROWSER=wslview
 
 # Tilt
 curl -fsSL https://raw.githubusercontent.com/tilt-dev/tilt/master/scripts/install.sh | bash

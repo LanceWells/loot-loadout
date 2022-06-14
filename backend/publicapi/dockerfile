@@ -7,7 +7,7 @@ COPY go.sum .
 COPY api api
 COPY backend/publicapi backend/publicapi
 
-EXPOSE 8080
+EXPOSE 8080 9090
 
 RUN go build -o /app/app ./backend/publicapi/cmd/
 CMD ["/app/app"]

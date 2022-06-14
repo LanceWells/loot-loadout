@@ -14,13 +14,13 @@ spec:
     spec:
       containers:
       - name: public-api
-        image: lantspants/lootloadout/public-api
+        image: ghcr.io/lancewells/loot-loadout/public-api
         resources:
           limits:
             memory: "128Mi"
             cpu: "500m"
         ports:
-          - name: http-port
-            containerPort: 8080
-          - name: grpc-port
-            containerPort: 9090
+          - containerPort: 8080
+            name: http-port
+          - containerPort: 9090
+            name: grpc-port

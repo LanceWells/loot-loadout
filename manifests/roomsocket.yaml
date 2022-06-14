@@ -28,7 +28,7 @@ spec:
         app: room-socket-deployment
     spec:
       containers:
-      - image: lantspants/lootloadout/roomsocket
+      - image: ghcr.io/lancewells/loot-loadout/room-socket
         name: roomsocket
         ports:
         - containerPort: 8080

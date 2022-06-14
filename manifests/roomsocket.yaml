@@ -18,10 +18,10 @@ kind: Deployment
 metadata:
   name: room-socket-deployment
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: room-socket-deployment
-    replicas: 1
   template:
     metadata:
       labels:

@@ -1,9 +1,9 @@
-name: Deploy room-socket
-
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
 # separate terms of service, privacy policy, and support
 # documentation.
+
+name: Deploy Room Socket
 
 on:
   push:
@@ -12,13 +12,10 @@ on:
     # paths:
     #   - backend/roomsocket/**
     #   - api/roomsocket/**
-    # Publish semver tags as releases.
-    tags:
-      - 'v*.*.*'
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: lantspants/lootloadout/room-socket
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   build-and-push-image:
@@ -47,7 +44,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
-          file: ./backend/publicapi/roomsocket
+          file: ./backend/roomsocket/roomsocket
           context: .
           push: true
           tags: ${{ steps.meta.outputs.tags }}

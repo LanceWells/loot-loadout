@@ -1,24 +1,21 @@
-name: Deploy public-api
-
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
 # separate terms of service, privacy policy, and support
 # documentation.
+
+name: Deploy Public API
 
 on:
   push:
     branches:
       - main
     # paths:
-    #   - backend/publicapi/**
-    #   - api/publicapi/**
-    # Publish semver tags as releases.
-    tags:
-      - 'v*.*.*'
+    #   - backend/roomsocket/**
+    #   - api/roomsocket/**
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: lantspants/lootloadout/public-api
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   build-and-push-image:
@@ -47,7 +44,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
-          file: ./backend/publicapi/dockerfile
+          file: ./backend/publicapi/publicapi
           context: .
           push: true
           tags: ${{ steps.meta.outputs.tags }}

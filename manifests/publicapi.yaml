@@ -4,8 +4,12 @@ metadata:
   name: public-api-service
 spec:
   ports:
-  - name: http-port
+  - name: http-port-8080
     port: 8080
+    protocol: TCP
+    targetPort: 8080
+  - name: http-port-8080
+    port: 80
     protocol: TCP
     targetPort: 8080
   - name: grpc-port

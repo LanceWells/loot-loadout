@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: public-api
+  annotations:
+    dev.okteto.com/generate-host: "true"
+  labels:
+    name: public-api
+spec:
+  rules:
+  - http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: public-api-service
+            port: 
+              number: 8080
+      - pathType: Prefix
+        path: "/stream"
+        backend:
+          service:
+            name: public-api-service
+            port:
+              number: 9090

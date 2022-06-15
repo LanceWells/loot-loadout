@@ -44,30 +44,3 @@ spec:
           limits:
             cpu: 500m
             memory: 128Mi
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  annotations:
-    dev.okteto.com/generate-host: "true"
-  labels:
-    name: public-api
-  name: public-api
-spec:
-  rules:
-  - http:
-      paths:
-      - backend:
-          service:
-            name: public-api
-            port:
-              number: 8080
-        path: /
-        pathType: Prefix
-      - backend:
-          service:
-            name: public-api
-            port:
-              number: 9090
-        path: /stream
-        pathType: Prefix

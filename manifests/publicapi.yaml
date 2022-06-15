@@ -4,19 +4,15 @@ metadata:
   name: public-api
 spec:
   ports:
-  - name: http-port-8080
+  - name: http-port
     port: 8080
     protocol: TCP
-    targetPort: 8080
   - name: grpc-port
     port: 9090
     protocol: TCP
-    targetPort: 9090
   selector:
     app: public-api
-  type: LoadBalancer
-status:
-  loadBalancer: {}
+  type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -44,3 +40,47 @@ spec:
           limits:
             cpu: 500m
             memory: 128Mi
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    dev.okteto.com/generate-host: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: GRPC
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  labels:
+    name: public-api-grpc
+  name: public-api-grpc
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - backend:
+          service:
+            name: public-api
+            port:
+              number: 9090
+        path: /
+        pathType: Prefix
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    dev.okteto.com/generate-host: "true"
+  labels:
+    name: public-api-http
+  name: public-api-http
+spec:
+  rules:
+  - http:
+      paths:
+      - backend:
+          service:
+            name: public-api
+            port:
+              number: 8080
+        path: /api/
+        pathType: Prefix

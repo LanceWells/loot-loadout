@@ -74,15 +74,13 @@ func (s RoomSocketServer) ConnectToRoom(
 	for {
 		msg, err := stream.Recv()
 		if err == io.EOF {
-			break
+			return nil
 		}
 		if err != nil {
 			log.Printf("Error when receiving a message: %v", err)
-			break
+			return err
 		}
 
 		srv.Send(msg)
 	}
-
-	return nil
 }

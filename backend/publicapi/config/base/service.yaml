@@ -3,17 +3,13 @@ kind: Service
 metadata:
   name: public-api
 spec:
-  type: LoadBalancer
-  selector:
-    app: public-api
+  type: ClusterIP
   ports:
     - protocol: TCP
       port: 8080
-      targetPort: 8080
-      name: http-port-8080
+      name: http-port
     - protocol: TCP
       port: 9090
-      targetPort: 9090
       name: grpc-port
-status:
-  loadBalancer: {}
+  selector:
+    app: public-api

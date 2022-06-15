@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: room-socket-deployment
+  name: room-socket
 spec:
   selector:
     replicas: 1
     matchLabels:
-      app: room-socket-deployment
+      app: room-socket
   template:
     metadata:
       labels:
-        app: room-socket-deployment
+        app: room-socket
     spec:
       containers:
       - name: roomsocket

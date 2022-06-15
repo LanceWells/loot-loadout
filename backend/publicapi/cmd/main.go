@@ -80,7 +80,7 @@ func main() {
 func getRoomSocketServer(ctx context.Context, l *log.Logger) *roomSocket.RoomSocketServer {
 	address, ok := os.LookupEnv("ROOMSOCKET_SERVICE")
 	if !ok {
-		address = "room-socket-service:80"
+		address = "room-socket:80"
 	}
 
 	conn, err := grpc.DialContext(

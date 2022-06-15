@@ -9,6 +9,6 @@ k8s_yaml(
 )
 
 k8s_resource(
-  'public-api-deployment',
+  'public-api',
   port_forwards=['8001:8080', '40001:40000', '9001:9090']
 )

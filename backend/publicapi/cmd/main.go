@@ -21,8 +21,8 @@ import (
 )
 
 var (
-	grpcEndpoint = flag.String("grpc-server-endpoint", ":9090", "gRPC server endpoint")
-	httpEndpoint = flag.String("http-server-endpoint", ":8080", "HTTP server endpoint")
+	grpcEndpoint = flag.String("grpc-server-endpoint", ":9999", "gRPC server endpoint")
+	httpEndpoint = flag.String("http-server-endpoint", ":8888", "HTTP server endpoint")
 )
 
 var kacp = keepalive.ClientParameters{

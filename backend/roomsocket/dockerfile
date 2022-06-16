@@ -7,7 +7,7 @@ COPY go.sum .
 COPY api api
 COPY backend/roomsocket backend/roomsocket
 
-EXPOSE 8080
+EXPOSE 8888
 
 RUN go build -o /app/app ./backend/roomsocket/cmd/
 CMD ["/app/app"]

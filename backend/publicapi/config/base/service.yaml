@@ -6,10 +6,10 @@ spec:
   type: ClusterIP
   ports:
     - protocol: TCP
-      port: 8080
+      port: 8888
       name: http-port
     - protocol: TCP
-      port: 9090
+      port: 9999
       name: grpc-port
   selector:
     app: public-api

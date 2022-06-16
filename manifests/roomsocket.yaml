@@ -8,7 +8,7 @@ spec:
   ports:
   - port: 80
     protocol: TCP
-    targetPort: 8080
+    targetPort: 8888
   selector:
     app: room-socket
 ---
@@ -30,7 +30,7 @@ spec:
       - image: ghcr.io/lancewells/loot-loadout/room-socket
         name: roomsocket
         ports:
-        - containerPort: 8080
+        - containerPort: 8888
         resources:
           limits:
             cpu: 500m

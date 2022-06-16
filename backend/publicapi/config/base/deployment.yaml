@@ -20,7 +20,7 @@ spec:
             memory: "128Mi"
             cpu: "500m"
         ports:
-          - containerPort: 8080
+          - containerPort: 8888
             name: http-port
-          - containerPort: 9090
+          - containerPort: 9999
             name: grpc-port

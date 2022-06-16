@@ -17,7 +17,7 @@ import (
 )
 
 var (
-	port = flag.Int("port", 8080, "The server port")
+	port = flag.Int("port", 8888, "The server port")
 )
 
 var kaep = keepalive.EnforcementPolicy{

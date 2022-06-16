@@ -5,10 +5,10 @@ metadata:
 spec:
   ports:
   - name: http-port
-    port: 8080
+    port: 8888
     protocol: TCP
   - name: grpc-port
-    port: 9090
+    port: 9999
     protocol: TCP
   selector:
     app: public-api
@@ -32,9 +32,9 @@ spec:
       - image: ghcr.io/lancewells/loot-loadout/public-api:latest
         name: public-api
         ports:
-        - containerPort: 8080
+        - containerPort: 8888
           name: http-port
-        - containerPort: 9090
+        - containerPort: 9999
           name: grpc-port
         resources:
           limits:
@@ -61,7 +61,7 @@ spec:
           service:
             name: public-api
             port:
-              number: 9090
+              number: 9999
         path: /
         pathType: Prefix
 ---
@@ -81,6 +81,6 @@ spec:
           service:
             name: public-api
             port:
-              number: 8080
+              number: 8888
         path: /api/
         pathType: Prefix

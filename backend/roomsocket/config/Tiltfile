@@ -10,5 +10,5 @@ k8s_yaml(
 
 k8s_resource(
   'room-socket',
-  port_forwards=['8002:8080', '40002:40000']
+  port_forwards=['8002:8888', '40002:40000']
 )

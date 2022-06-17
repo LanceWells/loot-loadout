@@ -1,0 +1,13 @@
+k8s_yaml(
+  kustomize('./overlays/dev')
+)
+
+# k8s_resource(
+#   'traefik-ingress-controller',
+# )
+
+k8s_yaml(helm(
+  '../helm/traefik',
+  'traefik',
+  'kube-system'
+))

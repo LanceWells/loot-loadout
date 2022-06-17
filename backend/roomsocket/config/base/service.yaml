@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: room-socket
   labels:
-    app: public-api
+    app: room-socket
 spec:
   selector:
     app: room-socket

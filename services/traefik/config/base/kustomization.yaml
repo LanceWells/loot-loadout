@@ -1,0 +1,6 @@
+kind: Kustomization
+resources:
+  - cluster-role-binding.yaml
+  - cluster-role.yaml
+  - service-account.yaml
+  - service.yaml

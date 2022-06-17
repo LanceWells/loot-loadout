@@ -33,6 +33,8 @@ var kacp = keepalive.ClientParameters{
 
 func main() {
 	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 
 	l := log.New(os.Stdout, "", 0)
 

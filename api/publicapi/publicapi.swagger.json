@@ -152,6 +152,9 @@
       },
       "description": "Expression is expression data about the given character."
     },
+    "ChatResponseChatKeepAlive": {
+      "type": "object"
+    },
     "protobufAny": {
       "type": "object",
       "properties": {
@@ -160,6 +163,17 @@
         }
       },
       "additionalProperties": {}
+    },
+    "publicapiChatResponse": {
+      "type": "object",
+      "properties": {
+        "command": {
+          "$ref": "#/definitions/roomsocketChatCommand"
+        },
+        "keepAlive": {
+          "$ref": "#/definitions/ChatResponseChatKeepAlive"
+        }
+      }
     },
     "roomsocketCharacterCommand": {
       "type": "object",

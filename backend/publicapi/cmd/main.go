@@ -7,13 +7,11 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	roomSocket "github.com/lantspants/lootloadout/backend/publicapi/cmd/grpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
 
 	papb "github.com/lantspants/lootloadout/api/publicapi"
@@ -24,12 +22,6 @@ var (
 	grpcEndpoint = flag.String("grpc-server-endpoint", ":9999", "gRPC server endpoint")
 	httpEndpoint = flag.String("http-server-endpoint", ":8888", "HTTP server endpoint")
 )
-
-var kacp = keepalive.ClientParameters{
-	Time:                time.Second * 30,
-	Timeout:             time.Second * 20,
-	PermitWithoutStream: true,
-}
 
 func main() {
 	ctx := context.Background()
@@ -95,14 +87,18 @@ func getRoomSocketServer(ctx context.Context, l *log.Logger) *roomSocket.RoomSoc
 		grpc.WithTransportCredentials(
 			insecure.NewCredentials(),
 		),
-		grpc.WithKeepaliveParams(kacp),
 	)
 	if err != nil {
 		l.Fatal(err)
 	}
 
+	config := &roomSocket.RoomSocketServerConfig{}
 	c := rspb.NewRoomSocketClient(conn)
-	r := roomSocket.NewRoomSocketServer(l, c)
+	r := roomSocket.NewRoomSocketServer(
+		l,
+		c,
+		config.WithSendKeepAliveToClients(),
+	)
 
 	return r
 }

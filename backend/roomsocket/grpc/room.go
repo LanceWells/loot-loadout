@@ -31,6 +31,12 @@ func (r *Room) Subscribe(ctx context.Context, stream pb.RoomSocket_ConnectToRoom
 	r.clients[stream] = true
 	r.mu.Unlock()
 
+	defer func() {
+		r.mu.Lock()
+		delete(r.clients, stream)
+		r.mu.Unlock()
+	}()
+
 	for range ctx.Done() {
 		return ctx.Err()
 	}
@@ -45,6 +51,7 @@ func (r *Room) PublishMessage(ctx context.Context, message *pb.ChatCommand) erro
 	for c := range r.clients {
 		err := c.Send(message)
 		if err != nil {
+			r.l.Printf("Error sending messages to clients: %v", err)
 			return err
 		}
 	}

@@ -1,8 +1,7 @@
 kind: Kustomization
 bases:
-  - ../../base
+  - '../../base'
 patchesStrategicMerge:
   - deployment.yaml
 resources:
-  - grpc-ingress.yaml
-  - http-ingress.yaml
+  - ingress.yaml

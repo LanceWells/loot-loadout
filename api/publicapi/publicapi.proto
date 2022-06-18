@@ -9,7 +9,7 @@ option go_package = "github.com/lantspants/lootloadout/api/publicapi";
 
 service Rooms{
   // ConnectToRoom is a server-streaming endpoint for interacting with the room.
-  rpc ConnectToRoom(roomsocket.ConnectToRoomRequest) returns (stream roomsocket.ChatCommand) {}
+  rpc ConnectToRoom(roomsocket.ConnectToRoomRequest) returns (stream ChatResponse) {}
 
   // SendMessage sends a message to the chat room.
   rpc SendMessage(roomsocket.ChatCommand) returns (roomsocket.ChatCommandResponse) {
@@ -32,5 +32,15 @@ service Rooms{
     option (google.api.http) = {
       delete: "/v1/rooms/{room_id}"
     };
+  }
+}
+
+message ChatResponse {
+  message ChatKeepAlive {
+  }
+
+  oneof chatResponseOptions {
+    roomsocket.ChatCommand command = 1;
+    ChatKeepAlive keepAlive = 2;
   }
 }

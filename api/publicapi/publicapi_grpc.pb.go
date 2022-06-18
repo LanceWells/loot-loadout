@@ -57,7 +57,7 @@ func (c *roomsClient) ConnectToRoom(ctx context.Context, in *roomsocket.ConnectT
 }
 
 type Rooms_ConnectToRoomClient interface {
-	Recv() (*roomsocket.ChatCommand, error)
+	Recv() (*ChatResponse, error)
 	grpc.ClientStream
 }
 
@@ -65,8 +65,8 @@ type roomsConnectToRoomClient struct {
 	grpc.ClientStream
 }
 
-func (x *roomsConnectToRoomClient) Recv() (*roomsocket.ChatCommand, error) {
-	m := new(roomsocket.ChatCommand)
+func (x *roomsConnectToRoomClient) Recv() (*ChatResponse, error) {
+	m := new(ChatResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -153,7 +153,7 @@ func _Rooms_ConnectToRoom_Handler(srv interface{}, stream grpc.ServerStream) err
 }
 
 type Rooms_ConnectToRoomServer interface {
-	Send(*roomsocket.ChatCommand) error
+	Send(*ChatResponse) error
 	grpc.ServerStream
 }
 
@@ -161,7 +161,7 @@ type roomsConnectToRoomServer struct {
 	grpc.ServerStream
 }
 
-func (x *roomsConnectToRoomServer) Send(m *roomsocket.ChatCommand) error {
+func (x *roomsConnectToRoomServer) Send(m *ChatResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 

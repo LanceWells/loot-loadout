@@ -1,7 +1,13 @@
 docker_build(
   'ghcr.io/lancewells/loot-loadout/room-socket:latest-dev',
   '../../../',
-  dockerfile='../dev.dockerfile'
+  dockerfile='../dev.dockerfile',
+  only=[
+    'api/',
+    'backend/roomsocket/',
+    'go.mod',
+    'go.sum',
+  ]
 )
 
 k8s_yaml(

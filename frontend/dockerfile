@@ -1,5 +1,5 @@
 # pull official base image
-FROM node:18.4.0-alpine3.15 AS build
+FROM node:18.4.0-alpine3.15 AS test
 
 # set working directory
 WORKDIR /app
@@ -13,29 +13,12 @@ COPY package-lock.json ./
 COPY tsconfig.json ./
 COPY README.md ./
 RUN npm install --silent
-RUN npm install react-scripts@3.4.1 -g --silent
 
 # add app
 COPY src ./src
 COPY public ./public
 
-RUN ["ls", "-a"]
-RUN ["npm", "run", "build"]
-
-FROM node:18.4.0-alpine3.15 AS deploy
-
-WORKDIR /app
-
-ENV PATH /app/node_modules/.bin:$PATH
-
-RUN npm install -g serve
-
-COPY --from=build /app/package.json ./
-COPY --from=build /app/package-lock.json ./
-COPY --from=build /app/build ./build
-COPY --from=build /app/public ./public
-COPY --from=build /app/README.md ./
-
 EXPOSE 3000
 
-CMD ["serve", "-s", "build"]
+RUN ["npm", "run", "build"]
+CMD ["npm", "run", "start"]

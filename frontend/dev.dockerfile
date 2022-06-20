@@ -13,11 +13,11 @@ COPY package-lock.json ./
 COPY tsconfig.json ./
 COPY README.md ./
 RUN npm install --silent
-RUN npm install react-scripts@3.4.1 -g --silent
 
 # add app
 COPY src ./src
 COPY public ./public
 
-RUN ["ls", "-a"]
-CMD ["npm", "run", "start"]
+EXPOSE 3000
+
+CMD ["npm", "run", "dev"]

@@ -23,6 +23,12 @@
       "port": 40002,
       "host": "127.0.0.1",
       "apiVersion": 2
+    },
+    {
+      "name": "frontend",
+      "type": "pwa-chrome",
+      "request": "launch",
+      "url": "http://localhost:3001"
     }
   ]
 }

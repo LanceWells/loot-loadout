@@ -22,9 +22,10 @@
     "incremental": true
   },
   "include": [
-    "src"
+    "src/*"
   ],
   "exclude": [
     "node_modules"
-  ]
+  ],
+  "plugins": [{ "name": "typescript-plugin-css-modules" }]
 }

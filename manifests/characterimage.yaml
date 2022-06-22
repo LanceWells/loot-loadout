@@ -1,0 +1,86 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: character-image
+spec:
+  ports:
+  - name: http-port
+    port: 8888
+    protocol: TCP
+  - name: grpc-port
+    port: 9999
+    protocol: TCP
+  selector:
+    app: character-image
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: character-image
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: character-image
+  template:
+    metadata:
+      labels:
+        app: character-image
+    spec:
+      containers:
+      - image: ghcr.io/lancewells/loot-loadout/character-image:latest
+        name: character-image
+        ports:
+        - containerPort: 8888
+          name: http-port
+        - containerPort: 9999
+          name: grpc-port
+        resources:
+          limits:
+            cpu: 500m
+            memory: 128Mi
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    dev.okteto.com/generate-host: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: GRPC
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  labels:
+    name: character-image-grpc
+  name: character-image-grpc
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - backend:
+          service:
+            name: character-image
+            port:
+              number: 9999
+        path: /
+        pathType: Prefix
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    dev.okteto.com/generate-host: "true"
+  labels:
+    name: character-image-http
+  name: character-image-http
+spec:
+  rules:
+  - http:
+      paths:
+      - backend:
+          service:
+            name: character-image
+            port:
+              number: 8888
+        path: /api/
+        pathType: Prefix

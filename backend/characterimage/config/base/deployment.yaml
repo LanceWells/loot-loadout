@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: character-image
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: character-image
+  template:
+    metadata:
+      labels:
+        app: character-image
+    spec:
+      containers:
+      - name: character-image
+        image: ghcr.io/lancewells/loot-loadout/character-image
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+          - containerPort: 8888
+            name: http-port
+          - containerPort: 9999
+            name: grpc-port

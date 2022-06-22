@@ -1,0 +1,351 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "characterimage/characterimage.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "Images"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {},
+  "definitions": {
+    "AnimationFrame": {
+      "type": "object",
+      "properties": {
+        "image": {
+          "type": "string",
+          "format": "byte",
+          "description": "image describes the bytes for the image (this is in .png format)."
+        },
+        "parts": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/characterimagePositioning"
+          },
+          "description": "parts describes the positioning of any static parts in the animation.\n\nNote: the keys must be able to be evaluated to StaticPartType."
+        },
+        "prop": {
+          "$ref": "#/definitions/characterimagePositioning",
+          "description": "prop describes the positioning of the prop used with this animation."
+        }
+      },
+      "description": "Frame describes the animation data for a single frame of animation."
+    },
+    "characterimageAnimation": {
+      "type": "object",
+      "properties": {
+        "displayName": {
+          "type": "string",
+          "description": "displayName is the name that will be rendered to the user. This is also used for any alt-text."
+        },
+        "bodyTypeIdentifier": {
+          "type": "string",
+          "description": "bodyTypeIdentifier is the id for the body type that this animation should be used with."
+        },
+        "allowed": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/characterimagePropType"
+          },
+          "description": "allowed is the list of types of props that are enabled with this animation."
+        },
+        "frames": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AnimationFrame"
+          },
+          "description": "frames is the set of frames used to animate."
+        }
+      },
+      "description": "Animation describes the information required to render a given character."
+    },
+    "characterimageBodyType": {
+      "type": "object",
+      "properties": {
+        "displayName": {
+          "type": "string",
+          "description": "displayName is the name that will be rendered to the user. This is also used for any alt-text."
+        },
+        "partMaps": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "format": "byte"
+          },
+          "description": "partMaps is a series of images that define the placement and color of any dynamic parts\nassociated with this body. These are our 'lookup' maps. The color of each pixel in each image\ngives us positional data to refer to the color map created using a CreateDynamicPart request.\n\nNote: the keys must be able to be evaluated to DynamicPartType."
+        }
+      },
+      "description": "BodyType describes the type of body that serves as the base template."
+    },
+    "characterimageCoordinates": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "y": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "description": "Coordinates refers to basic image relational coordinates. These are assumed to be within the\n32-bit plane."
+    },
+    "characterimageCreateAnimationResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "id is the identifier of the newly-created animation."
+        }
+      }
+    },
+    "characterimageCreateBodyTypeResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "id is the identifier of the newly-created body type."
+        }
+      }
+    },
+    "characterimageCreateDynamicPartResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "id is the identifier of the newly-created dynamic part."
+        }
+      }
+    },
+    "characterimageCreatePropResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "id is the identifier of the newly-created prop."
+        }
+      }
+    },
+    "characterimageCreateStaticPartResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "id is the identifier of the newly-created static part."
+        }
+      }
+    },
+    "characterimageDynamicPart": {
+      "type": "object",
+      "properties": {
+        "displayName": {
+          "type": "string",
+          "description": "displayName is the name that will be rendered to the user. This is also used for any alt-text."
+        },
+        "bodyTypeIdentifier": {
+          "type": "string",
+          "description": "bodyTypeIdentifier is the id for the body type that this animation should be used with."
+        },
+        "type": {
+          "$ref": "#/definitions/characterimageDynamicPartType",
+          "description": "type is the type of the body part that this represents."
+        },
+        "image": {
+          "type": "string",
+          "format": "byte",
+          "description": "image describes the bytes for the image (this is in .png format)."
+        }
+      },
+      "description": "DynamicPart describes a body part that moves or transforms, and can be rendered in a pseudo-3D\nspace."
+    },
+    "characterimageDynamicPartType": {
+      "type": "string",
+      "enum": [
+        "LEFT_LEG",
+        "RIGHT_LEG",
+        "LEFT_ARM",
+        "RIGHT_ARM"
+      ],
+      "default": "LEFT_LEG",
+      "description": "DynamicPartType describes the type of the part. These are moving, transforming parts."
+    },
+    "characterimageGetAnimationResponse": {
+      "type": "object",
+      "properties": {
+        "frames": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "byte"
+          },
+          "description": "frames is the set of .png files used to render a complete animation."
+        }
+      }
+    },
+    "characterimageListAnimationsResponse": {
+      "type": "object",
+      "properties": {
+        "animations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/characterimageAnimation"
+          }
+        }
+      }
+    },
+    "characterimageListBodyTypesResponse": {
+      "type": "object",
+      "properties": {
+        "types": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/characterimageBodyType"
+          }
+        }
+      }
+    },
+    "characterimageListPropsResponse": {
+      "type": "object",
+      "properties": {
+        "props": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/characterimageProp"
+          }
+        }
+      }
+    },
+    "characterimageListStaticPartsResponse": {
+      "type": "object",
+      "properties": {
+        "parts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/characterimageStaticPart"
+          }
+        }
+      }
+    },
+    "characterimagePositioning": {
+      "type": "object",
+      "properties": {
+        "coordinates": {
+          "$ref": "#/definitions/characterimageCoordinates"
+        },
+        "rotation": {
+          "type": "integer",
+          "format": "int64",
+          "description": "rotation is the circular rotation for a given object."
+        }
+      },
+      "description": "Positioning describes the position and rotation of a given item."
+    },
+    "characterimageProp": {
+      "type": "object",
+      "properties": {
+        "displayName": {
+          "type": "string",
+          "description": "displayName is the name that will be rendered to the user. This is also used for any alt-text."
+        },
+        "type": {
+          "$ref": "#/definitions/characterimagePropType",
+          "description": "type describes the type of prop that this represents."
+        },
+        "image": {
+          "type": "string",
+          "format": "byte",
+          "description": "image describes the bytes for the image (this is in .png format)."
+        },
+        "anchor": {
+          "$ref": "#/definitions/characterimageCoordinates",
+          "description": "anchor gives us the base x/y position for this prop. The Animation type uses this coordinate to\ndetermine where to place the related prop in each frame."
+        }
+      },
+      "description": "Prop describes an item that a character will interact with. This is intended to be used heavily\nwith any given animation."
+    },
+    "characterimagePropType": {
+      "type": "string",
+      "enum": [
+        "WEAPON_MELEE_1H",
+        "WEAPON_MELEE_2H",
+        "WEAPON_RANGE_1H",
+        "WEAPON_RANGE_2H"
+      ],
+      "default": "WEAPON_MELEE_1H",
+      "description": "PropType describes the type of prop."
+    },
+    "characterimageStaticPart": {
+      "type": "object",
+      "properties": {
+        "displayName": {
+          "type": "string",
+          "description": "displayName is the name that will be rendered to the user. This is also used for any alt-text."
+        },
+        "bodyTypeIdentifier": {
+          "type": "string",
+          "description": "bodyTypeIdentifier is the id for the body type that this animation should be used with."
+        },
+        "type": {
+          "$ref": "#/definitions/characterimageStaticPartType",
+          "description": "type is the type of the body part that this represents."
+        },
+        "image": {
+          "type": "string",
+          "format": "byte",
+          "description": "image describes the bytes for the image (this is in .png format)."
+        },
+        "anchor": {
+          "$ref": "#/definitions/characterimageCoordinates",
+          "description": "anchor gives us the base x/y position for this part. The Animation type uses this coordinate to\ndetermine where to place the related static part in each frame."
+        }
+      },
+      "description": "StaticPart describes a body part that does not change other than rotation or simple x/y movement."
+    },
+    "characterimageStaticPartType": {
+      "type": "string",
+      "enum": [
+        "BODY",
+        "HEAD",
+        "HAIR"
+      ],
+      "default": "BODY",
+      "description": "StaticPartType describes the type of the part. These are non-transforming, stationary (or x/y\nmobile) parts."
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

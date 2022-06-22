@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: character-image
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: character-image
+  template:
+    metadata:
+      labels:
+        app: character-image
+    spec:
+      containers:
+      - name: character-image
+        image: ghcr.io/lancewells/loot-loadout/character-image:latest-dev
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"

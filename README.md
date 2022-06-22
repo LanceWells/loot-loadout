@@ -6,11 +6,15 @@
 
 * Install [Go](https://go.dev/doc/install)
 
+* Install [DotNet](https://docs.microsoft.com/en-us/dotnet/core/install/linux-ubuntu#2004)
+
 * Install [Buf](https://docs.buf.build/installation)
 
 * Install [Helm](https://helm.sh/docs/intro/install/)
 
-* Install [Okteto CLI](https://www.okteto.com/docs/getting-started/#installing-okteto-cli)
+* Install node (optionally, using [nvm](https://github.com/nvm-sh/nvm/blob/master/README.md#installing-and-updating))
+
+* Install [yarn](https://classic.yarnpkg.com/lang/en/docs/install/)
 
 * Install necessary tools:
 ```bash

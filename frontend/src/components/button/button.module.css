@@ -1,4 +1,18 @@
-.error {
+.button {
+  border: 1px solid black;
+}
+
+.button.error {
   color: white;
   background-color: red;
+}
+
+.button.primary {
+  color: white;
+  background-color: black;
+}
+
+.button.secondary {
+  color: white;
+  background-color: blueviolet;
 }

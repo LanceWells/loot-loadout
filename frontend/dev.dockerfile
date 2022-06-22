@@ -9,10 +9,11 @@ ENV PATH /app/node_modules/.bin:$PATH
 
 # install app dependencies
 COPY package.json ./
-COPY package-lock.json ./
+COPY yarn.lock ./
 COPY tsconfig.json ./
 COPY README.md ./
-RUN npm install --silent
+RUN npm install --global yarn --force
+RUN yarn
 
 # add app
 COPY src ./src
@@ -20,4 +21,4 @@ COPY public ./public
 
 EXPOSE 3000
 
-CMD ["npm", "run", "dev"]
+CMD ["yarn", "dev"]

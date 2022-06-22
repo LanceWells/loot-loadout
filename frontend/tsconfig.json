@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "plugins": [{ "name": "typescript-plugin-css-modules" }],
+    "target": "esnext",
     "lib": [
       "dom",
       "dom.iterable",
@@ -22,10 +23,12 @@
     "incremental": true
   },
   "include": [
-    "src/*"
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "blank.ts",
   ],
   "exclude": [
+    "**/*.stories.tsx",
     "node_modules"
-  ],
-  "plugins": [{ "name": "typescript-plugin-css-modules" }]
+  ]
 }

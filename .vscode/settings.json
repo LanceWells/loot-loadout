@@ -1,0 +1,8 @@
+{
+  "protoc": {
+    "options": [
+      "--proto_path=api"
+    ]
+  },
+  "typescript.tsdk": "./frontend/node_modules/typescript/lib",
+}

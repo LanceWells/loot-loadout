@@ -22,6 +22,8 @@ yarn-error.log*
 
 # VS Code
 __debug_bin
-**/.vscode/settings.json
+# There are some important tool settings in here. It may be wise to un-comment this if it gets out
+# of hand.
+# **/.vscode/settings.json
 **/.vscode/tasks.json
 **/.vscode/*.log

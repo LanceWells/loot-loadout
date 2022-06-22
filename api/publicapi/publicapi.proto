@@ -7,7 +7,7 @@ import "google/api/annotations.proto";
 
 option go_package = "github.com/lantspants/lootloadout/api/publicapi";
 
-service Rooms{
+service Rooms {
   // ConnectToRoom is a server-streaming endpoint for interacting with the room.
   rpc ConnectToRoom(roomsocket.ConnectToRoomRequest) returns (stream ChatResponse) {}
 

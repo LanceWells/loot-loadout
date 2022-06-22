@@ -5,6 +5,7 @@ gen-proto:
 gen-manifests:
 	kubectl kustomize ./backend/publicapi/config/overlays/prod/ -o manifests/publicapi.yaml && \
 	kubectl kustomize ./backend/roomsocket/config/overlays/prod/ -o manifests/roomsocket.yaml && \
+	kubectl kustomize ./backend/characterimage/config/overlays/prod/ -o manifests/characterimage.yaml && \
 	kubectl kustomize ./frontend/config/overlays/prod/ -o manifests/frontend.yaml
 
 get-kubeapps-secret:

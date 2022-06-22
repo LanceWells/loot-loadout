@@ -16,5 +16,5 @@ k8s_yaml(
 
 k8s_resource(
   'character-image',
-  port_forwards=['8001:8888', '40001:40000', '9001:9999']
+  port_forwards=['8003:8888', '40003:40000']
 )

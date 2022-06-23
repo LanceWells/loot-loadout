@@ -2289,22 +2289,22 @@ var _ interface {
 	ErrorName() string
 } = CreateAnimationResponseValidationError{}
 
-// Validate checks the field values on GetAnimationRequest with the rules
+// Validate checks the field values on SaveAnimationRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *GetAnimationRequest) Validate() error {
+func (m *SaveAnimationRequest) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on GetAnimationRequest with the rules
+// ValidateAll checks the field values on SaveAnimationRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// GetAnimationRequestMultiError, or nil if none found.
-func (m *GetAnimationRequest) ValidateAll() error {
+// SaveAnimationRequestMultiError, or nil if none found.
+func (m *SaveAnimationRequest) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *GetAnimationRequest) validate(all bool) error {
+func (m *SaveAnimationRequest) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -2312,7 +2312,7 @@ func (m *GetAnimationRequest) validate(all bool) error {
 	var errors []error
 
 	if utf8.RuneCountInString(m.GetAnimationIdentifier()) < 1 {
-		err := GetAnimationRequestValidationError{
+		err := SaveAnimationRequestValidationError{
 			field:  "AnimationIdentifier",
 			reason: "value length must be at least 1 runes",
 		}
@@ -2329,19 +2329,19 @@ func (m *GetAnimationRequest) validate(all bool) error {
 	// no validation rules for PropIdentifier
 
 	if len(errors) > 0 {
-		return GetAnimationRequestMultiError(errors)
+		return SaveAnimationRequestMultiError(errors)
 	}
 
 	return nil
 }
 
-// GetAnimationRequestMultiError is an error wrapping multiple validation
-// errors returned by GetAnimationRequest.ValidateAll() if the designated
+// SaveAnimationRequestMultiError is an error wrapping multiple validation
+// errors returned by SaveAnimationRequest.ValidateAll() if the designated
 // constraints aren't met.
-type GetAnimationRequestMultiError []error
+type SaveAnimationRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m GetAnimationRequestMultiError) Error() string {
+func (m SaveAnimationRequestMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -2350,11 +2350,11 @@ func (m GetAnimationRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m GetAnimationRequestMultiError) AllErrors() []error { return m }
+func (m SaveAnimationRequestMultiError) AllErrors() []error { return m }
 
-// GetAnimationRequestValidationError is the validation error returned by
-// GetAnimationRequest.Validate if the designated constraints aren't met.
-type GetAnimationRequestValidationError struct {
+// SaveAnimationRequestValidationError is the validation error returned by
+// SaveAnimationRequest.Validate if the designated constraints aren't met.
+type SaveAnimationRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -2362,24 +2362,24 @@ type GetAnimationRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e GetAnimationRequestValidationError) Field() string { return e.field }
+func (e SaveAnimationRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e GetAnimationRequestValidationError) Reason() string { return e.reason }
+func (e SaveAnimationRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e GetAnimationRequestValidationError) Cause() error { return e.cause }
+func (e SaveAnimationRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e GetAnimationRequestValidationError) Key() bool { return e.key }
+func (e SaveAnimationRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e GetAnimationRequestValidationError) ErrorName() string {
-	return "GetAnimationRequestValidationError"
+func (e SaveAnimationRequestValidationError) ErrorName() string {
+	return "SaveAnimationRequestValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e GetAnimationRequestValidationError) Error() string {
+func (e SaveAnimationRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -2391,14 +2391,14 @@ func (e GetAnimationRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sGetAnimationRequest.%s: %s%s",
+		"invalid %sSaveAnimationRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = GetAnimationRequestValidationError{}
+var _ error = SaveAnimationRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -2406,44 +2406,46 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = GetAnimationRequestValidationError{}
+} = SaveAnimationRequestValidationError{}
 
-// Validate checks the field values on GetAnimationResponse with the rules
+// Validate checks the field values on SaveAnimationResponse with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *GetAnimationResponse) Validate() error {
+func (m *SaveAnimationResponse) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on GetAnimationResponse with the rules
+// ValidateAll checks the field values on SaveAnimationResponse with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// GetAnimationResponseMultiError, or nil if none found.
-func (m *GetAnimationResponse) ValidateAll() error {
+// SaveAnimationResponseMultiError, or nil if none found.
+func (m *SaveAnimationResponse) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *GetAnimationResponse) validate(all bool) error {
+func (m *SaveAnimationResponse) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
 	var errors []error
 
+	// no validation rules for Id
+
 	if len(errors) > 0 {
-		return GetAnimationResponseMultiError(errors)
+		return SaveAnimationResponseMultiError(errors)
 	}
 
 	return nil
 }
 
-// GetAnimationResponseMultiError is an error wrapping multiple validation
-// errors returned by GetAnimationResponse.ValidateAll() if the designated
+// SaveAnimationResponseMultiError is an error wrapping multiple validation
+// errors returned by SaveAnimationResponse.ValidateAll() if the designated
 // constraints aren't met.
-type GetAnimationResponseMultiError []error
+type SaveAnimationResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m GetAnimationResponseMultiError) Error() string {
+func (m SaveAnimationResponseMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -2452,11 +2454,11 @@ func (m GetAnimationResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m GetAnimationResponseMultiError) AllErrors() []error { return m }
+func (m SaveAnimationResponseMultiError) AllErrors() []error { return m }
 
-// GetAnimationResponseValidationError is the validation error returned by
-// GetAnimationResponse.Validate if the designated constraints aren't met.
-type GetAnimationResponseValidationError struct {
+// SaveAnimationResponseValidationError is the validation error returned by
+// SaveAnimationResponse.Validate if the designated constraints aren't met.
+type SaveAnimationResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -2464,24 +2466,24 @@ type GetAnimationResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e GetAnimationResponseValidationError) Field() string { return e.field }
+func (e SaveAnimationResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e GetAnimationResponseValidationError) Reason() string { return e.reason }
+func (e SaveAnimationResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e GetAnimationResponseValidationError) Cause() error { return e.cause }
+func (e SaveAnimationResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e GetAnimationResponseValidationError) Key() bool { return e.key }
+func (e SaveAnimationResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e GetAnimationResponseValidationError) ErrorName() string {
-	return "GetAnimationResponseValidationError"
+func (e SaveAnimationResponseValidationError) ErrorName() string {
+	return "SaveAnimationResponseValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e GetAnimationResponseValidationError) Error() string {
+func (e SaveAnimationResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -2493,14 +2495,14 @@ func (e GetAnimationResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sGetAnimationResponse.%s: %s%s",
+		"invalid %sSaveAnimationResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = GetAnimationResponseValidationError{}
+var _ error = SaveAnimationResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -2508,7 +2510,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = GetAnimationResponseValidationError{}
+} = SaveAnimationResponseValidationError{}
 
 // Validate checks the field values on ListAnimationsRequest with the rules
 // defined in the proto definition for this message. If any rules are
@@ -2645,38 +2647,50 @@ func (m *ListAnimationsResponse) validate(all bool) error {
 
 	var errors []error
 
-	for idx, item := range m.GetAnimations() {
-		_, _ = idx, item
-
-		if all {
-			switch v := interface{}(item).(type) {
-			case interface{ ValidateAll() error }:
-				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, ListAnimationsResponseValidationError{
-						field:  fmt.Sprintf("Animations[%v]", idx),
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			case interface{ Validate() error }:
-				if err := v.Validate(); err != nil {
-					errors = append(errors, ListAnimationsResponseValidationError{
-						field:  fmt.Sprintf("Animations[%v]", idx),
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
-			if err := v.Validate(); err != nil {
-				return ListAnimationsResponseValidationError{
-					field:  fmt.Sprintf("Animations[%v]", idx),
-					reason: "embedded message failed validation",
-					cause:  err,
-				}
-			}
+	{
+		sorted_keys := make([]string, len(m.GetAnimations()))
+		i := 0
+		for key := range m.GetAnimations() {
+			sorted_keys[i] = key
+			i++
 		}
+		sort.Slice(sorted_keys, func(i, j int) bool { return sorted_keys[i] < sorted_keys[j] })
+		for _, key := range sorted_keys {
+			val := m.GetAnimations()[key]
+			_ = val
 
+			// no validation rules for Animations[key]
+
+			if all {
+				switch v := interface{}(val).(type) {
+				case interface{ ValidateAll() error }:
+					if err := v.ValidateAll(); err != nil {
+						errors = append(errors, ListAnimationsResponseValidationError{
+							field:  fmt.Sprintf("Animations[%v]", key),
+							reason: "embedded message failed validation",
+							cause:  err,
+						})
+					}
+				case interface{ Validate() error }:
+					if err := v.Validate(); err != nil {
+						errors = append(errors, ListAnimationsResponseValidationError{
+							field:  fmt.Sprintf("Animations[%v]", key),
+							reason: "embedded message failed validation",
+							cause:  err,
+						})
+					}
+				}
+			} else if v, ok := interface{}(val).(interface{ Validate() error }); ok {
+				if err := v.Validate(); err != nil {
+					return ListAnimationsResponseValidationError{
+						field:  fmt.Sprintf("Animations[%v]", key),
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		}
 	}
 
 	if len(errors) > 0 {
@@ -2883,38 +2897,50 @@ func (m *ListBodyTypesResponse) validate(all bool) error {
 
 	var errors []error
 
-	for idx, item := range m.GetTypes() {
-		_, _ = idx, item
-
-		if all {
-			switch v := interface{}(item).(type) {
-			case interface{ ValidateAll() error }:
-				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, ListBodyTypesResponseValidationError{
-						field:  fmt.Sprintf("Types[%v]", idx),
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			case interface{ Validate() error }:
-				if err := v.Validate(); err != nil {
-					errors = append(errors, ListBodyTypesResponseValidationError{
-						field:  fmt.Sprintf("Types[%v]", idx),
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
-			if err := v.Validate(); err != nil {
-				return ListBodyTypesResponseValidationError{
-					field:  fmt.Sprintf("Types[%v]", idx),
-					reason: "embedded message failed validation",
-					cause:  err,
-				}
-			}
+	{
+		sorted_keys := make([]string, len(m.GetTypes()))
+		i := 0
+		for key := range m.GetTypes() {
+			sorted_keys[i] = key
+			i++
 		}
+		sort.Slice(sorted_keys, func(i, j int) bool { return sorted_keys[i] < sorted_keys[j] })
+		for _, key := range sorted_keys {
+			val := m.GetTypes()[key]
+			_ = val
 
+			// no validation rules for Types[key]
+
+			if all {
+				switch v := interface{}(val).(type) {
+				case interface{ ValidateAll() error }:
+					if err := v.ValidateAll(); err != nil {
+						errors = append(errors, ListBodyTypesResponseValidationError{
+							field:  fmt.Sprintf("Types[%v]", key),
+							reason: "embedded message failed validation",
+							cause:  err,
+						})
+					}
+				case interface{ Validate() error }:
+					if err := v.Validate(); err != nil {
+						errors = append(errors, ListBodyTypesResponseValidationError{
+							field:  fmt.Sprintf("Types[%v]", key),
+							reason: "embedded message failed validation",
+							cause:  err,
+						})
+					}
+				}
+			} else if v, ok := interface{}(val).(interface{ Validate() error }); ok {
+				if err := v.Validate(); err != nil {
+					return ListBodyTypesResponseValidationError{
+						field:  fmt.Sprintf("Types[%v]", key),
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		}
 	}
 
 	if len(errors) > 0 {
@@ -3132,38 +3158,50 @@ func (m *ListStaticPartsResponse) validate(all bool) error {
 
 	var errors []error
 
-	for idx, item := range m.GetParts() {
-		_, _ = idx, item
-
-		if all {
-			switch v := interface{}(item).(type) {
-			case interface{ ValidateAll() error }:
-				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, ListStaticPartsResponseValidationError{
-						field:  fmt.Sprintf("Parts[%v]", idx),
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			case interface{ Validate() error }:
-				if err := v.Validate(); err != nil {
-					errors = append(errors, ListStaticPartsResponseValidationError{
-						field:  fmt.Sprintf("Parts[%v]", idx),
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
-			if err := v.Validate(); err != nil {
-				return ListStaticPartsResponseValidationError{
-					field:  fmt.Sprintf("Parts[%v]", idx),
-					reason: "embedded message failed validation",
-					cause:  err,
-				}
-			}
+	{
+		sorted_keys := make([]string, len(m.GetParts()))
+		i := 0
+		for key := range m.GetParts() {
+			sorted_keys[i] = key
+			i++
 		}
+		sort.Slice(sorted_keys, func(i, j int) bool { return sorted_keys[i] < sorted_keys[j] })
+		for _, key := range sorted_keys {
+			val := m.GetParts()[key]
+			_ = val
 
+			// no validation rules for Parts[key]
+
+			if all {
+				switch v := interface{}(val).(type) {
+				case interface{ ValidateAll() error }:
+					if err := v.ValidateAll(); err != nil {
+						errors = append(errors, ListStaticPartsResponseValidationError{
+							field:  fmt.Sprintf("Parts[%v]", key),
+							reason: "embedded message failed validation",
+							cause:  err,
+						})
+					}
+				case interface{ Validate() error }:
+					if err := v.Validate(); err != nil {
+						errors = append(errors, ListStaticPartsResponseValidationError{
+							field:  fmt.Sprintf("Parts[%v]", key),
+							reason: "embedded message failed validation",
+							cause:  err,
+						})
+					}
+				}
+			} else if v, ok := interface{}(val).(interface{ Validate() error }); ok {
+				if err := v.Validate(); err != nil {
+					return ListStaticPartsResponseValidationError{
+						field:  fmt.Sprintf("Parts[%v]", key),
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		}
 	}
 
 	if len(errors) > 0 {
@@ -3381,38 +3419,50 @@ func (m *ListDynamicPartsResponse) validate(all bool) error {
 
 	var errors []error
 
-	for idx, item := range m.GetParts() {
-		_, _ = idx, item
-
-		if all {
-			switch v := interface{}(item).(type) {
-			case interface{ ValidateAll() error }:
-				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, ListDynamicPartsResponseValidationError{
-						field:  fmt.Sprintf("Parts[%v]", idx),
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			case interface{ Validate() error }:
-				if err := v.Validate(); err != nil {
-					errors = append(errors, ListDynamicPartsResponseValidationError{
-						field:  fmt.Sprintf("Parts[%v]", idx),
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
-			if err := v.Validate(); err != nil {
-				return ListDynamicPartsResponseValidationError{
-					field:  fmt.Sprintf("Parts[%v]", idx),
-					reason: "embedded message failed validation",
-					cause:  err,
-				}
-			}
+	{
+		sorted_keys := make([]string, len(m.GetParts()))
+		i := 0
+		for key := range m.GetParts() {
+			sorted_keys[i] = key
+			i++
 		}
+		sort.Slice(sorted_keys, func(i, j int) bool { return sorted_keys[i] < sorted_keys[j] })
+		for _, key := range sorted_keys {
+			val := m.GetParts()[key]
+			_ = val
 
+			// no validation rules for Parts[key]
+
+			if all {
+				switch v := interface{}(val).(type) {
+				case interface{ ValidateAll() error }:
+					if err := v.ValidateAll(); err != nil {
+						errors = append(errors, ListDynamicPartsResponseValidationError{
+							field:  fmt.Sprintf("Parts[%v]", key),
+							reason: "embedded message failed validation",
+							cause:  err,
+						})
+					}
+				case interface{ Validate() error }:
+					if err := v.Validate(); err != nil {
+						errors = append(errors, ListDynamicPartsResponseValidationError{
+							field:  fmt.Sprintf("Parts[%v]", key),
+							reason: "embedded message failed validation",
+							cause:  err,
+						})
+					}
+				}
+			} else if v, ok := interface{}(val).(interface{ Validate() error }); ok {
+				if err := v.Validate(); err != nil {
+					return ListDynamicPartsResponseValidationError{
+						field:  fmt.Sprintf("Parts[%v]", key),
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		}
 	}
 
 	if len(errors) > 0 {
@@ -3617,38 +3667,50 @@ func (m *ListPropsResponse) validate(all bool) error {
 
 	var errors []error
 
-	for idx, item := range m.GetProps() {
-		_, _ = idx, item
-
-		if all {
-			switch v := interface{}(item).(type) {
-			case interface{ ValidateAll() error }:
-				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, ListPropsResponseValidationError{
-						field:  fmt.Sprintf("Props[%v]", idx),
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			case interface{ Validate() error }:
-				if err := v.Validate(); err != nil {
-					errors = append(errors, ListPropsResponseValidationError{
-						field:  fmt.Sprintf("Props[%v]", idx),
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
-			if err := v.Validate(); err != nil {
-				return ListPropsResponseValidationError{
-					field:  fmt.Sprintf("Props[%v]", idx),
-					reason: "embedded message failed validation",
-					cause:  err,
-				}
-			}
+	{
+		sorted_keys := make([]string, len(m.GetProps()))
+		i := 0
+		for key := range m.GetProps() {
+			sorted_keys[i] = key
+			i++
 		}
+		sort.Slice(sorted_keys, func(i, j int) bool { return sorted_keys[i] < sorted_keys[j] })
+		for _, key := range sorted_keys {
+			val := m.GetProps()[key]
+			_ = val
 
+			// no validation rules for Props[key]
+
+			if all {
+				switch v := interface{}(val).(type) {
+				case interface{ ValidateAll() error }:
+					if err := v.ValidateAll(); err != nil {
+						errors = append(errors, ListPropsResponseValidationError{
+							field:  fmt.Sprintf("Props[%v]", key),
+							reason: "embedded message failed validation",
+							cause:  err,
+						})
+					}
+				case interface{ Validate() error }:
+					if err := v.Validate(); err != nil {
+						errors = append(errors, ListPropsResponseValidationError{
+							field:  fmt.Sprintf("Props[%v]", key),
+							reason: "embedded message failed validation",
+							cause:  err,
+						})
+					}
+				}
+			} else if v, ok := interface{}(val).(interface{ Validate() error }); ok {
+				if err := v.Validate(); err != nil {
+					return ListPropsResponseValidationError{
+						field:  fmt.Sprintf("Props[%v]", key),
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		}
 	}
 
 	if len(errors) > 0 {

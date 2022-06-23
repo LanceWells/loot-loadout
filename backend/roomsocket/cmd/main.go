@@ -10,12 +10,12 @@ import (
 	pb "github.com/lantspants/lootloadout/api/roomsocket"
 	grpcServer "github.com/lantspants/lootloadout/backend/roomsocket/cmd/grpc"
 	grpcService "github.com/lantspants/lootloadout/backend/roomsocket/grpc"
-	googleGRPC "google.golang.org/grpc"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
 
 var (
-	port = flag.Int("port", 8888, "The server port")
+	grpcEndpoint = flag.Int("port", 8888, "The server port")
 )
 
 func main() {
@@ -24,14 +24,14 @@ func main() {
 
 	s := grpcService.NewRoomService(l)
 	r := grpcServer.NewRoomSocketServer(l, s)
-	srv := googleGRPC.NewServer()
+	srv := grpc.NewServer()
 
 	pb.RegisterRoomSocketServer(srv, r)
 	reflection.Register(srv)
 
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *grpcEndpoint))
 	if err != nil {
-		l.Fatalf("failed to listen: %v", err)
+		l.Fatalf("Failed to listen: %v", err)
 	}
 
 	l.Printf("Initializing roomsocket service at %s", lis.Addr().String())

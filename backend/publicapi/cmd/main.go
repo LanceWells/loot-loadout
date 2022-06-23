@@ -25,8 +25,8 @@ var (
 
 func main() {
 	ctx := context.Background()
-
 	l := log.New(os.Stdout, "", 0)
+	flag.Parse()
 
 	srv := grpc.NewServer()
 

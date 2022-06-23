@@ -178,25 +178,12 @@
       "default": "LEFT_LEG",
       "description": "DynamicPartType describes the type of the part. These are moving, transforming parts."
     },
-    "characterimageGetAnimationResponse": {
-      "type": "object",
-      "properties": {
-        "frames": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "byte"
-          },
-          "description": "frames is the set of .png files used to render a complete animation."
-        }
-      }
-    },
     "characterimageListAnimationsResponse": {
       "type": "object",
       "properties": {
         "animations": {
-          "type": "array",
-          "items": {
+          "type": "object",
+          "additionalProperties": {
             "$ref": "#/definitions/characterimageAnimation"
           }
         }
@@ -206,8 +193,8 @@
       "type": "object",
       "properties": {
         "types": {
-          "type": "array",
-          "items": {
+          "type": "object",
+          "additionalProperties": {
             "$ref": "#/definitions/characterimageBodyType"
           }
         }
@@ -217,8 +204,8 @@
       "type": "object",
       "properties": {
         "props": {
-          "type": "array",
-          "items": {
+          "type": "object",
+          "additionalProperties": {
             "$ref": "#/definitions/characterimageProp"
           }
         }
@@ -228,8 +215,8 @@
       "type": "object",
       "properties": {
         "parts": {
-          "type": "array",
-          "items": {
+          "type": "object",
+          "additionalProperties": {
             "$ref": "#/definitions/characterimageStaticPart"
           }
         }
@@ -282,6 +269,15 @@
       ],
       "default": "WEAPON_MELEE_1H",
       "description": "PropType describes the type of prop."
+    },
+    "characterimageSaveAnimationResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "id is the identifier of the newly-created animation."
+        }
+      }
     },
     "characterimageStaticPart": {
       "type": "object",

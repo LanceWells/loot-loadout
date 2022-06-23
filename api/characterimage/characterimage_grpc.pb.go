@@ -40,10 +40,10 @@ type ImagesClient interface {
 	// done with a single frame. This is the core of what brings together all the disparate data about
 	// what a character should look like.
 	CreateAnimation(ctx context.Context, in *CreateAnimationRequest, opts ...grpc.CallOption) (*CreateAnimationResponse, error)
-	// GetAnimation sends all of the information required to piece-together an animation to the
+	// SaveAnimation sends all of the information required to piece-together an animation to the
 	// backend. In response, a complete set of frames will be provided that may be used to render the
 	// desired animation on the frontend.
-	GetAnimation(ctx context.Context, in *GetAnimationRequest, opts ...grpc.CallOption) (*GetAnimationResponse, error)
+	SaveAnimation(ctx context.Context, in *SaveAnimationRequest, opts ...grpc.CallOption) (*SaveAnimationResponse, error)
 	// ListAnimations returns a list of all of the available animations for a given body type.
 	ListAnimations(ctx context.Context, in *ListAnimationsRequest, opts ...grpc.CallOption) (*ListAnimationsResponse, error)
 	// ListBodyTypes returns a list of all available body types.
@@ -109,9 +109,9 @@ func (c *imagesClient) CreateAnimation(ctx context.Context, in *CreateAnimationR
 	return out, nil
 }
 
-func (c *imagesClient) GetAnimation(ctx context.Context, in *GetAnimationRequest, opts ...grpc.CallOption) (*GetAnimationResponse, error) {
-	out := new(GetAnimationResponse)
-	err := c.cc.Invoke(ctx, "/lantspants.lootloadout.characterimage.Images/GetAnimation", in, out, opts...)
+func (c *imagesClient) SaveAnimation(ctx context.Context, in *SaveAnimationRequest, opts ...grpc.CallOption) (*SaveAnimationResponse, error) {
+	out := new(SaveAnimationResponse)
+	err := c.cc.Invoke(ctx, "/lantspants.lootloadout.characterimage.Images/SaveAnimation", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -185,10 +185,10 @@ type ImagesServer interface {
 	// done with a single frame. This is the core of what brings together all the disparate data about
 	// what a character should look like.
 	CreateAnimation(context.Context, *CreateAnimationRequest) (*CreateAnimationResponse, error)
-	// GetAnimation sends all of the information required to piece-together an animation to the
+	// SaveAnimation sends all of the information required to piece-together an animation to the
 	// backend. In response, a complete set of frames will be provided that may be used to render the
 	// desired animation on the frontend.
-	GetAnimation(context.Context, *GetAnimationRequest) (*GetAnimationResponse, error)
+	SaveAnimation(context.Context, *SaveAnimationRequest) (*SaveAnimationResponse, error)
 	// ListAnimations returns a list of all of the available animations for a given body type.
 	ListAnimations(context.Context, *ListAnimationsRequest) (*ListAnimationsResponse, error)
 	// ListBodyTypes returns a list of all available body types.
@@ -221,8 +221,8 @@ func (UnimplementedImagesServer) CreateProp(context.Context, *CreatePropRequest)
 func (UnimplementedImagesServer) CreateAnimation(context.Context, *CreateAnimationRequest) (*CreateAnimationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateAnimation not implemented")
 }
-func (UnimplementedImagesServer) GetAnimation(context.Context, *GetAnimationRequest) (*GetAnimationResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetAnimation not implemented")
+func (UnimplementedImagesServer) SaveAnimation(context.Context, *SaveAnimationRequest) (*SaveAnimationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SaveAnimation not implemented")
 }
 func (UnimplementedImagesServer) ListAnimations(context.Context, *ListAnimationsRequest) (*ListAnimationsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListAnimations not implemented")
@@ -342,20 +342,20 @@ func _Images_CreateAnimation_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Images_GetAnimation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetAnimationRequest)
+func _Images_SaveAnimation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SaveAnimationRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ImagesServer).GetAnimation(ctx, in)
+		return srv.(ImagesServer).SaveAnimation(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/lantspants.lootloadout.characterimage.Images/GetAnimation",
+		FullMethod: "/lantspants.lootloadout.characterimage.Images/SaveAnimation",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ImagesServer).GetAnimation(ctx, req.(*GetAnimationRequest))
+		return srv.(ImagesServer).SaveAnimation(ctx, req.(*SaveAnimationRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -478,8 +478,8 @@ var Images_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Images_CreateAnimation_Handler,
 		},
 		{
-			MethodName: "GetAnimation",
-			Handler:    _Images_GetAnimation_Handler,
+			MethodName: "SaveAnimation",
+			Handler:    _Images_SaveAnimation_Handler,
 		},
 		{
 			MethodName: "ListAnimations",

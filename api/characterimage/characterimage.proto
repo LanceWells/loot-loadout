@@ -31,10 +31,10 @@ service Images {
   // what a character should look like.
   rpc CreateAnimation(CreateAnimationRequest) returns (CreateAnimationResponse) {}
 
-  // GetAnimation sends all of the information required to piece-together an animation to the
+  // SaveAnimation sends all of the information required to piece-together an animation to the
   // backend. In response, a complete set of frames will be provided that may be used to render the
   // desired animation on the frontend.
-  rpc GetAnimation(GetAnimationRequest) returns (GetAnimationResponse) {}
+  rpc SaveAnimation(SaveAnimationRequest) returns (SaveAnimationResponse) {}
 
   // ListAnimations returns a list of all of the available animations for a given body type.
   rpc ListAnimations(ListAnimationsRequest) returns (ListAnimationsResponse) {}
@@ -245,7 +245,7 @@ message CreateAnimationResponse {
   string id = 1;
 }
 
-message GetAnimationRequest {
+message SaveAnimationRequest {
   // animationIdentifier is the ID for the animation that will be used to render the output.
   string animationIdentifier = 1 [(validate.rules).string = { min_len: 1 }];
 
@@ -263,9 +263,9 @@ message GetAnimationRequest {
   string propIdentifier = 4;
 }
 
-message GetAnimationResponse {
-  // frames is the set of .png files used to render a complete animation.
-  repeated bytes frames = 1;
+message SaveAnimationResponse {
+  // id is the identifier of the newly-created animation.
+  string id = 1;
 }
 
 message ListAnimationsRequest {
@@ -274,13 +274,13 @@ message ListAnimationsRequest {
 }
 
 message ListAnimationsResponse {
-  repeated Animation animations = 1;
+  map<string, Animation> animations = 1;
 }
 
 message ListBodyTypesRequest {}
 
 message ListBodyTypesResponse {
-  repeated BodyType types = 1;
+  map<string, BodyType> types = 1;
 }
 
 message ListStaticPartsRequest {
@@ -292,7 +292,7 @@ message ListStaticPartsRequest {
 }
 
 message ListStaticPartsResponse {
-  repeated StaticPart parts = 1;
+  map<string, StaticPart> parts = 1;
 }
 
 message ListDynamicPartsRequest {
@@ -304,7 +304,7 @@ message ListDynamicPartsRequest {
 }
 
 message ListDynamicPartsResponse {
-  repeated DynamicPart parts = 1;
+  map<string, DynamicPart> parts = 1;
 }
 
 message ListPropsRequest {
@@ -313,5 +313,5 @@ message ListPropsRequest {
 }
 
 message ListPropsResponse {
-  repeated Prop props = 1;
+  map<string, Prop> props = 1;
 }

@@ -14,13 +14,15 @@ spec:
     spec:
       containers:
       - name: character-image
-        image: ghcr.io/lancewells/loot-loadout/character-image
+        image: ghcr.io/lancewells/loot-loadout/character-image:latest-dev
         resources:
           limits:
             memory: "128Mi"
             cpu: "500m"
-        ports:
-          - containerPort: 8888
-            name: http-port
-          - containerPort: 9999
-            name: grpc-port
+      initContainers:
+        - name: character-image-db-migrate
+          image: ghcr.io/lancewells/loot-loadout/character-image-migration:latest-dev
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"

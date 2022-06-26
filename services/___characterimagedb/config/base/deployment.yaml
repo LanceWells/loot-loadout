@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: character-image-db
+spec:
+  selector:
+    matchLabels:
+      app: character-image-db
+  template:
+    metadata:
+      labels:
+        app: character-image-db
+    spec:
+      containers:
+      - name: character-image-db
+        args: ["-c", "listen_addresses=*"]
+        env:
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: character-image-db
+              key: dbname
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: character-image-db
+              key: username
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: character-image-db
+              key: password
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 5432

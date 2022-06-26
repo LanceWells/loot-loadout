@@ -1,20 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: character-image
+  name: character-image-db
 spec:
-  replicas: 1
   selector:
     matchLabels:
-      app: character-image
+      app: character-image-db
   template:
     metadata:
       labels:
-        app: character-image
+        app: character-image-db
     spec:
       containers:
-      - name: character-image
-        image: ghcr.io/lancewells/loot-loadout/character-image:latest-dev
+      - name: character-image-db
+        image: ghcr.io/lancewells/loot-loadout/character-image-db:latest
         resources:
           limits:
             memory: "128Mi"

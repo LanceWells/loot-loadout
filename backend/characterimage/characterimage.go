@@ -35,7 +35,7 @@ type Positioning struct {
 type BodyType struct {
 	DisplayName string
 
-	// Coordinates -> HexValue
+	// DynamicPartType -> HexValue -> Coordinates
 	PartMaps map[pb.DynamicPartType]map[string]Coordinates
 }
 

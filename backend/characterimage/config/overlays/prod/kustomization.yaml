@@ -2,7 +2,7 @@ kind: Kustomization
 bases:
   - ../../base
 patchesStrategicMerge:
-  - deployment.yaml
+  - deployment-character-image.yaml
 resources:
   - grpc-ingress.yaml
   - http-ingress.yaml

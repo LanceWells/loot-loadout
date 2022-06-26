@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: character-image-db
+spec:
+  selector:
+    matchLabels:
+      app: character-image-db
+  template:
+    metadata:
+      labels:
+        app: character-image-db
+    spec:
+      containers:
+      - name: character-image-db
+        image: ghcr.io/lancewells/loot-loadout/character-image-db:latest-dev
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"

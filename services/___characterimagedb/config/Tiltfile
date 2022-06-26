@@ -1,0 +1,14 @@
+docker_build(
+  'ghcr.io/lancewells/loot-loadout/character-image-db:latest-dev',
+  '../',
+  dockerfile='../dockerfile',
+)
+
+k8s_yaml(
+  kustomize('./overlays/dev')
+)
+
+k8s_resource(
+  'character-image-db',
+  port_forwards=['5433:5432']
+)

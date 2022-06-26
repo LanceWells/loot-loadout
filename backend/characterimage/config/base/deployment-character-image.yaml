@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: character-image
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: character-image
+  template:
+    metadata:
+      labels:
+        app: character-image
+    spec:
+      containers:
+      - name: character-image
+        image: ghcr.io/lancewells/loot-loadout/character-image
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+          - containerPort: 8888
+            name: http-port
+          - containerPort: 9999
+            name: grpc-port
+      initContainers:
+        - name: character-image-db-init
+          image: busybox:1.28
+          command:
+            - "sh"
+            - "-c"
+            - "until nslookup character-image-db.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for db; sleep 2; done"
+        - name: character-image-db-migrate
+          image: migrate/migrate:4
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: character-image-db
+                  key: dbname
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: character-image-db
+                  key: username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: character-image-db
+                  key: password
+          args:
+            - "-database=postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@character-image-db:5432/$(POSTGRES_DB)?sslmode=disable"
+            - "-path=/migrations"
+            - "up"
+      volumes:
+        - name: character-image-db-migrate
+          hostPath:
+            path: migrations

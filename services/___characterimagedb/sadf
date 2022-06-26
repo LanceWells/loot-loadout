@@ -1,0 +1,29 @@
+FROM postgres:14.4 as build
+WORKDIR /app
+RUN apt-get update
+RUN apt-get install -y \
+  curl
+
+# RUN curl -L https://go.dev/dl/go1.18.3.linux-amd64.tar.gz --output go.tar.gz && \
+#   tar -C /usr/local -xvf go.tar.gz
+
+RUN curl -L https://github.com/golang-migrate/migrate/releases/download/v4.15.2/migrate.linux-amd64.tar.gz --output migrate.tar.gz && \
+  tar -C /usr/local/bin -xvf migrate.tar.gz
+
+ENV PATH="/usr/local/bin"
+
+RUN echo $PATH
+RUN migrate -help
+
+COPY migrations/* /app/migrations/
+
+RUN postgres
+
+# FROM postgres:14.4 AS runtime_init
+
+# # Note that these migrations will run once we've started the container, not at build-time. This is
+# # done intentionally s.t. we enable the env vars passed at runtime to set the username/password for
+# # the container's superuser.
+# COPY migrations/* /docker-entrypoint-initdb.d/
+
+# EXPOSE 5432

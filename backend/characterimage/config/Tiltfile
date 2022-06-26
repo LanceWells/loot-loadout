@@ -1,4 +1,14 @@
 docker_build(
+  'ghcr.io/lancewells/loot-loadout/character-image-migration:latest-dev',
+  './base/',
+  dockerfile='base/migration.dockerfile',
+  only=[
+    'migration.dockerfile',
+    'migrations'
+  ]
+)
+
+docker_build(
   'ghcr.io/lancewells/loot-loadout/character-image:latest-dev',
   '../../../',
   dockerfile='../dev.dockerfile',
@@ -17,4 +27,9 @@ k8s_yaml(
 k8s_resource(
   'character-image',
   port_forwards=['8003:8888', '40003:40000']
+)
+
+k8s_resource(
+  'character-image-db',
+  port_forwards=['5400:5432']
 )

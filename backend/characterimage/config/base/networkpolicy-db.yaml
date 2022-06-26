@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: character-image-db
+spec:
+  podSelector:
+    matchLabels:
+      db: character-image
+  policyTypes:
+    - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          db: character-image
+    ports:
+      - protocol: TCP
+        port: 5432

@@ -1,4 +1,8 @@
 kind: Kustomization
 resources:
-  - deployment.yaml
-  - service.yaml
+  - deployment-character-image.yaml
+  - deployment-db.yaml
+  - networkpolicy-db.yaml
+  - service-character-image.yaml
+  - service-db.yaml
+  - secret.yaml

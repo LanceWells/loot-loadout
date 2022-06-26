@@ -6,6 +6,8 @@ import (
 
 	pb "github.com/lantspants/lootloadout/api/characterimage"
 	service "github.com/lantspants/lootloadout/backend/characterimage/characterimage"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 )
 
 type CharacterImageServer struct {
@@ -28,5 +30,26 @@ func (r CharacterImageServer) CreateBodyType(
 	ctx context.Context,
 	req *pb.CreateBodyTypeRequest,
 ) (*pb.CreateBodyTypeResponse, error) {
-	return nil, nil
+	_, span := otel.Tracer("CharacterImageServer").Start(ctx, "CreateBodyType")
+	defer span.End()
+
+	err := req.Validate()
+	if err != nil {
+		r.l.Printf("error validating: %v", err)
+		return nil, err
+	}
+
+	id, err := r.s.CreateBodyType(ctx, req)
+	if err != nil {
+		r.l.Printf("error creating a body type: %v", err)
+		return nil, err
+	}
+
+	span.SetAttributes(
+		attribute.String("BodyTypeID", id),
+	)
+
+	return &pb.CreateBodyTypeResponse{
+		Id: id,
+	}, nil
 }

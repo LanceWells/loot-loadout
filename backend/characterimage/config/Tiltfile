@@ -2,10 +2,6 @@ docker_build(
   'ghcr.io/lancewells/loot-loadout/character-image-migration:latest-dev',
   './base/',
   dockerfile='base/migration.dockerfile',
-  only=[
-    'migration.dockerfile',
-    'migrations'
-  ]
 )
 
 docker_build(

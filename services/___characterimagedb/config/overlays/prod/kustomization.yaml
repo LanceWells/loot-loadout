@@ -1,5 +1,0 @@
-kind: Kustomization
-bases:
-  - ../../base
-patchesStrategicMerge:
-  - deployment.yaml

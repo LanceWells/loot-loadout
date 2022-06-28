@@ -573,6 +573,132 @@ var _ interface {
 	ErrorName() string
 } = BodyTypeValidationError{}
 
+// Validate checks the field values on DynamicPartMapping with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *DynamicPartMapping) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on DynamicPartMapping with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// DynamicPartMappingMultiError, or nil if none found.
+func (m *DynamicPartMapping) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *DynamicPartMapping) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetBodyTypeIdentifier()) < 1 {
+		err := DynamicPartMappingValidationError{
+			field:  "BodyTypeIdentifier",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if _, ok := DynamicPartType_name[int32(m.GetType())]; !ok {
+		err := DynamicPartMappingValidationError{
+			field:  "Type",
+			reason: "value must be one of the defined enum values",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for Image
+
+	if len(errors) > 0 {
+		return DynamicPartMappingMultiError(errors)
+	}
+
+	return nil
+}
+
+// DynamicPartMappingMultiError is an error wrapping multiple validation errors
+// returned by DynamicPartMapping.ValidateAll() if the designated constraints
+// aren't met.
+type DynamicPartMappingMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m DynamicPartMappingMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m DynamicPartMappingMultiError) AllErrors() []error { return m }
+
+// DynamicPartMappingValidationError is the validation error returned by
+// DynamicPartMapping.Validate if the designated constraints aren't met.
+type DynamicPartMappingValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e DynamicPartMappingValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e DynamicPartMappingValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e DynamicPartMappingValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e DynamicPartMappingValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e DynamicPartMappingValidationError) ErrorName() string {
+	return "DynamicPartMappingValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e DynamicPartMappingValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sDynamicPartMapping.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = DynamicPartMappingValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = DynamicPartMappingValidationError{}
+
 // Validate checks the field values on StaticPart with the rules defined in the
 // proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
@@ -1315,6 +1441,491 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CreateBodyTypeResponseValidationError{}
+
+// Validate checks the field values on GetBodyTypeRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetBodyTypeRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetBodyTypeRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetBodyTypeRequestMultiError, or nil if none found.
+func (m *GetBodyTypeRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetBodyTypeRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	if len(errors) > 0 {
+		return GetBodyTypeRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetBodyTypeRequestMultiError is an error wrapping multiple validation errors
+// returned by GetBodyTypeRequest.ValidateAll() if the designated constraints
+// aren't met.
+type GetBodyTypeRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetBodyTypeRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetBodyTypeRequestMultiError) AllErrors() []error { return m }
+
+// GetBodyTypeRequestValidationError is the validation error returned by
+// GetBodyTypeRequest.Validate if the designated constraints aren't met.
+type GetBodyTypeRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetBodyTypeRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetBodyTypeRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetBodyTypeRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetBodyTypeRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetBodyTypeRequestValidationError) ErrorName() string {
+	return "GetBodyTypeRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetBodyTypeRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetBodyTypeRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetBodyTypeRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetBodyTypeRequestValidationError{}
+
+// Validate checks the field values on GetBodyTypeResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetBodyTypeResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetBodyTypeResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetBodyTypeResponseMultiError, or nil if none found.
+func (m *GetBodyTypeResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetBodyTypeResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetBody()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, GetBodyTypeResponseValidationError{
+					field:  "Body",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, GetBodyTypeResponseValidationError{
+					field:  "Body",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetBody()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetBodyTypeResponseValidationError{
+				field:  "Body",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return GetBodyTypeResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetBodyTypeResponseMultiError is an error wrapping multiple validation
+// errors returned by GetBodyTypeResponse.ValidateAll() if the designated
+// constraints aren't met.
+type GetBodyTypeResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetBodyTypeResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetBodyTypeResponseMultiError) AllErrors() []error { return m }
+
+// GetBodyTypeResponseValidationError is the validation error returned by
+// GetBodyTypeResponse.Validate if the designated constraints aren't met.
+type GetBodyTypeResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetBodyTypeResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetBodyTypeResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetBodyTypeResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetBodyTypeResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetBodyTypeResponseValidationError) ErrorName() string {
+	return "GetBodyTypeResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetBodyTypeResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetBodyTypeResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetBodyTypeResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetBodyTypeResponseValidationError{}
+
+// Validate checks the field values on CreateDynamicPartMappingRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *CreateDynamicPartMappingRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CreateDynamicPartMappingRequest with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// CreateDynamicPartMappingRequestMultiError, or nil if none found.
+func (m *CreateDynamicPartMappingRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CreateDynamicPartMappingRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if m.GetDynamicPartMapping() == nil {
+		err := CreateDynamicPartMappingRequestValidationError{
+			field:  "DynamicPartMapping",
+			reason: "value is required",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if all {
+		switch v := interface{}(m.GetDynamicPartMapping()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, CreateDynamicPartMappingRequestValidationError{
+					field:  "DynamicPartMapping",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, CreateDynamicPartMappingRequestValidationError{
+					field:  "DynamicPartMapping",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetDynamicPartMapping()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return CreateDynamicPartMappingRequestValidationError{
+				field:  "DynamicPartMapping",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return CreateDynamicPartMappingRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// CreateDynamicPartMappingRequestMultiError is an error wrapping multiple
+// validation errors returned by CreateDynamicPartMappingRequest.ValidateAll()
+// if the designated constraints aren't met.
+type CreateDynamicPartMappingRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CreateDynamicPartMappingRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CreateDynamicPartMappingRequestMultiError) AllErrors() []error { return m }
+
+// CreateDynamicPartMappingRequestValidationError is the validation error
+// returned by CreateDynamicPartMappingRequest.Validate if the designated
+// constraints aren't met.
+type CreateDynamicPartMappingRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CreateDynamicPartMappingRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CreateDynamicPartMappingRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CreateDynamicPartMappingRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CreateDynamicPartMappingRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CreateDynamicPartMappingRequestValidationError) ErrorName() string {
+	return "CreateDynamicPartMappingRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CreateDynamicPartMappingRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCreateDynamicPartMappingRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CreateDynamicPartMappingRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CreateDynamicPartMappingRequestValidationError{}
+
+// Validate checks the field values on CreateDynamicPartMappingResponse with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
+func (m *CreateDynamicPartMappingResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CreateDynamicPartMappingResponse with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// CreateDynamicPartMappingResponseMultiError, or nil if none found.
+func (m *CreateDynamicPartMappingResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CreateDynamicPartMappingResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	if len(errors) > 0 {
+		return CreateDynamicPartMappingResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// CreateDynamicPartMappingResponseMultiError is an error wrapping multiple
+// validation errors returned by
+// CreateDynamicPartMappingResponse.ValidateAll() if the designated
+// constraints aren't met.
+type CreateDynamicPartMappingResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CreateDynamicPartMappingResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CreateDynamicPartMappingResponseMultiError) AllErrors() []error { return m }
+
+// CreateDynamicPartMappingResponseValidationError is the validation error
+// returned by CreateDynamicPartMappingResponse.Validate if the designated
+// constraints aren't met.
+type CreateDynamicPartMappingResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CreateDynamicPartMappingResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CreateDynamicPartMappingResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CreateDynamicPartMappingResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CreateDynamicPartMappingResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CreateDynamicPartMappingResponseValidationError) ErrorName() string {
+	return "CreateDynamicPartMappingResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CreateDynamicPartMappingResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCreateDynamicPartMappingResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CreateDynamicPartMappingResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CreateDynamicPartMappingResponseValidationError{}
 
 // Validate checks the field values on CreateStaticPartRequest with the rules
 // defined in the proto definition for this message. If any rules are
@@ -3899,6 +4510,17 @@ func (m *Animation_Frame) validate(all bool) error {
 				cause:  err,
 			}
 		}
+	}
+
+	if _, ok := ExpressionType_name[int32(m.GetExpression())]; !ok {
+		err := Animation_FrameValidationError{
+			field:  "Expression",
+			reason: "value must be one of the defined enum values",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
 	}
 
 	if len(errors) > 0 {

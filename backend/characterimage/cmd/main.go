@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -18,10 +19,14 @@ import (
 var grpcEndpoint = flag.Int("grpc-server-endpoint", 9999, "gRPC server endpoint")
 
 func main() {
+	ctx := context.Background()
 	l := log.New(os.Stdout, "", 0)
 	flag.Parse()
 
-	db := postgres.NewImageService(l)
+	db, err := postgres.NewImageDatabase(ctx, l)
+	if err != nil {
+		l.Fatalf("error initializing database: %v", err)
+	}
 	s := characterimage.NewCharacterImageService(l, db)
 	r := grpcServer.NewCharacterImageServer(l, s)
 	srv := grpc.NewServer()

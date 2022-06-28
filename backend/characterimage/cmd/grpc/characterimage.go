@@ -53,3 +53,27 @@ func (r CharacterImageServer) CreateBodyType(
 		Id: id,
 	}, nil
 }
+
+func (r CharacterImageServer) GetBodyType(
+	ctx context.Context,
+	req *pb.GetBodyTypeRequest,
+) (*pb.GetBodyTypeResponse, error) {
+	_, span := otel.Tracer("CharacterImageServer").Start(ctx, "GetBodyType")
+	defer span.End()
+
+	err := req.Validate()
+	if err != nil {
+		r.l.Printf("error validating: %v", err)
+		return nil, err
+	}
+
+	body, err := r.s.GetBodyType(ctx, req)
+	if err != nil {
+		r.l.Printf("error getting body type: %v", err)
+		return nil, err
+	}
+
+	return &pb.GetBodyTypeResponse{
+		Body: body,
+	}, nil
+}

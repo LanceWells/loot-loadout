@@ -27,20 +27,24 @@ func (s CharacterImageService) CreateBodyType(
 	ctx context.Context,
 	req *pb.CreateBodyTypeRequest,
 ) (characterimage.ID, error) {
-	b, err := characterimage.NewBodyType(
-		req.Body.DisplayName,
-		req.Body.PartMaps,
-	)
-	if err != nil {
-		s.l.Printf("error creating a new body type object: %v", err)
-		return "", err
-	}
-
-	id, err := s.db.CreateBodyType(ctx, b)
+	id, err := s.db.CreateBodyType(ctx, req.Body)
 	if err != nil {
 		s.l.Printf("error creating a body type: %v", err)
 		return "", err
 	}
 
 	return id, nil
+}
+
+func (s CharacterImageService) GetBodyType(
+	ctx context.Context,
+	req *pb.GetBodyTypeRequest,
+) (*pb.BodyType, error) {
+	body, err := s.db.GetBodyType(ctx, req.Id)
+	if err != nil {
+		s.l.Printf("error getting a body type: %v", err)
+		return nil, err
+	}
+
+	return body, nil
 }

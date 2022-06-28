@@ -26,6 +26,8 @@ type ImagesClient interface {
 	// character imagery. For example, this method could be used to create a new body type for an
 	// equine, effeminite model or for a draconic, male model.
 	CreateBodyType(ctx context.Context, in *CreateBodyTypeRequest, opts ...grpc.CallOption) (*CreateBodyTypeResponse, error)
+	GetBodyType(ctx context.Context, in *GetBodyTypeRequest, opts ...grpc.CallOption) (*GetBodyTypeResponse, error)
+	CreateDynamicPartMapping(ctx context.Context, in *CreateDynamicPartMappingRequest, opts ...grpc.CallOption) (*CreateDynamicPartMappingResponse, error)
 	// CreateStaticPart provides a static image of some body part. These body parts do not move, and
 	// are only translated via simple means (rotation at 45degree increments).
 	CreateStaticPart(ctx context.Context, in *CreateStaticPartRequest, opts ...grpc.CallOption) (*CreateStaticPartResponse, error)
@@ -67,6 +69,24 @@ func NewImagesClient(cc grpc.ClientConnInterface) ImagesClient {
 func (c *imagesClient) CreateBodyType(ctx context.Context, in *CreateBodyTypeRequest, opts ...grpc.CallOption) (*CreateBodyTypeResponse, error) {
 	out := new(CreateBodyTypeResponse)
 	err := c.cc.Invoke(ctx, "/lantspants.lootloadout.characterimage.Images/CreateBodyType", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *imagesClient) GetBodyType(ctx context.Context, in *GetBodyTypeRequest, opts ...grpc.CallOption) (*GetBodyTypeResponse, error) {
+	out := new(GetBodyTypeResponse)
+	err := c.cc.Invoke(ctx, "/lantspants.lootloadout.characterimage.Images/GetBodyType", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *imagesClient) CreateDynamicPartMapping(ctx context.Context, in *CreateDynamicPartMappingRequest, opts ...grpc.CallOption) (*CreateDynamicPartMappingResponse, error) {
+	out := new(CreateDynamicPartMappingResponse)
+	err := c.cc.Invoke(ctx, "/lantspants.lootloadout.characterimage.Images/CreateDynamicPartMapping", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -171,6 +191,8 @@ type ImagesServer interface {
 	// character imagery. For example, this method could be used to create a new body type for an
 	// equine, effeminite model or for a draconic, male model.
 	CreateBodyType(context.Context, *CreateBodyTypeRequest) (*CreateBodyTypeResponse, error)
+	GetBodyType(context.Context, *GetBodyTypeRequest) (*GetBodyTypeResponse, error)
+	CreateDynamicPartMapping(context.Context, *CreateDynamicPartMappingRequest) (*CreateDynamicPartMappingResponse, error)
 	// CreateStaticPart provides a static image of some body part. These body parts do not move, and
 	// are only translated via simple means (rotation at 45degree increments).
 	CreateStaticPart(context.Context, *CreateStaticPartRequest) (*CreateStaticPartResponse, error)
@@ -208,6 +230,12 @@ type UnimplementedImagesServer struct {
 
 func (UnimplementedImagesServer) CreateBodyType(context.Context, *CreateBodyTypeRequest) (*CreateBodyTypeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateBodyType not implemented")
+}
+func (UnimplementedImagesServer) GetBodyType(context.Context, *GetBodyTypeRequest) (*GetBodyTypeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetBodyType not implemented")
+}
+func (UnimplementedImagesServer) CreateDynamicPartMapping(context.Context, *CreateDynamicPartMappingRequest) (*CreateDynamicPartMappingResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateDynamicPartMapping not implemented")
 }
 func (UnimplementedImagesServer) CreateStaticPart(context.Context, *CreateStaticPartRequest) (*CreateStaticPartResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateStaticPart not implemented")
@@ -266,6 +294,42 @@ func _Images_CreateBodyType_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ImagesServer).CreateBodyType(ctx, req.(*CreateBodyTypeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Images_GetBodyType_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetBodyTypeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ImagesServer).GetBodyType(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/lantspants.lootloadout.characterimage.Images/GetBodyType",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ImagesServer).GetBodyType(ctx, req.(*GetBodyTypeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Images_CreateDynamicPartMapping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateDynamicPartMappingRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ImagesServer).CreateDynamicPartMapping(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/lantspants.lootloadout.characterimage.Images/CreateDynamicPartMapping",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ImagesServer).CreateDynamicPartMapping(ctx, req.(*CreateDynamicPartMappingRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -460,6 +524,14 @@ var Images_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateBodyType",
 			Handler:    _Images_CreateBodyType_Handler,
+		},
+		{
+			MethodName: "GetBodyType",
+			Handler:    _Images_GetBodyType_Handler,
+		},
+		{
+			MethodName: "CreateDynamicPartMapping",
+			Handler:    _Images_CreateDynamicPartMapping_Handler,
 		},
 		{
 			MethodName: "CreateStaticPart",

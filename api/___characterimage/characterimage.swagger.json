@@ -15,7 +15,40 @@
   "produces": [
     "application/json"
   ],
-  "paths": {},
+  "paths": {
+    "/v1/dynamicpartmapping": {
+      "post": {
+        "operationId": "Images_CreateDynamicPartMapping",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/characterimageCreateDynamicPartMappingResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/characterimageCreateDynamicPartMappingRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Images"
+        ]
+      }
+    }
+  },
   "definitions": {
     "AnimationFrame": {
       "type": "object",
@@ -35,6 +68,10 @@
         "prop": {
           "$ref": "#/definitions/characterimagePositioning",
           "description": "prop describes the positioning of the prop used with this animation."
+        },
+        "expression": {
+          "$ref": "#/definitions/characterimageExpressionType",
+          "description": "expression defines the expressive state of the character. This will impact any parts that\nshow expression (e.g. eyes)."
         }
       },
       "description": "Frame describes the animation data for a single frame of animation."
@@ -117,6 +154,22 @@
         }
       }
     },
+    "characterimageCreateDynamicPartMappingRequest": {
+      "type": "object",
+      "properties": {
+        "dynamicPartMapping": {
+          "$ref": "#/definitions/characterimageDynamicPartMapping"
+        }
+      }
+    },
+    "characterimageCreateDynamicPartMappingResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
+    },
     "characterimageCreateDynamicPartResponse": {
       "type": "object",
       "properties": {
@@ -167,6 +220,21 @@
       },
       "description": "DynamicPart describes a body part that moves or transforms, and can be rendered in a pseudo-3D\nspace."
     },
+    "characterimageDynamicPartMapping": {
+      "type": "object",
+      "properties": {
+        "bodyTypeIdentifier": {
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/definitions/characterimageDynamicPartType"
+        },
+        "image": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
     "characterimageDynamicPartType": {
       "type": "string",
       "enum": [
@@ -177,6 +245,22 @@
       ],
       "default": "LEFT_LEG",
       "description": "DynamicPartType describes the type of the part. These are moving, transforming parts."
+    },
+    "characterimageExpressionType": {
+      "type": "string",
+      "enum": [
+        "NEUTRAL"
+      ],
+      "default": "NEUTRAL",
+      "description": "ExpressionType describes the expression for a character. This is defined per-animation-frame."
+    },
+    "characterimageGetBodyTypeResponse": {
+      "type": "object",
+      "properties": {
+        "body": {
+          "$ref": "#/definitions/characterimageBodyType"
+        }
+      }
     },
     "characterimageListAnimationsResponse": {
       "type": "object",
@@ -311,7 +395,9 @@
       "enum": [
         "BODY",
         "HEAD",
-        "HAIR"
+        "HAIR",
+        "EYES",
+        "ACCESSORY_HEAD"
       ],
       "default": "BODY",
       "description": "StaticPartType describes the type of the part. These are non-transforming, stationary (or x/y\nmobile) parts."

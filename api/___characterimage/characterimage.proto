@@ -3,6 +3,7 @@ syntax = "proto3";
 package lantspants.lootloadout.characterimage;
 
 import "validate/validate.proto";
+import "google/api/annotations.proto";
 
 option go_package = "github.com/lantspants/lootloadout/api/characterimage";
 
@@ -12,6 +13,15 @@ service Images {
   // character imagery. For example, this method could be used to create a new body type for an
   // equine, effeminite model or for a draconic, male model.
   rpc CreateBodyType(CreateBodyTypeRequest) returns (CreateBodyTypeResponse) {}
+
+  rpc GetBodyType(GetBodyTypeRequest) returns (GetBodyTypeResponse) {}
+
+  rpc CreateDynamicPartMapping(CreateDynamicPartMappingRequest) returns (CreateDynamicPartMappingResponse) {
+    option (google.api.http) = {
+      post: "/v1/dynamicpartmapping"
+      body: "*"
+    };
+  }
 
   // CreateStaticPart provides a static image of some body part. These body parts do not move, and
   // are only translated via simple means (rotation at 45degree increments).
@@ -91,6 +101,8 @@ enum StaticPartType {
   BODY = 0;
   HEAD = 1;
   HAIR = 2;
+  EYES = 3;
+  ACCESSORY_HEAD = 4;
 }
 
 // DynamicPartType describes the type of the part. These are moving, transforming parts.
@@ -99,6 +111,11 @@ enum DynamicPartType {
   RIGHT_LEG = 1;
   LEFT_ARM = 2;
   RIGHT_ARM = 3;
+}
+
+// ExpressionType describes the expression for a character. This is defined per-animation-frame.
+enum ExpressionType {
+  NEUTRAL = 0;
 }
 
 // Animation describes the information required to render a given character.
@@ -115,6 +132,10 @@ message Animation {
 
     // prop describes the positioning of the prop used with this animation.
     Positioning prop = 3;
+
+    // expression defines the expressive state of the character. This will impact any parts that
+    // show expression (e.g. eyes).
+    ExpressionType expression = 4 [(validate.rules).enum.defined_only = true];
   }
 
   // displayName is the name that will be rendered to the user. This is also used for any alt-text.
@@ -141,6 +162,12 @@ message BodyType {
   //
   // Note: the keys must be able to be evaluated to DynamicPartType.
   map<string, bytes> partMaps = 2;
+}
+
+message DynamicPartMapping {
+  string bodyTypeIdentifier = 1[(validate.rules).string = { min_len: 1 }];
+  DynamicPartType type = 2 [(validate.rules).enum.defined_only = true];
+  bytes image = 3;
 }
 
 // StaticPart describes a body part that does not change other than rotation or simple x/y movement.
@@ -205,6 +232,22 @@ message CreateBodyTypeResponse {
   string id = 1;
 }
 
+message GetBodyTypeRequest {
+  string id  = 1;
+}
+
+message GetBodyTypeResponse {
+  BodyType body = 1;
+}
+
+message CreateDynamicPartMappingRequest {
+  DynamicPartMapping dynamicPartMapping = 1 [(validate.rules).message.required = true];
+}
+
+message CreateDynamicPartMappingResponse {
+  string id = 1;
+}
+
 message CreateStaticPartRequest {
   // staticPart is the data required to create a new static part.
   StaticPart staticPart = 1 [(validate.rules).message.required = true];
@@ -227,7 +270,7 @@ message CreateDynamicPartResponse {
 
 message CreatePropRequest {
   // prop is the data required to create a new prop.
-  Prop prop = 1 [(validate.rules).message.required = true];;
+  Prop prop = 1 [(validate.rules).message.required = true];
 }
 
 message CreatePropResponse {

@@ -1,0 +1,186 @@
+syntax = "proto3";
+
+package lantspants.lootloadout.characterimage;
+
+import "validate/validate.proto";
+import "google/api/annotations.proto";
+
+option go_package = "github.com/lantspants/lootloadout/api/characterimage";
+
+// Coordinates refers to basic image relational coordinates. These are assumed to be within the
+// 32-bit plane.
+message Coordinates {
+  uint32 x = 1 [(validate.rules).uint32 = {lt: 32}];
+  uint32 y = 2 [(validate.rules).uint32 = {lt: 32}];
+}
+
+// Positioning describes the position and rotation of a given item.
+message Positioning {
+  Coordinates coordinates = 1 [(validate.rules).message.required = true];
+  uint32 rotation = 2 [(validate.rules).uint32 = {lte: 360}];
+}
+
+// PropType describes the type of prop.
+enum PropType {
+  WEAPON_MELEE_1H = 0;
+  WEAPON_MELEE_2H = 1;
+  WEAPON_RANGE_1H = 2;
+  WEAPON_RANGE_2H = 3;
+}
+
+// StaticPartType describes the type of the part. These are non-transforming, stationary (or x/y
+// mobile) parts.
+enum StaticPartType {
+  BODY = 0;
+  HEAD = 1;
+  HAIR = 2;
+  EYES = 3;
+  ACCESSORY_HEAD = 4;
+}
+
+// DynamicPartType describes the type of the part. These are moving, transforming parts.
+enum DynamicPartType {
+  LEFT_LEG = 0;
+  RIGHT_LEG = 1;
+  LEFT_ARM = 2;
+  RIGHT_ARM = 3;
+}
+
+// ExpressionType describes the expression for a character. This is defined per-animation-frame.
+enum ExpressionType {
+  NEUTRAL = 0;
+}
+
+message Body {
+  string displayName = 1;
+}
+
+message DynamicMapping {
+  DynamicPartType part = 1;
+  bytes image = 2;
+}
+
+message Static {
+  string displayName = 1;
+  StaticPartType part = 2;
+  bytes image = 3;
+  Coordinates anchor = 4;
+}
+
+message Dynamic {
+  string displayName = 1;
+  DynamicPartType part = 2;
+  bytes image = 3;
+}
+
+message Frame {
+  bytes image = 1;
+  map<string, Positioning> staticPositioning = 2;
+  map<string, Positioning> propPositioning = 3;
+  ExpressionType expression = 4;
+}
+
+message Animation {
+  string displayName = 1;
+  repeated PropType allowed = 2;
+}
+
+message Prop {
+  string displayName = 1;
+  PropType prop = 2;
+  bytes image = 3;
+  Coordinates anchor = 4;
+}
+
+service Images {
+  rpc AddBody(AddBodyRequest) returns (AddBodyResponse);
+  rpc ListBody(ListBodiesRequest) returns (ListBodiesResponse);
+  rpc AddDynamicMapping(AddDynamicMappingRequest) returns (AddDynamicMappingResponse);
+  rpc AddStatic(AddStaticRequest) returns (AddStaticResponse);
+  rpc ListStatic(ListStaticRequest) returns (ListStaticResponse);
+  rpc AddDynamic(AddDynamicRequest) returns (AddDynamicResponse);
+  rpc ListDynamic(ListDynamicRequest) returns (ListDynamicResponse);
+  rpc AddAnimation(AddAnimationRequest) returns (AddAnimationResponse);
+  rpc ListAnimation(ListAnimationRequest) returns (ListAnimationResponse);
+  rpc AddFrame(AddFrameRequest) returns (AddFrameResponse);
+  rpc AddProp(AddPropRequest) returns (AddPropResponse);
+  rpc ListProps(ListPropsRequest) returns (ListPropsResponse);
+}
+
+message AddBodyRequest {
+  Body body = 1;
+}
+message AddBodyResponse {
+  string id = 1;
+}
+
+message ListBodiesRequest {}
+message ListBodiesResponse {
+  repeated Body bodies = 1;
+}
+
+message AddDynamicMappingRequest {
+  DynamicMapping mapping = 1;
+}
+message AddDynamicMappingResponse {
+  string id = 1;
+}
+
+message AddStaticRequest {
+  Static static = 1;
+  string bodyID = 2;
+}
+message AddStaticResponse {
+  string id = 1;
+}
+
+message ListStaticRequest {}
+message ListStaticResponse {
+  repeated Static statics = 1;
+}
+
+message AddDynamicRequest {
+  Dynamic dynamic = 1;
+  string bodyID = 2;
+}
+message AddDynamicResponse {
+  string id = 1;
+}
+
+message ListDynamicRequest {}
+message ListDynamicResponse {
+  repeated Dynamic dynamics = 1;
+}
+
+message AddAnimationRequest {
+  Animation animation = 1;
+  string bodyID = 2;
+}
+message AddAnimationResponse {
+  string id = 1;
+}
+
+message ListAnimationRequest {}
+message ListAnimationResponse {
+  repeated Animation animations = 1;
+}
+
+message AddFrameRequest {
+  Frame frame = 1;
+  string animationID = 2;
+}
+message AddFrameResponse {
+  string id = 1;
+}
+
+message AddPropRequest {
+  Prop prop = 1;
+}
+message AddPropResponse {
+  string id = 1;
+}
+
+message ListPropsRequest {}
+message ListPropsResponse {
+  repeated Prop props = 1;
+}

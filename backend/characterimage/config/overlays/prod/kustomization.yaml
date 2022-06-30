@@ -3,6 +3,7 @@ bases:
   - ../../base
 patchesStrategicMerge:
   - deployment-character-image.yaml
+  - secret.yaml
 resources:
   - grpc-ingress.yaml
   - http-ingress.yaml

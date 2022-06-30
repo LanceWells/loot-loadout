@@ -44,10 +44,11 @@ go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@lat
 go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@latest
 ```
 
-* Install other tools:
+* Install other generation tools:
 ```bash
 # Gorm struct generation
-go install github.com/smallnest/gen@latest
+go install github.com/volatiletech/sqlboiler/v4@latest
+go install github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-psql@latest
 ```
 
 ## Optional Setup

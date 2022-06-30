@@ -5,7 +5,7 @@ import (
 
 	// We use some pb types here. This is intentional. It's intended to preserve the contract between
 	// the API and what we are actually able to store.
-	pb "github.com/lantspants/lootloadout/api/characterimage"
+	pb "github.com/lantspants/lootloadout/api/characterimage/v1"
 )
 
 // ID is an alias for an identifier that refers to a specific resour.ce
@@ -327,23 +327,22 @@ type AnimationsFilter struct {
 }
 
 type CharacterImageDatabase interface {
-	CreateBodyType(context.Context, *pb.BodyType) (ID, error)
-	GetBodyType(context.Context, ID) (*pb.BodyType, error)
-	ListBodyTypes(context.Context, *BodyTypesFilter) ([]pb.BodyType, error)
+	AddBody(context.Context, *pb.Body) (ID, error)
+	ListBodyTypes(context.Context, *BodyTypesFilter) ([]pb.Body, error)
 
-	CreateStaticPart(context.Context, *pb.StaticPart) (ID, error)
-	GetStaticPart(context.Context, ID) (*pb.StaticPart, error)
-	ListStaticParts(context.Context, *StaticPartsFilter) ([]pb.StaticPart, error)
+	AddDynamicMapping(ctx context.Context, m *pb.DynamicMapping, bodyID ID) (ID, error)
 
-	CreateDynamicPart(context.Context, *pb.DynamicPart) (ID, error)
-	GetDynamicPart(context.Context, ID) (*pb.DynamicPart, error)
-	ListDynamicParts(context.Context, *DynamicPartsFilter) ([]pb.DynamicPart, error)
+	AddStatic(context.Context, *pb.Static) (ID, error)
+	ListStatics(context.Context, *StaticPartsFilter) ([]pb.Static, error)
+
+	CreateDynamic(ctx context.Context, d *pb.Dynamic, bodyID ID) (ID, error)
+	ListDynamics(context.Context, *DynamicPartsFilter) ([]pb.Dynamic, error)
+
+	CreateAnimation(ctx context.Context, a *pb.Animation, bodyID ID) (ID, error)
+	ListAnimations(context.Context, *AnimationsFilter) ([]pb.Animation, error)
+
+	CreateFrame(ctx context.Context, f *pb.Frame, animationID ID) (ID, error)
 
 	CreateProp(context.Context, *pb.Prop) (ID, error)
-	GetProp(context.Context, ID) (*pb.Prop, error)
 	ListProps(context.Context, *PropsFilter) ([]pb.Prop, error)
-
-	CreateAnimation(context.Context, *pb.Animation) (ID, error)
-	GetAnimation(context.Context, ID) (*pb.Animation, error)
-	ListAnimations(context.Context, *AnimationsFilter) ([]pb.BodyType, error)
 }

@@ -1,0 +1,337 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "characterimage/v1/characterimage.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "Images"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {},
+  "definitions": {
+    "characterimageAddAnimationResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "characterimageAddBodyResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "characterimageAddDynamicMappingResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "characterimageAddDynamicResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "characterimageAddFrameResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "characterimageAddPropResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "characterimageAddStaticResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "characterimageAnimation": {
+      "type": "object",
+      "properties": {
+        "displayName": {
+          "type": "string"
+        },
+        "allowed": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/characterimagePropType"
+          }
+        }
+      }
+    },
+    "characterimageBody": {
+      "type": "object",
+      "properties": {
+        "displayName": {
+          "type": "string"
+        }
+      }
+    },
+    "characterimageCoordinates": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "y": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "description": "Coordinates refers to basic image relational coordinates. These are assumed to be within the\n32-bit plane."
+    },
+    "characterimageDynamic": {
+      "type": "object",
+      "properties": {
+        "displayName": {
+          "type": "string"
+        },
+        "part": {
+          "$ref": "#/definitions/characterimageDynamicPartType"
+        },
+        "image": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "characterimageDynamicMapping": {
+      "type": "object",
+      "properties": {
+        "part": {
+          "$ref": "#/definitions/characterimageDynamicPartType"
+        },
+        "image": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "characterimageDynamicPartType": {
+      "type": "string",
+      "enum": [
+        "LEFT_LEG",
+        "RIGHT_LEG",
+        "LEFT_ARM",
+        "RIGHT_ARM"
+      ],
+      "default": "LEFT_LEG",
+      "description": "DynamicPartType describes the type of the part. These are moving, transforming parts."
+    },
+    "characterimageExpressionType": {
+      "type": "string",
+      "enum": [
+        "NEUTRAL"
+      ],
+      "default": "NEUTRAL",
+      "description": "ExpressionType describes the expression for a character. This is defined per-animation-frame."
+    },
+    "characterimageFrame": {
+      "type": "object",
+      "properties": {
+        "image": {
+          "type": "string",
+          "format": "byte"
+        },
+        "staticPositioning": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/characterimagePositioning"
+          }
+        },
+        "propPositioning": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/characterimagePositioning"
+          }
+        },
+        "expression": {
+          "$ref": "#/definitions/characterimageExpressionType"
+        }
+      }
+    },
+    "characterimageListAnimationResponse": {
+      "type": "object",
+      "properties": {
+        "animations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/characterimageAnimation"
+          }
+        }
+      }
+    },
+    "characterimageListBodiesResponse": {
+      "type": "object",
+      "properties": {
+        "bodies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/characterimageBody"
+          }
+        }
+      }
+    },
+    "characterimageListDynamicResponse": {
+      "type": "object",
+      "properties": {
+        "dynamics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/characterimageDynamic"
+          }
+        }
+      }
+    },
+    "characterimageListPropsResponse": {
+      "type": "object",
+      "properties": {
+        "props": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/characterimageProp"
+          }
+        }
+      }
+    },
+    "characterimageListStaticResponse": {
+      "type": "object",
+      "properties": {
+        "statics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/characterimageStatic"
+          }
+        }
+      }
+    },
+    "characterimagePositioning": {
+      "type": "object",
+      "properties": {
+        "coordinates": {
+          "$ref": "#/definitions/characterimageCoordinates"
+        },
+        "rotation": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "description": "Positioning describes the position and rotation of a given item."
+    },
+    "characterimageProp": {
+      "type": "object",
+      "properties": {
+        "displayName": {
+          "type": "string"
+        },
+        "prop": {
+          "$ref": "#/definitions/characterimagePropType"
+        },
+        "image": {
+          "type": "string",
+          "format": "byte"
+        },
+        "anchor": {
+          "$ref": "#/definitions/characterimageCoordinates"
+        }
+      }
+    },
+    "characterimagePropType": {
+      "type": "string",
+      "enum": [
+        "WEAPON_MELEE_1H",
+        "WEAPON_MELEE_2H",
+        "WEAPON_RANGE_1H",
+        "WEAPON_RANGE_2H"
+      ],
+      "default": "WEAPON_MELEE_1H",
+      "description": "PropType describes the type of prop."
+    },
+    "characterimageStatic": {
+      "type": "object",
+      "properties": {
+        "displayName": {
+          "type": "string"
+        },
+        "part": {
+          "$ref": "#/definitions/characterimageStaticPartType"
+        },
+        "image": {
+          "type": "string",
+          "format": "byte"
+        },
+        "anchor": {
+          "$ref": "#/definitions/characterimageCoordinates"
+        }
+      }
+    },
+    "characterimageStaticPartType": {
+      "type": "string",
+      "enum": [
+        "BODY",
+        "HEAD",
+        "HAIR",
+        "EYES",
+        "ACCESSORY_HEAD"
+      ],
+      "default": "BODY",
+      "description": "StaticPartType describes the type of the part. These are non-transforming, stationary (or x/y\nmobile) parts."
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

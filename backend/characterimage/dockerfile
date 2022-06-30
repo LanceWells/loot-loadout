@@ -7,7 +7,7 @@ COPY go.sum .
 COPY api api
 COPY backend/characterimage backend/characterimage
 
-EXPOSE 8888 9999
+EXPOSE 9999
 
 RUN go build -o /app/app ./backend/characterimage/cmd/
 CMD ["/app/app"]

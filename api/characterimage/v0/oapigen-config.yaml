@@ -1,0 +1,9 @@
+# https://github.com/deepmap/oapi-codegen/blob/e12b97181f99e9fd3d79bb268ae581e7a23057d4/pkg/codegen/configuration.go#L24
+output:
+  characterimage.gen.go
+package: characterimage
+generate:
+  models: true
+  echo-server: true
+output-options:
+  skip-prune: true

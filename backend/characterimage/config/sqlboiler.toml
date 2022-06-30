@@ -1,0 +1,11 @@
+output = "../postgres/models"
+wipe = true
+add-enum-types = true
+
+[psql]
+  dbname = "charimage"
+  host = "localhost"
+  port = 5400
+  user = "Snowflake0814"
+  pass = "sqvXEFbH7fjJr7"
+  sslmode = "disable"

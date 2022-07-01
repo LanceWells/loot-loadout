@@ -1,13 +1,17 @@
 package postgres
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"image/color"
+	"image/png"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 
 	api "github.com/lantspants/lootloadout/api/characterimage/v1"
@@ -16,6 +20,7 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"go.opentelemetry.io/otel"
 )
 
@@ -91,22 +96,208 @@ func (db CharacterImageDB) AddBody(
 	ctx context.Context,
 	b *api.Body,
 ) (characterimage.ID, error) {
-	return "", nil
+	_, span := otel.Tracer("CharacterImageDB").Start(ctx, "AddBody")
+	tx, err := db.db.BeginTx(ctx, nil)
+
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+
+		span.End()
+	}()
+
+	body := models.BodyType{
+		DisplayName: b.DisplayName,
+	}
+
+	err = body.Insert(ctx, db.db, boil.Infer())
+	if err != nil {
+		fmt.Println("error inserting body:", err)
+		return "", err
+	}
+
+	return fmt.Sprintf("%v", body.ID), nil
 }
 
-func (db CharacterImageDB) ListBodyTypes(
+func (db CharacterImageDB) ListBodies(
 	ctx context.Context,
 	f *characterimage.BodyTypesFilter,
-) ([]api.Body, error) {
-	return nil, nil
+) (map[string]*api.Body, error) {
+	_, span := otel.Tracer("CharacterImageDB").Start(ctx, "ListBodies")
+	tx, err := db.db.BeginTx(ctx, nil)
+
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+
+		span.End()
+	}()
+
+	bodies, err := models.BodyTypes().All(ctx, db.db)
+	if err != nil {
+		fmt.Println("error getting bodies:", err)
+		return nil, err
+	}
+
+	apiBodies := make(map[string]*api.Body, len(bodies))
+	for _, v := range bodies {
+		apiBodies[strconv.Itoa(v.ID)] = &api.Body{
+			DisplayName: v.DisplayName,
+		}
+	}
+
+	return apiBodies, nil
 }
 
 func (db CharacterImageDB) AddDynamicMapping(
 	ctx context.Context,
 	m *api.DynamicMapping,
 	bodyID characterimage.ID,
-) (characterimage.ID, error) {
-	return "", nil
+) (id characterimage.ID, err error) {
+	_, span := otel.Tracer("CharacterImageDB").Start(ctx, "AddDynamicMapping")
+	tx, err := db.db.BeginTx(ctx, nil)
+
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+		span.End()
+	}()
+
+	// First, ensure that the provided PNG is properly base64-encoded, and that it is also a valid
+	// .png image.
+	dst := make([]byte, base64.StdEncoding.DecodedLen(len(m.Image)))
+	_, err = base64.StdEncoding.Decode(dst, []byte(m.Image))
+	if err != nil {
+		fmt.Println("decoding error:", err)
+		return "", err
+	}
+
+	r := bytes.NewReader(dst)
+	img, err := png.Decode(r)
+	if err != nil {
+		fmt.Println("invalid png:", err)
+		return "", err
+	}
+
+	// Validate the enums.
+	bodyTypeID, err := strconv.Atoi(bodyID)
+	if err != nil {
+		err := fmt.Errorf("provided ID %v is invalid, %v", bodyID, err)
+		fmt.Println(err)
+		return "", err
+	}
+
+	partType := models.DynamicPartType(api.DynamicPartType_name[int32(m.Part)])
+	if err = partType.IsValid(); err != nil {
+		err = fmt.Errorf("invalid dynamic part type: %v", m.Part)
+		db.l.Println(err)
+		return "", err
+	}
+
+	// Insert the base mapping. This needs to happen before we insert any of the pixels. This should
+	// be rolled-back if we have any errors in this transaction.
+	mapping := models.DynamicPartMapping{
+		BodyTypeID: null.IntFrom(bodyTypeID),
+		PartType:   models.NullDynamicPartTypeFrom(partType),
+	}
+
+	err = mapping.Insert(ctx, db.db, boil.Infer())
+	if err != nil {
+		fmt.Println("error inserting dynamic mapping", err)
+		return "", err
+	}
+
+	// Make a list of pixel objects first. This lets us evaluate the .png image, which lets us get a
+	// list of all of the colors that we need a reference to. From there, we can get the IDs for all
+	// of those pixels (inserting if any given pixel does not yet exist).
+	colors := []string{}
+	pixels := map[string]*models.DynamicPartMappingPixel{}
+	b := img.Bounds()
+	for x := b.Min.X; x < b.Max.X; x++ {
+		for y := b.Min.Y; y < b.Max.Y; y++ {
+			c := color.NRGBAModel.Convert(b.RGBA64At(x, y)).(color.NRGBA)
+			r := c.R
+			g := c.G
+			b := c.B
+			a := c.A
+
+			// Do not save transparent pixels.
+			if a == 0 {
+				continue
+			}
+
+			hexString := fmt.Sprintf("#%02x%02x%02x%02x", r, g, b, a)
+			colors = append(colors, hexString)
+			pixels[hexString] = &models.DynamicPartMappingPixel{
+				DynamicPartMappingID: mapping.ID,
+				X:                    null.Int16From(int16(x)),
+				Y:                    null.Int16From(int16(y)),
+			}
+		}
+	}
+
+	colorInterfaces := make([]interface{}, len(colors))
+	for _, c := range colors {
+		colorInterfaces = append(colorInterfaces, c)
+	}
+
+	colorStrings, err := models.ColorStrings(
+		qm.WhereIn(
+			fmt.Sprintf("%v in ?", models.ColorStringColumns.Hexstring),
+			colorInterfaces...,
+		),
+	).All(ctx, db.db)
+	if err != nil {
+		db.l.Println("error getting colorstrings:", err)
+		return "", err
+	}
+
+	// This feels a little extra, but it could save us a lot of loops, so why not?
+	if len(colors) != len(colorStrings) {
+		colorStringMap := map[string]bool{}
+		for _, c := range colorStrings {
+			colorStringMap[c.Hexstring.String] = true
+		}
+
+		for _, c := range colors {
+			if _, ok := colorStringMap[c]; !ok {
+				colorString := &models.ColorString{
+					Hexstring: null.StringFrom(c),
+				}
+
+				err = colorString.Insert(ctx, db.db, boil.Infer())
+				if err != nil {
+					db.l.Println("error inserting color", err)
+					return "", err
+				}
+
+				colorStrings = append(colorStrings, colorString)
+			}
+		}
+	}
+
+	// Actually insert the mapping's pixels at this point.
+	for _, c := range colorStrings {
+		pixel := pixels[c.Hexstring.String]
+		pixel.ColorStringID = c.ID
+
+		err = pixel.Insert(ctx, db.db, boil.Infer())
+		if err != nil {
+			db.l.Println("error inserting mapping pixel:", err)
+			return "", err
+		}
+	}
+
+	return strconv.Itoa(mapping.ID), nil
 }
 
 func (db CharacterImageDB) AddStatic(
@@ -119,11 +310,11 @@ func (db CharacterImageDB) AddStatic(
 func (db CharacterImageDB) ListStatics(
 	ctx context.Context,
 	f *characterimage.StaticPartsFilter,
-) ([]api.Static, error) {
+) (map[string]*api.Static, error) {
 	return nil, nil
 }
 
-func (db CharacterImageDB) CreateDynamic(
+func (db CharacterImageDB) AddDynamic(
 	ctx context.Context,
 	d *api.Dynamic,
 	bodyID characterimage.ID,
@@ -134,11 +325,11 @@ func (db CharacterImageDB) CreateDynamic(
 func (db CharacterImageDB) ListDynamics(
 	ctx context.Context,
 	f *characterimage.DynamicPartsFilter,
-) ([]api.Dynamic, error) {
+) (map[string]*api.Dynamic, error) {
 	return nil, nil
 }
 
-func (db CharacterImageDB) CreateAnimation(
+func (db CharacterImageDB) AddAnimation(
 	ctx context.Context,
 	a *api.Animation,
 	bodyID characterimage.ID,
@@ -149,11 +340,11 @@ func (db CharacterImageDB) CreateAnimation(
 func (db CharacterImageDB) ListAnimations(
 	ctx context.Context,
 	f *characterimage.AnimationsFilter,
-) ([]api.Animation, error) {
+) (map[string]*api.Animation, error) {
 	return nil, nil
 }
 
-func (db CharacterImageDB) CreateFrame(
+func (db CharacterImageDB) AddFrame(
 	ctx context.Context,
 	f *api.Frame,
 	animationID characterimage.ID,
@@ -161,11 +352,11 @@ func (db CharacterImageDB) CreateFrame(
 	return "", nil
 }
 
-func (db CharacterImageDB) CreateProp(
+func (db CharacterImageDB) AddProp(
 	ctx context.Context,
 	p *api.Prop,
 ) (characterimage.ID, error) {
-	_, span := otel.Tracer("CharacterImageDB").Start(ctx, "CreateBodyType")
+	_, span := otel.Tracer("CharacterImageDB").Start(ctx, "CreateProp")
 	tx, err := db.db.BeginTx(ctx, nil)
 
 	defer func() {
@@ -181,15 +372,15 @@ func (db CharacterImageDB) CreateProp(
 	dst := make([]byte, base64.StdEncoding.DecodedLen(len(p.Image)))
 	_, err = base64.StdEncoding.Decode(dst, []byte(p.Image))
 	if err != nil {
-		fmt.Println("decoding error", err)
+		fmt.Println("decoding error:", err)
 		return "", err
 	}
 
 	propType := models.PropType(api.PropType_name[int32(p.Prop)])
 	if err = propType.IsValid(); err != nil {
-		err := fmt.Sprint("invalid prop type:", propType)
+		err = fmt.Errorf("invalid prop type: %v", p.Prop)
 		db.l.Println(err)
-		return "", errors.New(err)
+		return "", err
 	}
 
 	prop := models.Prop{
@@ -216,14 +407,60 @@ func (db CharacterImageDB) CreateProp(
 		return "", err
 	}
 
-	return "", nil
+	return strconv.Itoa(prop.ID), nil
 }
 
 func (db CharacterImageDB) ListProps(
 	ctx context.Context,
 	f *characterimage.PropsFilter,
-) ([]api.Prop, error) {
-	return nil, nil
+) (map[string]*api.Prop, error) {
+	_, span := otel.Tracer("CharacterImageDB").Start(ctx, "ListProps")
+	tx, err := db.db.BeginTx(ctx, nil)
+
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+
+		span.End()
+	}()
+
+	props, err := models.Props(qm.Load(models.PropRels.PropImage)).All(ctx, db.db)
+	if err != nil {
+		fmt.Println("error getting props:", err)
+		return nil, err
+	}
+
+	// apiProps := make([]*api.Prop, len(props))
+	apiProps := make(map[string]*api.Prop, len(props))
+	for _, v := range props {
+		if !v.PartType.Valid {
+			err := errors.New("PropType on returned prop is invalid")
+			fmt.Println("error getting props:", err)
+			return nil, err
+		}
+
+		partType, ok := api.PropType_value[v.PartType.Val.String()]
+		if !ok {
+			err = fmt.Errorf("proptype %v does not exist in API", partType)
+			fmt.Println("error getting props:", err)
+			return nil, err
+		}
+
+		apiProps[strconv.Itoa(v.ID)] = &api.Prop{
+			DisplayName: v.DisplayName,
+			Prop:        api.PropType(partType),
+			Image:       v.R.PropImage.ImageBytes.Bytes,
+			Anchor: &api.Coordinates{
+				X: uint32(v.R.PropImage.X.Int16),
+				Y: uint32(v.R.PropImage.Y.Int16),
+			},
+		}
+	}
+
+	return apiProps, nil
 }
 
 // func (db CharacterImageDB) CreateBodyType(
@@ -401,7 +638,7 @@ func (db CharacterImageDB) ListProps(
 // 	return nil, nil
 // }
 
-// func (r *CharacterImageDB) ListBodyTypes(
+// func (r *CharacterImageDB) ListBodies(
 // 	context.Context,
 // 	*characterimage.BodyTypesFilter,
 // ) ([]pb.BodyType, error) {

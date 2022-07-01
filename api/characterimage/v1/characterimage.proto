@@ -94,14 +94,14 @@ message Prop {
 
 service Images {
   rpc AddBody(AddBodyRequest) returns (AddBodyResponse);
-  rpc ListBody(ListBodiesRequest) returns (ListBodiesResponse);
+  rpc ListBodies(ListBodiesRequest) returns (ListBodiesResponse);
   rpc AddDynamicMapping(AddDynamicMappingRequest) returns (AddDynamicMappingResponse);
   rpc AddStatic(AddStaticRequest) returns (AddStaticResponse);
-  rpc ListStatic(ListStaticRequest) returns (ListStaticResponse);
+  rpc ListStatics(ListStaticRequest) returns (ListStaticsResponse);
   rpc AddDynamic(AddDynamicRequest) returns (AddDynamicResponse);
-  rpc ListDynamic(ListDynamicRequest) returns (ListDynamicResponse);
+  rpc ListDynamics(ListDynamicsRequest) returns (ListDynamicsResponse);
   rpc AddAnimation(AddAnimationRequest) returns (AddAnimationResponse);
-  rpc ListAnimation(ListAnimationRequest) returns (ListAnimationResponse);
+  rpc ListAnimations(ListAnimationsRequest) returns (ListAnimationsResponse);
   rpc AddFrame(AddFrameRequest) returns (AddFrameResponse);
   rpc AddProp(AddPropRequest) returns (AddPropResponse);
   rpc ListProps(ListPropsRequest) returns (ListPropsResponse);
@@ -116,11 +116,13 @@ message AddBodyResponse {
 
 message ListBodiesRequest {}
 message ListBodiesResponse {
-  repeated Body bodies = 1;
+  option (validate.disabled) = true;
+  map<string, Body> bodies = 1;
 }
 
 message AddDynamicMappingRequest {
   DynamicMapping mapping = 1;
+  string bodyID = 2;
 }
 message AddDynamicMappingResponse {
   string id = 1;
@@ -135,8 +137,9 @@ message AddStaticResponse {
 }
 
 message ListStaticRequest {}
-message ListStaticResponse {
-  repeated Static statics = 1;
+message ListStaticsResponse {
+  option (validate.disabled) = true;
+  map<string, Static> statics = 1;
 }
 
 message AddDynamicRequest {
@@ -147,9 +150,10 @@ message AddDynamicResponse {
   string id = 1;
 }
 
-message ListDynamicRequest {}
-message ListDynamicResponse {
-  repeated Dynamic dynamics = 1;
+message ListDynamicsRequest {}
+message ListDynamicsResponse {
+  option (validate.disabled) = true;
+  map<string, Dynamic> dynamics = 1;
 }
 
 message AddAnimationRequest {
@@ -160,9 +164,10 @@ message AddAnimationResponse {
   string id = 1;
 }
 
-message ListAnimationRequest {}
-message ListAnimationResponse {
-  repeated Animation animations = 1;
+message ListAnimationsRequest {}
+message ListAnimationsResponse {
+  option (validate.disabled) = true;
+  map<string, Animation> animations = 1;
 }
 
 message AddFrameRequest {
@@ -182,5 +187,6 @@ message AddPropResponse {
 
 message ListPropsRequest {}
 message ListPropsResponse {
-  repeated Prop props = 1;
+  option (validate.disabled) = true;
+  map<string, Prop> props = 1;
 }

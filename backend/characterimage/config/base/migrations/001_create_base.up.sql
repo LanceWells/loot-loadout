@@ -43,7 +43,8 @@ CREATE TYPE expression_type AS ENUM (
 -- twice).
 CREATE TABLE color_string (
   id SERIAL PRIMARY KEY,
-  hexstring varchar(9)
+  hexstring varchar(9) NOT NULL,
+  UNIQUE(hexstring)
 );
 
 -- body_type is the basis for all other character display information.
@@ -57,16 +58,16 @@ CREATE TABLE body_type (
 -- information for this part.
 CREATE TABLE dynamic_part_mapping (
   ID SERIAL PRIMARY KEY,
-  body_type_id int REFERENCES body_type(id),
-  part_type dynamic_part_type,
+  body_type_id int REFERENCES body_type(id) NOT NULL,
+  part_type dynamic_part_type NOT NULL,
   UNIQUE(body_type_id, part_type)
 );
 
 CREATE TABLE dynamic_part_mapping_pixel (
-  color_string_id int REFERENCES color_string(id),
-  dynamic_part_mapping_id int REFERENCES dynamic_part_mapping(id),
-  x smallint,
-  y smallint,
+  color_string_id int REFERENCES color_string(id) NOT NULL,
+  dynamic_part_mapping_id int REFERENCES dynamic_part_mapping(id) NOT NULL,
+  x smallint NOT NULL,
+  y smallint NOT NULL,
   UNIQUE(x, y, dynamic_part_mapping_id),
   PRIMARY KEY(color_string_id, dynamic_part_mapping_id)
 );
@@ -76,16 +77,16 @@ CREATE TABLE dynamic_part_mapping_pixel (
 -- dynamic_part_mapping, which gives us our pixel-to-color lookup.
 CREATE TABLE dynamic_part (
   id SERIAL PRIMARY KEY,
-  dynamic_part_mapping_id int REFERENCES dynamic_part_mapping(id),
-  display_name varchar NOT NULL,
-  part_type dynamic_part_type
+  dynamic_part_mapping_id int REFERENCES dynamic_part_mapping(id) NOT NULL,
+  display_name varchar NOT NULL NOT NULL,
+  part_type dynamic_part_type NOT NULL
 );
 
 CREATE TABLE dynamic_part_pixel (
-  color_string_id int REFERENCES color_string(id),
-  dynamic_part_id int REFERENCES dynamic_part(id),
-  x smallint,
-  y smallint,
+  color_string_id int REFERENCES color_string(id) NOT NULL,
+  dynamic_part_id int REFERENCES dynamic_part(id) NOT NULL,
+  x smallint NOT NULL,
+  y smallint NOT NULL,
   UNIQUE(x, y, dynamic_part_id),
   PRIMARY KEY(color_string_id, dynamic_part_id)
 );
@@ -94,16 +95,16 @@ CREATE TABLE dynamic_part_pixel (
 -- static part may only be applied to a single body type.
 CREATE TABLE static_part (
   id SERIAL PRIMARY KEY,
-  body_type_id int REFERENCES body_type(id),
-  display_name varchar NOT NULL,
-  part_type static_part_type
+  body_type_id int REFERENCES body_type(id) NOT NULL,
+  display_name varchar NOT NULL NOT NULL,
+  part_type static_part_type NOT NULL
 );
 
 CREATE TABLE static_part_image (
   static_part_id int REFERENCES static_part(id) PRIMARY KEY,
-  x smallint,
-  y smallint,
-  image_bytes bytea
+  x smallint NOT NULL,
+  y smallint NOT NULL,
+  image_bytes bytea NOT NULL
 );
 
 -- prop is represented by a static image that does not transform (but might rotate). These items may
@@ -111,23 +112,23 @@ CREATE TABLE static_part_image (
 CREATE TABLE prop (
   id SERIAL PRIMARY KEY,
   display_name varchar NOT NULL,
-  part_type prop_type
+  part_type prop_type NOT NULL
 );
 
 CREATE TABLE prop_image (
   prop_id int REFERENCES prop(id) PRIMARY KEY,
-  x smallint,
-  y smallint,
-  image_bytes bytea
+  x smallint NOT NULL,
+  y smallint NOT NULL,
+  image_bytes bytea NOT NULL
 );
 
 -- animation is the representational information for a character's pose and how its body is laid-out
 -- visually.
 CREATE TABLE animation (
   id SERIAL PRIMARY KEY,
-  body_type_id int REFERENCES body_type(id),
-  display_name varchar NOT NULL,
-  part_type prop_type[]
+  body_type_id int REFERENCES body_type(id) NOT NULL,
+  display_name varchar NOT NULL NOT NULL,
+  part_type prop_type[] NOT NULL
 );
 
 -- animation_frame is a single frame of animation for a larger animation. In concert, these make a
@@ -135,35 +136,35 @@ CREATE TABLE animation (
 -- includes the basic dynamic_part_mapping lookup colors that we use to determine the final output.
 CREATE TABLE animation_frame (
   id SERIAL PRIMARY KEY,
-  animation_id int REFERENCES animation(id),
+  animation_id int REFERENCES animation(id) NOT NULL,
   frame_index int NOT NULL,
   expression expression_type NOT NULL,
   UNIQUE(animation_id, frame_index)
 );
 
 CREATE TABLE animation_frame_pixel (
-  color_string_id int REFERENCES color_string,
-  animation_frame_id int REFERENCES animation_frame(id),
-  x smallint,
-  y smallint,
+  color_string_id int REFERENCES color_string NOT NULL,
+  animation_frame_id int REFERENCES animation_frame(id) NOT NULL,
+  x smallint NOT NULL,
+  y smallint NOT NULL,
   UNIQUE(x, y, animation_frame_id),
   PRIMARY KEY(color_string_id, animation_frame_id)
 );
 
 CREATE TABLE animation_frame_static_position (
-  animation_frame_id int REFERENCES animation_frame(id),
-  part_type static_part_type,
-  x smallint,
-  y smallint,
-  rotation smallint,
+  animation_frame_id int REFERENCES animation_frame(id) NOT NULL,
+  part_type static_part_type NOT NULL,
+  x smallint NOT NULL,
+  y smallint NOT NULL,
+  rotation smallint NOT NULL,
   PRIMARY KEY(animation_frame_id, part_type)
 );
 
 CREATE TABLE animation_frame_prop_position (
-  animation_frame_id int REFERENCES animation_frame(id),
-  part_type prop_type,
-  x smallint,
-  y smallint,
-  rotation smallint,
+  animation_frame_id int REFERENCES animation_frame(id) NOT NULL,
+  part_type prop_type NOT NULL,
+  x smallint NOT NULL,
+  y smallint NOT NULL,
+  rotation smallint NOT NULL,
   PRIMARY KEY(animation_frame_id, part_type)
 );

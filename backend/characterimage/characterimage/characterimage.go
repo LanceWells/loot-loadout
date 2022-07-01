@@ -31,9 +31,9 @@ func (s CharacterImageService) AddProp(
 	_, span := otel.Tracer("CharacterImageService").Start(ctx, "AddProp")
 	defer span.End()
 
-	id, err := s.db.CreateProp(ctx, req.Prop)
+	id, err := s.db.AddProp(ctx, req.Prop)
 	if err != nil {
-		s.l.Printf("error adding a prop: %v", err)
+		s.l.Println("error adding a prop:", err)
 		return nil, err
 	}
 
@@ -43,55 +43,62 @@ func (s CharacterImageService) AddProp(
 func (s CharacterImageService) ListProps(
 	ctx context.Context,
 	req *api.ListPropsRequest,
-) ([]api.Prop, error) {
+) (map[string]*api.Prop, error) {
 	_, span := otel.Tracer("CharacterImageService").Start(ctx, "ListProps")
 	defer span.End()
 
 	props, err := s.db.ListProps(ctx, nil)
 	if err != nil {
-		s.l.Printf("error getting props: %v", err)
+		s.l.Println("error getting props:", err)
 		return nil, err
 	}
 
 	return props, nil
 }
 
-// func (s CharacterImageService) CreateBodyType(
-// 	ctx context.Context,
-// 	req *api.CreateBodyTypeRequest,
-// ) (characterimage.ID, error) {
-// 	id, err := s.db.CreateBodyType(ctx, req.Body)
-// 	if err != nil {
-// 		s.l.Printf("error creating a body type: %v", err)
-// 		return "", err
-// 	}
+func (s CharacterImageService) AddBody(
+	ctx context.Context,
+	req *api.AddBodyRequest,
+) (*characterimage.ID, error) {
+	_, span := otel.Tracer("CharacterImageService").Start(ctx, "AddBody")
+	defer span.End()
 
-// 	return id, nil
-// }
+	id, err := s.db.AddBody(ctx, req.Body)
+	if err != nil {
+		s.l.Println("error adding a prop:", err)
+		return nil, err
+	}
 
-// func (s CharacterImageService) GetBodyType(
-// 	ctx context.Context,
-// 	req *api.GetBodyTypeRequest,
-// ) (*api.BodyType, error) {
-// 	body, err := s.db.GetBodyType(ctx, req.Id)
-// 	if err != nil {
-// 		s.l.Printf("error getting a body type: %v", err)
-// 		return nil, err
-// 	}
+	return &id, nil
+}
 
-// 	return body, nil
-// }
+func (s CharacterImageService) ListBodies(
+	ctx context.Context,
+	req *api.ListBodiesRequest,
+) (map[string]*api.Body, error) {
+	_, span := otel.Tracer("CharacterImageService").Start(ctx, "ListBodies")
+	defer span.End()
 
-// func (s CharacterImageService) CreateDynamicPart(
-// 	ctx context.Context,
-// 	*pb.DynamicPart,
-// ) (ID, error) {
-// 	s.db.Create
-// }
+	bodies, err := s.db.ListBodies(ctx, nil)
+	if err != nil {
+		s.l.Println("error getting props:", err)
+		return nil, err
+	}
 
-// func (s CharacterImageService) GetDynamicPart(
-// 	ctx context.Context,
-// 	id ID,
-// ) (*pb.DynamicPart, error) {
+	return bodies, nil
+}
 
-// }
+func (s CharacterImageService) AddDynamicMapping(
+	ctx context.Context,
+	req *api.AddDynamicMappingRequest,
+) (characterimage.ID, error) {
+	_, span := otel.Tracer("CharacterImageService").Start(ctx, "AddDynamicMapping")
+	defer span.End()
+
+	id, err := s.db.AddDynamicMapping(ctx, req.Mapping, req.BodyID)
+	if err != nil {
+		s.l.Println("error adding dynamic mapping:", err)
+	}
+
+	return id, nil
+}

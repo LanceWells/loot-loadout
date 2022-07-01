@@ -328,21 +328,21 @@ type AnimationsFilter struct {
 
 type CharacterImageDatabase interface {
 	AddBody(context.Context, *pb.Body) (ID, error)
-	ListBodyTypes(context.Context, *BodyTypesFilter) ([]pb.Body, error)
+	ListBodies(context.Context, *BodyTypesFilter) (map[string]*pb.Body, error)
 
 	AddDynamicMapping(ctx context.Context, m *pb.DynamicMapping, bodyID ID) (ID, error)
 
 	AddStatic(context.Context, *pb.Static) (ID, error)
-	ListStatics(context.Context, *StaticPartsFilter) ([]pb.Static, error)
+	ListStatics(context.Context, *StaticPartsFilter) (map[string]*pb.Static, error)
 
-	CreateDynamic(ctx context.Context, d *pb.Dynamic, bodyID ID) (ID, error)
-	ListDynamics(context.Context, *DynamicPartsFilter) ([]pb.Dynamic, error)
+	AddDynamic(ctx context.Context, d *pb.Dynamic, bodyID ID) (ID, error)
+	ListDynamics(context.Context, *DynamicPartsFilter) (map[string]*pb.Dynamic, error)
 
-	CreateAnimation(ctx context.Context, a *pb.Animation, bodyID ID) (ID, error)
-	ListAnimations(context.Context, *AnimationsFilter) ([]pb.Animation, error)
+	AddAnimation(ctx context.Context, a *pb.Animation, bodyID ID) (ID, error)
+	ListAnimations(context.Context, *AnimationsFilter) (map[string]*pb.Animation, error)
 
-	CreateFrame(ctx context.Context, f *pb.Frame, animationID ID) (ID, error)
+	AddFrame(ctx context.Context, f *pb.Frame, animationID ID) (ID, error)
 
-	CreateProp(context.Context, *pb.Prop) (ID, error)
-	ListProps(context.Context, *PropsFilter) ([]pb.Prop, error)
+	AddProp(context.Context, *pb.Prop) (ID, error)
+	ListProps(context.Context, *PropsFilter) (map[string]*pb.Prop, error)
 }

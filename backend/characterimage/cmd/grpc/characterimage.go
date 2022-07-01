@@ -36,13 +36,13 @@ func (r CharacterImageServer) AddProp(
 
 	err := req.Validate()
 	if err != nil {
-		r.l.Printf("error validating: %v", err)
+		r.l.Println("error validating:", err)
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	id, err := r.s.AddProp(ctx, req)
 	if err != nil {
-		r.l.Printf("error adding a prop: %v", err)
+		r.l.Println("error adding a prop:", err)
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -51,70 +51,98 @@ func (r CharacterImageServer) AddProp(
 	}, nil
 }
 
-// func (r CharacterImageServer) CreateBodyType(
-// 	ctx context.Context,
-// 	req *pb.CreateBodyTypeRequest,
-// ) (*pb.CreateBodyTypeResponse, error) {
-// 	_, span := otel.Tracer("CharacterImageServer").Start(ctx, "CreateBodyType")
-// 	defer span.End()
+func (r CharacterImageServer) ListProps(
+	ctx context.Context,
+	req *api.ListPropsRequest,
+) (*api.ListPropsResponse, error) {
+	_, span := otel.Tracer("CharacterImageServer").Start(ctx, "ListProps")
+	defer span.End()
 
-// 	err := req.Validate()
-// 	if err != nil {
-// 		r.l.Printf("error validating: %v", err)
-// 		return nil, err
-// 	}
+	err := req.Validate()
+	if err != nil {
+		r.l.Printf("error validating: %v", err)
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
 
-// 	id, err := r.s.CreateBodyType(ctx, req)
-// 	if err != nil {
-// 		r.l.Printf("error creating a body type: %v", err)
-// 		return nil, err
-// 	}
+	props, err := r.s.ListProps(ctx, req)
+	if err != nil {
+		r.l.Println("error listing props:", err)
+		return nil, status.Error(codes.Internal, err.Error())
+	}
 
-// 	span.SetAttributes(
-// 		attribute.String("BodyTypeID", id),
-// 	)
+	return &api.ListPropsResponse{
+		Props: props,
+	}, nil
+}
 
-// 	return &pb.CreateBodyTypeResponse{
-// 		Id: id,
-// 	}, nil
-// }
+func (r CharacterImageServer) AddBody(
+	ctx context.Context,
+	req *api.AddBodyRequest,
+) (*api.AddBodyResponse, error) {
+	_, span := otel.Tracer("CharacterImageServer").Start(ctx, "AddBody")
+	defer span.End()
 
-// func (r CharacterImageServer) GetBodyType(
-// 	ctx context.Context,
-// 	req *pb.GetBodyTypeRequest,
-// ) (*pb.GetBodyTypeResponse, error) {
-// 	_, span := otel.Tracer("CharacterImageServer").Start(ctx, "GetBodyType")
-// 	defer span.End()
+	err := req.Validate()
+	if err != nil {
+		r.l.Println("error validating:", err)
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
 
-// 	err := req.Validate()
-// 	if err != nil {
-// 		r.l.Printf("error validating: %v", err)
-// 		return nil, status.Errorf(codes.InvalidArgument, err.Error())
-// 	}
+	id, err := r.s.AddBody(ctx, req)
+	if err != nil {
+		r.l.Println("error adding a body:", err)
+		return nil, status.Error(codes.Internal, err.Error())
+	}
 
-// 	body, err := r.s.GetBodyType(ctx, req)
-// 	if err != nil {
-// 		r.l.Printf("error getting body type: %v", err)
-// 		return nil, status.Errorf(codes.Internal, err.Error())
-// 	}
+	return &api.AddBodyResponse{
+		Id: *id,
+	}, nil
+}
 
-// 	return &pb.GetBodyTypeResponse{
-// 		Body: body,
-// 	}, nil
-// }
+func (r CharacterImageServer) ListBodies(
+	ctx context.Context,
+	req *api.ListBodiesRequest,
+) (*api.ListBodiesResponse, error) {
+	_, span := otel.Tracer("CharacterImageServer").Start(ctx, "ListBodies")
+	defer span.End()
 
-// func (r CharacterImageServer) CreateDynamicPartMapping(
-// 	ctx context.Context,
-// 	req *pb.CreateDynamicPartMappingRequest,
-// ) (*pb.CreateDynamicPartMappingResponse, error) {
-// 	_, span := otel.Tracer("CharacterImageServer").Start(ctx, "CreateDynamicPartMapping")
-// 	defer span.End()
+	err := req.Validate()
+	if err != nil {
+		r.l.Printf("error validating: %v", err)
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
 
-// 	err := req.Validate()
-// 	if err != nil {
-// 		r.l.Printf("error validating: %v", err)
-// 		return nil, status.Errorf(codes.InvalidArgument, err.Error())
-// 	}
+	bodies, err := r.s.ListBodies(ctx, req)
+	if err != nil {
+		r.l.Println("error listing bodies:", err)
+		return nil, status.Error(codes.Internal, err.Error())
+	}
 
-// 	return nil, status.Errorf(codes.Unimplemented, "method CreateDynamicPartMapping not implemented")
-// }
+	return &api.ListBodiesResponse{
+		Bodies: bodies,
+	}, nil
+}
+
+func (r CharacterImageServer) AddDynamicMapping(
+	ctx context.Context,
+	req *api.AddDynamicMappingRequest,
+) (*api.AddDynamicMappingResponse, error) {
+	_, span := otel.Tracer("CharacterImageServer").Start(ctx, "AddDynamicMapping")
+	defer span.End()
+
+	err := req.Validate()
+	if err != nil {
+		r.l.Printf("error validating: %v", err)
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	id, err := r.s.AddDynamicMapping(ctx, req)
+	if err != nil {
+		r.l.Println("error adding dynamic mapping:", err)
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &api.AddDynamicMappingResponse{
+		Id: id,
+	}, nil
+}

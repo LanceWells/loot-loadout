@@ -23,14 +23,14 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ImagesClient interface {
 	AddBody(ctx context.Context, in *AddBodyRequest, opts ...grpc.CallOption) (*AddBodyResponse, error)
-	ListBody(ctx context.Context, in *ListBodiesRequest, opts ...grpc.CallOption) (*ListBodiesResponse, error)
+	ListBodies(ctx context.Context, in *ListBodiesRequest, opts ...grpc.CallOption) (*ListBodiesResponse, error)
 	AddDynamicMapping(ctx context.Context, in *AddDynamicMappingRequest, opts ...grpc.CallOption) (*AddDynamicMappingResponse, error)
 	AddStatic(ctx context.Context, in *AddStaticRequest, opts ...grpc.CallOption) (*AddStaticResponse, error)
-	ListStatic(ctx context.Context, in *ListStaticRequest, opts ...grpc.CallOption) (*ListStaticResponse, error)
+	ListStatics(ctx context.Context, in *ListStaticRequest, opts ...grpc.CallOption) (*ListStaticsResponse, error)
 	AddDynamic(ctx context.Context, in *AddDynamicRequest, opts ...grpc.CallOption) (*AddDynamicResponse, error)
-	ListDynamic(ctx context.Context, in *ListDynamicRequest, opts ...grpc.CallOption) (*ListDynamicResponse, error)
+	ListDynamics(ctx context.Context, in *ListDynamicsRequest, opts ...grpc.CallOption) (*ListDynamicsResponse, error)
 	AddAnimation(ctx context.Context, in *AddAnimationRequest, opts ...grpc.CallOption) (*AddAnimationResponse, error)
-	ListAnimation(ctx context.Context, in *ListAnimationRequest, opts ...grpc.CallOption) (*ListAnimationResponse, error)
+	ListAnimations(ctx context.Context, in *ListAnimationsRequest, opts ...grpc.CallOption) (*ListAnimationsResponse, error)
 	AddFrame(ctx context.Context, in *AddFrameRequest, opts ...grpc.CallOption) (*AddFrameResponse, error)
 	AddProp(ctx context.Context, in *AddPropRequest, opts ...grpc.CallOption) (*AddPropResponse, error)
 	ListProps(ctx context.Context, in *ListPropsRequest, opts ...grpc.CallOption) (*ListPropsResponse, error)
@@ -53,9 +53,9 @@ func (c *imagesClient) AddBody(ctx context.Context, in *AddBodyRequest, opts ...
 	return out, nil
 }
 
-func (c *imagesClient) ListBody(ctx context.Context, in *ListBodiesRequest, opts ...grpc.CallOption) (*ListBodiesResponse, error) {
+func (c *imagesClient) ListBodies(ctx context.Context, in *ListBodiesRequest, opts ...grpc.CallOption) (*ListBodiesResponse, error) {
 	out := new(ListBodiesResponse)
-	err := c.cc.Invoke(ctx, "/lantspants.lootloadout.characterimage.Images/ListBody", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/lantspants.lootloadout.characterimage.Images/ListBodies", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -80,9 +80,9 @@ func (c *imagesClient) AddStatic(ctx context.Context, in *AddStaticRequest, opts
 	return out, nil
 }
 
-func (c *imagesClient) ListStatic(ctx context.Context, in *ListStaticRequest, opts ...grpc.CallOption) (*ListStaticResponse, error) {
-	out := new(ListStaticResponse)
-	err := c.cc.Invoke(ctx, "/lantspants.lootloadout.characterimage.Images/ListStatic", in, out, opts...)
+func (c *imagesClient) ListStatics(ctx context.Context, in *ListStaticRequest, opts ...grpc.CallOption) (*ListStaticsResponse, error) {
+	out := new(ListStaticsResponse)
+	err := c.cc.Invoke(ctx, "/lantspants.lootloadout.characterimage.Images/ListStatics", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -98,9 +98,9 @@ func (c *imagesClient) AddDynamic(ctx context.Context, in *AddDynamicRequest, op
 	return out, nil
 }
 
-func (c *imagesClient) ListDynamic(ctx context.Context, in *ListDynamicRequest, opts ...grpc.CallOption) (*ListDynamicResponse, error) {
-	out := new(ListDynamicResponse)
-	err := c.cc.Invoke(ctx, "/lantspants.lootloadout.characterimage.Images/ListDynamic", in, out, opts...)
+func (c *imagesClient) ListDynamics(ctx context.Context, in *ListDynamicsRequest, opts ...grpc.CallOption) (*ListDynamicsResponse, error) {
+	out := new(ListDynamicsResponse)
+	err := c.cc.Invoke(ctx, "/lantspants.lootloadout.characterimage.Images/ListDynamics", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -116,9 +116,9 @@ func (c *imagesClient) AddAnimation(ctx context.Context, in *AddAnimationRequest
 	return out, nil
 }
 
-func (c *imagesClient) ListAnimation(ctx context.Context, in *ListAnimationRequest, opts ...grpc.CallOption) (*ListAnimationResponse, error) {
-	out := new(ListAnimationResponse)
-	err := c.cc.Invoke(ctx, "/lantspants.lootloadout.characterimage.Images/ListAnimation", in, out, opts...)
+func (c *imagesClient) ListAnimations(ctx context.Context, in *ListAnimationsRequest, opts ...grpc.CallOption) (*ListAnimationsResponse, error) {
+	out := new(ListAnimationsResponse)
+	err := c.cc.Invoke(ctx, "/lantspants.lootloadout.characterimage.Images/ListAnimations", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -157,14 +157,14 @@ func (c *imagesClient) ListProps(ctx context.Context, in *ListPropsRequest, opts
 // for forward compatibility
 type ImagesServer interface {
 	AddBody(context.Context, *AddBodyRequest) (*AddBodyResponse, error)
-	ListBody(context.Context, *ListBodiesRequest) (*ListBodiesResponse, error)
+	ListBodies(context.Context, *ListBodiesRequest) (*ListBodiesResponse, error)
 	AddDynamicMapping(context.Context, *AddDynamicMappingRequest) (*AddDynamicMappingResponse, error)
 	AddStatic(context.Context, *AddStaticRequest) (*AddStaticResponse, error)
-	ListStatic(context.Context, *ListStaticRequest) (*ListStaticResponse, error)
+	ListStatics(context.Context, *ListStaticRequest) (*ListStaticsResponse, error)
 	AddDynamic(context.Context, *AddDynamicRequest) (*AddDynamicResponse, error)
-	ListDynamic(context.Context, *ListDynamicRequest) (*ListDynamicResponse, error)
+	ListDynamics(context.Context, *ListDynamicsRequest) (*ListDynamicsResponse, error)
 	AddAnimation(context.Context, *AddAnimationRequest) (*AddAnimationResponse, error)
-	ListAnimation(context.Context, *ListAnimationRequest) (*ListAnimationResponse, error)
+	ListAnimations(context.Context, *ListAnimationsRequest) (*ListAnimationsResponse, error)
 	AddFrame(context.Context, *AddFrameRequest) (*AddFrameResponse, error)
 	AddProp(context.Context, *AddPropRequest) (*AddPropResponse, error)
 	ListProps(context.Context, *ListPropsRequest) (*ListPropsResponse, error)
@@ -178,8 +178,8 @@ type UnimplementedImagesServer struct {
 func (UnimplementedImagesServer) AddBody(context.Context, *AddBodyRequest) (*AddBodyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddBody not implemented")
 }
-func (UnimplementedImagesServer) ListBody(context.Context, *ListBodiesRequest) (*ListBodiesResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListBody not implemented")
+func (UnimplementedImagesServer) ListBodies(context.Context, *ListBodiesRequest) (*ListBodiesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListBodies not implemented")
 }
 func (UnimplementedImagesServer) AddDynamicMapping(context.Context, *AddDynamicMappingRequest) (*AddDynamicMappingResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddDynamicMapping not implemented")
@@ -187,20 +187,20 @@ func (UnimplementedImagesServer) AddDynamicMapping(context.Context, *AddDynamicM
 func (UnimplementedImagesServer) AddStatic(context.Context, *AddStaticRequest) (*AddStaticResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddStatic not implemented")
 }
-func (UnimplementedImagesServer) ListStatic(context.Context, *ListStaticRequest) (*ListStaticResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListStatic not implemented")
+func (UnimplementedImagesServer) ListStatics(context.Context, *ListStaticRequest) (*ListStaticsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListStatics not implemented")
 }
 func (UnimplementedImagesServer) AddDynamic(context.Context, *AddDynamicRequest) (*AddDynamicResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddDynamic not implemented")
 }
-func (UnimplementedImagesServer) ListDynamic(context.Context, *ListDynamicRequest) (*ListDynamicResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListDynamic not implemented")
+func (UnimplementedImagesServer) ListDynamics(context.Context, *ListDynamicsRequest) (*ListDynamicsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListDynamics not implemented")
 }
 func (UnimplementedImagesServer) AddAnimation(context.Context, *AddAnimationRequest) (*AddAnimationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddAnimation not implemented")
 }
-func (UnimplementedImagesServer) ListAnimation(context.Context, *ListAnimationRequest) (*ListAnimationResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListAnimation not implemented")
+func (UnimplementedImagesServer) ListAnimations(context.Context, *ListAnimationsRequest) (*ListAnimationsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListAnimations not implemented")
 }
 func (UnimplementedImagesServer) AddFrame(context.Context, *AddFrameRequest) (*AddFrameResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddFrame not implemented")
@@ -242,20 +242,20 @@ func _Images_AddBody_Handler(srv interface{}, ctx context.Context, dec func(inte
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Images_ListBody_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Images_ListBodies_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListBodiesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ImagesServer).ListBody(ctx, in)
+		return srv.(ImagesServer).ListBodies(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/lantspants.lootloadout.characterimage.Images/ListBody",
+		FullMethod: "/lantspants.lootloadout.characterimage.Images/ListBodies",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ImagesServer).ListBody(ctx, req.(*ListBodiesRequest))
+		return srv.(ImagesServer).ListBodies(ctx, req.(*ListBodiesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -296,20 +296,20 @@ func _Images_AddStatic_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Images_ListStatic_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Images_ListStatics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListStaticRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ImagesServer).ListStatic(ctx, in)
+		return srv.(ImagesServer).ListStatics(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/lantspants.lootloadout.characterimage.Images/ListStatic",
+		FullMethod: "/lantspants.lootloadout.characterimage.Images/ListStatics",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ImagesServer).ListStatic(ctx, req.(*ListStaticRequest))
+		return srv.(ImagesServer).ListStatics(ctx, req.(*ListStaticRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -332,20 +332,20 @@ func _Images_AddDynamic_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Images_ListDynamic_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListDynamicRequest)
+func _Images_ListDynamics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListDynamicsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ImagesServer).ListDynamic(ctx, in)
+		return srv.(ImagesServer).ListDynamics(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/lantspants.lootloadout.characterimage.Images/ListDynamic",
+		FullMethod: "/lantspants.lootloadout.characterimage.Images/ListDynamics",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ImagesServer).ListDynamic(ctx, req.(*ListDynamicRequest))
+		return srv.(ImagesServer).ListDynamics(ctx, req.(*ListDynamicsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -368,20 +368,20 @@ func _Images_AddAnimation_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Images_ListAnimation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListAnimationRequest)
+func _Images_ListAnimations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListAnimationsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ImagesServer).ListAnimation(ctx, in)
+		return srv.(ImagesServer).ListAnimations(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/lantspants.lootloadout.characterimage.Images/ListAnimation",
+		FullMethod: "/lantspants.lootloadout.characterimage.Images/ListAnimations",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ImagesServer).ListAnimation(ctx, req.(*ListAnimationRequest))
+		return srv.(ImagesServer).ListAnimations(ctx, req.(*ListAnimationsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -452,8 +452,8 @@ var Images_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Images_AddBody_Handler,
 		},
 		{
-			MethodName: "ListBody",
-			Handler:    _Images_ListBody_Handler,
+			MethodName: "ListBodies",
+			Handler:    _Images_ListBodies_Handler,
 		},
 		{
 			MethodName: "AddDynamicMapping",
@@ -464,24 +464,24 @@ var Images_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Images_AddStatic_Handler,
 		},
 		{
-			MethodName: "ListStatic",
-			Handler:    _Images_ListStatic_Handler,
+			MethodName: "ListStatics",
+			Handler:    _Images_ListStatics_Handler,
 		},
 		{
 			MethodName: "AddDynamic",
 			Handler:    _Images_AddDynamic_Handler,
 		},
 		{
-			MethodName: "ListDynamic",
-			Handler:    _Images_ListDynamic_Handler,
+			MethodName: "ListDynamics",
+			Handler:    _Images_ListDynamics_Handler,
 		},
 		{
 			MethodName: "AddAnimation",
 			Handler:    _Images_AddAnimation_Handler,
 		},
 		{
-			MethodName: "ListAnimation",
-			Handler:    _Images_ListAnimation_Handler,
+			MethodName: "ListAnimations",
+			Handler:    _Images_ListAnimations_Handler,
 		},
 		{
 			MethodName: "AddFrame",

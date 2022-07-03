@@ -22,17 +22,40 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ImagesClient interface {
+	// AddBody adds a body for use with an animation. This is the basic component of any animation.
 	AddBody(ctx context.Context, in *AddBodyRequest, opts ...grpc.CallOption) (*AddBodyResponse, error)
+	// ListBodies gets a list of all of the bodies available.
+	// TODO: Add filter.
 	ListBodies(ctx context.Context, in *ListBodiesRequest, opts ...grpc.CallOption) (*ListBodiesResponse, error)
+	// AddDynamicMapping adds a new dynamic element mapping for use with an animation. This image
+	// should be comprised of a series of pixels that are each uniquely colored. These pixels are used
+	// to map onto an animation frame, and their positional data correlates with dynamics images in
+	// the same shape.
 	AddDynamicMapping(ctx context.Context, in *AddDynamicMappingRequest, opts ...grpc.CallOption) (*AddDynamicMappingResponse, error)
+	// AddStatic creates a new static part for use with an animation. Note that these parts only
+	// change in that they either move laterally or rotate.
 	AddStatic(ctx context.Context, in *AddStaticRequest, opts ...grpc.CallOption) (*AddStaticResponse, error)
+	// ListStatics returns a list of all of the statics available.
+	// TODO: Add filter.
 	ListStatics(ctx context.Context, in *ListStaticRequest, opts ...grpc.CallOption) (*ListStaticsResponse, error)
+	// AddDynamic adds a new dynamic for use with an animation. This dynamic should be comprised of a
+	// set of pixels where the position of each pixel correlates to the position of a pixel on the
+	// related mapping type for the associated body type.
 	AddDynamic(ctx context.Context, in *AddDynamicRequest, opts ...grpc.CallOption) (*AddDynamicResponse, error)
+	// ListDynamics returns a list of all of the dynamics available.
 	ListDynamics(ctx context.Context, in *ListDynamicsRequest, opts ...grpc.CallOption) (*ListDynamicsResponse, error)
+	// AddAnimation adds a new animation. Note that any pose is also an animation (just one with a
+	// single frame).
 	AddAnimation(ctx context.Context, in *AddAnimationRequest, opts ...grpc.CallOption) (*AddAnimationResponse, error)
+	// ListAnimations returns all of the animations available.
+	// TODO: Add filter.
 	ListAnimations(ctx context.Context, in *ListAnimationsRequest, opts ...grpc.CallOption) (*ListAnimationsResponse, error)
+	// AddFrame adds a new frame for an animation.
 	AddFrame(ctx context.Context, in *AddFrameRequest, opts ...grpc.CallOption) (*AddFrameResponse, error)
+	// AddProp adds a new prop.
 	AddProp(ctx context.Context, in *AddPropRequest, opts ...grpc.CallOption) (*AddPropResponse, error)
+	// ListProps returns a list of all available props.
+	// TODO: Add filter.
 	ListProps(ctx context.Context, in *ListPropsRequest, opts ...grpc.CallOption) (*ListPropsResponse, error)
 }
 
@@ -156,17 +179,40 @@ func (c *imagesClient) ListProps(ctx context.Context, in *ListPropsRequest, opts
 // All implementations must embed UnimplementedImagesServer
 // for forward compatibility
 type ImagesServer interface {
+	// AddBody adds a body for use with an animation. This is the basic component of any animation.
 	AddBody(context.Context, *AddBodyRequest) (*AddBodyResponse, error)
+	// ListBodies gets a list of all of the bodies available.
+	// TODO: Add filter.
 	ListBodies(context.Context, *ListBodiesRequest) (*ListBodiesResponse, error)
+	// AddDynamicMapping adds a new dynamic element mapping for use with an animation. This image
+	// should be comprised of a series of pixels that are each uniquely colored. These pixels are used
+	// to map onto an animation frame, and their positional data correlates with dynamics images in
+	// the same shape.
 	AddDynamicMapping(context.Context, *AddDynamicMappingRequest) (*AddDynamicMappingResponse, error)
+	// AddStatic creates a new static part for use with an animation. Note that these parts only
+	// change in that they either move laterally or rotate.
 	AddStatic(context.Context, *AddStaticRequest) (*AddStaticResponse, error)
+	// ListStatics returns a list of all of the statics available.
+	// TODO: Add filter.
 	ListStatics(context.Context, *ListStaticRequest) (*ListStaticsResponse, error)
+	// AddDynamic adds a new dynamic for use with an animation. This dynamic should be comprised of a
+	// set of pixels where the position of each pixel correlates to the position of a pixel on the
+	// related mapping type for the associated body type.
 	AddDynamic(context.Context, *AddDynamicRequest) (*AddDynamicResponse, error)
+	// ListDynamics returns a list of all of the dynamics available.
 	ListDynamics(context.Context, *ListDynamicsRequest) (*ListDynamicsResponse, error)
+	// AddAnimation adds a new animation. Note that any pose is also an animation (just one with a
+	// single frame).
 	AddAnimation(context.Context, *AddAnimationRequest) (*AddAnimationResponse, error)
+	// ListAnimations returns all of the animations available.
+	// TODO: Add filter.
 	ListAnimations(context.Context, *ListAnimationsRequest) (*ListAnimationsResponse, error)
+	// AddFrame adds a new frame for an animation.
 	AddFrame(context.Context, *AddFrameRequest) (*AddFrameResponse, error)
+	// AddProp adds a new prop.
 	AddProp(context.Context, *AddPropRequest) (*AddPropResponse, error)
+	// ListProps returns a list of all available props.
+	// TODO: Add filter.
 	ListProps(context.Context, *ListPropsRequest) (*ListPropsResponse, error)
 	mustEmbedUnimplementedImagesServer()
 }

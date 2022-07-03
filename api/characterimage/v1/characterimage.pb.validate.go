@@ -327,7 +327,16 @@ func (m *Body) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for DisplayName
+	if utf8.RuneCountInString(m.GetDisplayName()) < 1 {
+		err := BodyValidationError{
+			field:  "DisplayName",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return BodyMultiError(errors)
@@ -428,9 +437,27 @@ func (m *DynamicMapping) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Part
+	if _, ok := DynamicPartType_name[int32(m.GetPart())]; !ok {
+		err := DynamicMappingValidationError{
+			field:  "Part",
+			reason: "value must be one of the defined enum values",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Image
+	if len(m.GetImage()) > 1024 {
+		err := DynamicMappingValidationError{
+			field:  "Image",
+			reason: "value length must be at most 1024 bytes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return DynamicMappingMultiError(errors)
@@ -531,11 +558,49 @@ func (m *Static) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for DisplayName
+	if utf8.RuneCountInString(m.GetDisplayName()) < 1 {
+		err := StaticValidationError{
+			field:  "DisplayName",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Part
+	if _, ok := StaticPartType_name[int32(m.GetPart())]; !ok {
+		err := StaticValidationError{
+			field:  "Part",
+			reason: "value must be one of the defined enum values",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Image
+	if len(m.GetImage()) > 1024 {
+		err := StaticValidationError{
+			field:  "Image",
+			reason: "value length must be at most 1024 bytes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if m.GetAnchor() == nil {
+		err := StaticValidationError{
+			field:  "Anchor",
+			reason: "value is required",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if all {
 		switch v := interface{}(m.GetAnchor()).(type) {
@@ -664,9 +729,27 @@ func (m *Dynamic) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for DisplayName
+	if utf8.RuneCountInString(m.GetDisplayName()) < 1 {
+		err := DynamicValidationError{
+			field:  "DisplayName",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Part
+	if _, ok := DynamicPartType_name[int32(m.GetPart())]; !ok {
+		err := DynamicValidationError{
+			field:  "Part",
+			reason: "value must be one of the defined enum values",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return DynamicMultiError(errors)
@@ -812,6 +895,17 @@ func (m *Frame) validate(all bool) error {
 		}
 	}
 
+	if m.GetPropPositioning() == nil {
+		err := FrameValidationError{
+			field:  "PropPositioning",
+			reason: "value is required",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
 	if all {
 		switch v := interface{}(m.GetPropPositioning()).(type) {
 		case interface{ ValidateAll() error }:
@@ -841,7 +935,16 @@ func (m *Frame) validate(all bool) error {
 		}
 	}
 
-	// no validation rules for Expression
+	if _, ok := ExpressionType_name[int32(m.GetExpression())]; !ok {
+		err := FrameValidationError{
+			field:  "Expression",
+			reason: "value must be one of the defined enum values",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return FrameMultiError(errors)
@@ -942,7 +1045,16 @@ func (m *Animation) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for DisplayName
+	if utf8.RuneCountInString(m.GetDisplayName()) < 1 {
+		err := AnimationValidationError{
+			field:  "DisplayName",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return AnimationMultiError(errors)
@@ -1042,11 +1154,49 @@ func (m *Prop) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for DisplayName
+	if utf8.RuneCountInString(m.GetDisplayName()) < 1 {
+		err := PropValidationError{
+			field:  "DisplayName",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Prop
+	if _, ok := PropType_name[int32(m.GetProp())]; !ok {
+		err := PropValidationError{
+			field:  "Prop",
+			reason: "value must be one of the defined enum values",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Image
+	if len(m.GetImage()) > 1024 {
+		err := PropValidationError{
+			field:  "Image",
+			reason: "value length must be at most 1024 bytes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if m.GetAnchor() == nil {
+		err := PropValidationError{
+			field:  "Anchor",
+			reason: "value is required",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if all {
 		switch v := interface{}(m.GetAnchor()).(type) {
@@ -1175,6 +1325,17 @@ func (m *AddBodyRequest) validate(all bool) error {
 	}
 
 	var errors []error
+
+	if m.GetBody() == nil {
+		err := AddBodyRequestValidationError{
+			field:  "Body",
+			reason: "value is required",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if all {
 		switch v := interface{}(m.GetBody()).(type) {
@@ -1597,6 +1758,17 @@ func (m *AddDynamicMappingRequest) validate(all bool) error {
 
 	var errors []error
 
+	if m.GetMapping() == nil {
+		err := AddDynamicMappingRequestValidationError{
+			field:  "Mapping",
+			reason: "value is required",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
 	if all {
 		switch v := interface{}(m.GetMapping()).(type) {
 		case interface{ ValidateAll() error }:
@@ -1626,7 +1798,16 @@ func (m *AddDynamicMappingRequest) validate(all bool) error {
 		}
 	}
 
-	// no validation rules for BodyID
+	if utf8.RuneCountInString(m.GetBodyID()) < 1 {
+		err := AddDynamicMappingRequestValidationError{
+			field:  "BodyID",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return AddDynamicMappingRequestMultiError(errors)
@@ -1834,6 +2015,17 @@ func (m *AddStaticRequest) validate(all bool) error {
 
 	var errors []error
 
+	if m.GetStatic() == nil {
+		err := AddStaticRequestValidationError{
+			field:  "Static",
+			reason: "value is required",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
 	if all {
 		switch v := interface{}(m.GetStatic()).(type) {
 		case interface{ ValidateAll() error }:
@@ -1863,7 +2055,16 @@ func (m *AddStaticRequest) validate(all bool) error {
 		}
 	}
 
-	// no validation rules for BodyID
+	if utf8.RuneCountInString(m.GetBodyID()) < 1 {
+		err := AddStaticRequestValidationError{
+			field:  "BodyID",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return AddStaticRequestMultiError(errors)
@@ -2259,6 +2460,17 @@ func (m *AddDynamicRequest) validate(all bool) error {
 
 	var errors []error
 
+	if m.GetDynamic() == nil {
+		err := AddDynamicRequestValidationError{
+			field:  "Dynamic",
+			reason: "value is required",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
 	if all {
 		switch v := interface{}(m.GetDynamic()).(type) {
 		case interface{ ValidateAll() error }:
@@ -2288,9 +2500,27 @@ func (m *AddDynamicRequest) validate(all bool) error {
 		}
 	}
 
-	// no validation rules for BodyID
+	if utf8.RuneCountInString(m.GetBodyID()) < 1 {
+		err := AddDynamicRequestValidationError{
+			field:  "BodyID",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Image
+	if len(m.GetImage()) > 1024 {
+		err := AddDynamicRequestValidationError{
+			field:  "Image",
+			reason: "value length must be at most 1024 bytes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return AddDynamicRequestMultiError(errors)
@@ -2689,6 +2919,17 @@ func (m *AddAnimationRequest) validate(all bool) error {
 
 	var errors []error
 
+	if m.GetAnimation() == nil {
+		err := AddAnimationRequestValidationError{
+			field:  "Animation",
+			reason: "value is required",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
 	if all {
 		switch v := interface{}(m.GetAnimation()).(type) {
 		case interface{ ValidateAll() error }:
@@ -2718,7 +2959,16 @@ func (m *AddAnimationRequest) validate(all bool) error {
 		}
 	}
 
-	// no validation rules for BodyID
+	if utf8.RuneCountInString(m.GetBodyID()) < 1 {
+		err := AddAnimationRequestValidationError{
+			field:  "BodyID",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return AddAnimationRequestMultiError(errors)
@@ -3117,6 +3367,17 @@ func (m *AddFrameRequest) validate(all bool) error {
 
 	var errors []error
 
+	if m.GetFrame() == nil {
+		err := AddFrameRequestValidationError{
+			field:  "Frame",
+			reason: "value is required",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
 	if all {
 		switch v := interface{}(m.GetFrame()).(type) {
 		case interface{ ValidateAll() error }:
@@ -3146,9 +3407,27 @@ func (m *AddFrameRequest) validate(all bool) error {
 		}
 	}
 
-	// no validation rules for AnimationID
+	if utf8.RuneCountInString(m.GetAnimationID()) < 1 {
+		err := AddFrameRequestValidationError{
+			field:  "AnimationID",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Image
+	if len(m.GetImage()) > 1024 {
+		err := AddFrameRequestValidationError{
+			field:  "Image",
+			reason: "value length must be at most 1024 bytes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return AddFrameRequestMultiError(errors)
@@ -3351,6 +3630,17 @@ func (m *AddPropRequest) validate(all bool) error {
 	}
 
 	var errors []error
+
+	if m.GetProp() == nil {
+		err := AddPropRequestValidationError{
+			field:  "Prop",
+			reason: "value is required",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if all {
 		switch v := interface{}(m.GetProp()).(type) {

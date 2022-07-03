@@ -52,61 +52,95 @@ enum ExpressionType {
 }
 
 message Body {
-  string displayName = 1;
+  string displayName = 1 [(validate.rules).string = { min_len: 1 } ];
 }
 
 message DynamicMapping {
-  DynamicPartType part = 1;
-  bytes image = 2;
+  DynamicPartType part = 1 [(validate.rules).enum.defined_only = true];
+  bytes image = 2 [(validate.rules).bytes = { max_len: 1024 }];
 }
 
 message Static {
-  string displayName = 1;
-  StaticPartType part = 2;
-  bytes image = 3;
-  Coordinates anchor = 4;
+  string displayName = 1 [(validate.rules).string = { min_len: 1 } ];
+  StaticPartType part = 2 [(validate.rules).enum.defined_only = true];
+  bytes image = 3 [(validate.rules).bytes = { max_len: 1024 }];
+  Coordinates anchor = 4 [(validate.rules).message.required = true];
 }
 
 message Dynamic {
-  string displayName = 1;
-  DynamicPartType part = 2;
+  string displayName = 1 [(validate.rules).string = { min_len: 1 } ];
+  DynamicPartType part = 2 [(validate.rules).enum.defined_only = true];
 }
 
 message Frame {
   map<string, Positioning> staticPositioning = 1;
-  Positioning propPositioning = 2;
-  ExpressionType expression = 3;
+  Positioning propPositioning = 2 [(validate.rules).message.required = true];
+  ExpressionType expression = 3 [(validate.rules).enum.defined_only = true];
 }
 
 message Animation {
-  string displayName = 1;
+  string displayName = 1 [(validate.rules).string = { min_len: 1 } ];
   repeated PropType allowed = 2;
 }
 
 message Prop {
-  string displayName = 1;
-  PropType prop = 2;
-  bytes image = 3;
-  Coordinates anchor = 4;
+  string displayName = 1 [(validate.rules).string = { min_len: 1 } ];
+  PropType prop = 2 [(validate.rules).enum.defined_only = true];
+  bytes image = 3 [(validate.rules).bytes = { max_len: 1024 }];
+  Coordinates anchor = 4 [(validate.rules).message.required = true];
 }
 
 service Images {
+  // AddBody adds a body for use with an animation. This is the basic component of any animation.
   rpc AddBody(AddBodyRequest) returns (AddBodyResponse);
+
+  // ListBodies gets a list of all of the bodies available.
+  // TODO: Add filter.
   rpc ListBodies(ListBodiesRequest) returns (ListBodiesResponse);
+
+  // AddDynamicMapping adds a new dynamic element mapping for use with an animation. This image
+  // should be comprised of a series of pixels that are each uniquely colored. These pixels are used
+  // to map onto an animation frame, and their positional data correlates with dynamics images in
+  // the same shape.
   rpc AddDynamicMapping(AddDynamicMappingRequest) returns (AddDynamicMappingResponse);
+
+  // AddStatic creates a new static part for use with an animation. Note that these parts only
+  // change in that they either move laterally or rotate.
   rpc AddStatic(AddStaticRequest) returns (AddStaticResponse);
+
+  // ListStatics returns a list of all of the statics available.
+  // TODO: Add filter.
   rpc ListStatics(ListStaticRequest) returns (ListStaticsResponse);
+
+  // AddDynamic adds a new dynamic for use with an animation. This dynamic should be comprised of a
+  // set of pixels where the position of each pixel correlates to the position of a pixel on the
+  // related mapping type for the associated body type.
   rpc AddDynamic(AddDynamicRequest) returns (AddDynamicResponse);
+  
+  // ListDynamics returns a list of all of the dynamics available.
   rpc ListDynamics(ListDynamicsRequest) returns (ListDynamicsResponse);
+
+  // AddAnimation adds a new animation. Note that any pose is also an animation (just one with a
+  // single frame).
   rpc AddAnimation(AddAnimationRequest) returns (AddAnimationResponse);
+
+  // ListAnimations returns all of the animations available.
+  // TODO: Add filter.
   rpc ListAnimations(ListAnimationsRequest) returns (ListAnimationsResponse);
+
+  // AddFrame adds a new frame for an animation.
   rpc AddFrame(AddFrameRequest) returns (AddFrameResponse);
+
+  // AddProp adds a new prop.
   rpc AddProp(AddPropRequest) returns (AddPropResponse);
+
+  // ListProps returns a list of all available props.
+  // TODO: Add filter.
   rpc ListProps(ListPropsRequest) returns (ListPropsResponse);
 }
 
 message AddBodyRequest {
-  Body body = 1;
+  Body body = 1 [(validate.rules).message.required = true];
 }
 message AddBodyResponse {
   string id = 1;
@@ -119,16 +153,16 @@ message ListBodiesResponse {
 }
 
 message AddDynamicMappingRequest {
-  DynamicMapping mapping = 1;
-  string bodyID = 2;
+  DynamicMapping mapping = 1 [(validate.rules).message.required = true];
+  string bodyID = 2 [(validate.rules).string = { min_len: 1 } ];
 }
 message AddDynamicMappingResponse {
   string id = 1;
 }
 
 message AddStaticRequest {
-  Static static = 1;
-  string bodyID = 2;
+  Static static = 1 [(validate.rules).message.required = true];
+  string bodyID = 2 [(validate.rules).string = { min_len: 1 } ];
 }
 message AddStaticResponse {
   string id = 1;
@@ -141,9 +175,9 @@ message ListStaticsResponse {
 }
 
 message AddDynamicRequest {
-  Dynamic dynamic = 1;
-  string bodyID = 2;
-  bytes image = 3;
+  Dynamic dynamic = 1 [(validate.rules).message.required = true];
+  string bodyID = 2 [(validate.rules).string = { min_len: 1 } ];
+  bytes image = 3 [(validate.rules).bytes = { max_len: 1024 }];
 }
 message AddDynamicResponse {
   string id = 1;
@@ -157,8 +191,8 @@ message ListDynamicsResponse {
 }
 
 message AddAnimationRequest {
-  Animation animation = 1;
-  string bodyID = 2;
+  Animation animation = 1 [(validate.rules).message.required = true];
+  string bodyID = 2 [(validate.rules).string = { min_len: 1 } ];
 }
 message AddAnimationResponse {
   string id = 1;
@@ -171,16 +205,16 @@ message ListAnimationsResponse {
 }
 
 message AddFrameRequest {
-  Frame frame = 1;
-  string animationID = 2;
-  bytes image = 3;
+  Frame frame = 1 [(validate.rules).message.required = true];
+  string animationID = 2 [(validate.rules).string = { min_len: 1 } ];
+  bytes image = 3 [(validate.rules).bytes = { max_len: 1024 }];
 }
 message AddFrameResponse {
   string id = 1;
 }
 
 message AddPropRequest {
-  Prop prop = 1;
+  Prop prop = 1 [(validate.rules).message.required = true];
 }
 message AddPropResponse {
   string id = 1;

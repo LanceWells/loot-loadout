@@ -457,7 +457,7 @@ func (bodyTypeL) LoadAnimations(ctx context.Context, e boil.ContextExecutor, sin
 			}
 
 			for _, a := range args {
-				if queries.Equal(a, obj.ID) {
+				if a == obj.ID {
 					continue Outer
 				}
 			}
@@ -515,7 +515,7 @@ func (bodyTypeL) LoadAnimations(ctx context.Context, e boil.ContextExecutor, sin
 
 	for _, foreign := range resultSlice {
 		for _, local := range slice {
-			if queries.Equal(local.ID, foreign.BodyTypeID) {
+			if local.ID == foreign.BodyTypeID {
 				local.R.Animations = append(local.R.Animations, foreign)
 				if foreign.R == nil {
 					foreign.R = &animationR{}
@@ -555,7 +555,7 @@ func (bodyTypeL) LoadDynamicPartMappings(ctx context.Context, e boil.ContextExec
 			}
 
 			for _, a := range args {
-				if queries.Equal(a, obj.ID) {
+				if a == obj.ID {
 					continue Outer
 				}
 			}
@@ -613,7 +613,7 @@ func (bodyTypeL) LoadDynamicPartMappings(ctx context.Context, e boil.ContextExec
 
 	for _, foreign := range resultSlice {
 		for _, local := range slice {
-			if queries.Equal(local.ID, foreign.BodyTypeID) {
+			if local.ID == foreign.BodyTypeID {
 				local.R.DynamicPartMappings = append(local.R.DynamicPartMappings, foreign)
 				if foreign.R == nil {
 					foreign.R = &dynamicPartMappingR{}
@@ -653,7 +653,7 @@ func (bodyTypeL) LoadStaticParts(ctx context.Context, e boil.ContextExecutor, si
 			}
 
 			for _, a := range args {
-				if queries.Equal(a, obj.ID) {
+				if a == obj.ID {
 					continue Outer
 				}
 			}
@@ -711,7 +711,7 @@ func (bodyTypeL) LoadStaticParts(ctx context.Context, e boil.ContextExecutor, si
 
 	for _, foreign := range resultSlice {
 		for _, local := range slice {
-			if queries.Equal(local.ID, foreign.BodyTypeID) {
+			if local.ID == foreign.BodyTypeID {
 				local.R.StaticParts = append(local.R.StaticParts, foreign)
 				if foreign.R == nil {
 					foreign.R = &staticPartR{}
@@ -733,7 +733,7 @@ func (o *BodyType) AddAnimations(ctx context.Context, exec boil.ContextExecutor,
 	var err error
 	for _, rel := range related {
 		if insert {
-			queries.Assign(&rel.BodyTypeID, o.ID)
+			rel.BodyTypeID = o.ID
 			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
 				return errors.Wrap(err, "failed to insert into foreign table")
 			}
@@ -754,7 +754,7 @@ func (o *BodyType) AddAnimations(ctx context.Context, exec boil.ContextExecutor,
 				return errors.Wrap(err, "failed to update foreign table")
 			}
 
-			queries.Assign(&rel.BodyTypeID, o.ID)
+			rel.BodyTypeID = o.ID
 		}
 	}
 
@@ -778,80 +778,6 @@ func (o *BodyType) AddAnimations(ctx context.Context, exec boil.ContextExecutor,
 	return nil
 }
 
-// SetAnimations removes all previously related items of the
-// body_type replacing them completely with the passed
-// in related items, optionally inserting them as new records.
-// Sets o.R.BodyType's Animations accordingly.
-// Replaces o.R.Animations with related.
-// Sets related.R.BodyType's Animations accordingly.
-func (o *BodyType) SetAnimations(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*Animation) error {
-	query := "update \"animation\" set \"body_type_id\" = null where \"body_type_id\" = $1"
-	values := []interface{}{o.ID}
-	if boil.IsDebug(ctx) {
-		writer := boil.DebugWriterFrom(ctx)
-		fmt.Fprintln(writer, query)
-		fmt.Fprintln(writer, values)
-	}
-	_, err := exec.ExecContext(ctx, query, values...)
-	if err != nil {
-		return errors.Wrap(err, "failed to remove relationships before set")
-	}
-
-	if o.R != nil {
-		for _, rel := range o.R.Animations {
-			queries.SetScanner(&rel.BodyTypeID, nil)
-			if rel.R == nil {
-				continue
-			}
-
-			rel.R.BodyType = nil
-		}
-		o.R.Animations = nil
-	}
-
-	return o.AddAnimations(ctx, exec, insert, related...)
-}
-
-// RemoveAnimations relationships from objects passed in.
-// Removes related items from R.Animations (uses pointer comparison, removal does not keep order)
-// Sets related.R.BodyType.
-func (o *BodyType) RemoveAnimations(ctx context.Context, exec boil.ContextExecutor, related ...*Animation) error {
-	if len(related) == 0 {
-		return nil
-	}
-
-	var err error
-	for _, rel := range related {
-		queries.SetScanner(&rel.BodyTypeID, nil)
-		if rel.R != nil {
-			rel.R.BodyType = nil
-		}
-		if _, err = rel.Update(ctx, exec, boil.Whitelist("body_type_id")); err != nil {
-			return err
-		}
-	}
-	if o.R == nil {
-		return nil
-	}
-
-	for _, rel := range related {
-		for i, ri := range o.R.Animations {
-			if rel != ri {
-				continue
-			}
-
-			ln := len(o.R.Animations)
-			if ln > 1 && i < ln-1 {
-				o.R.Animations[i] = o.R.Animations[ln-1]
-			}
-			o.R.Animations = o.R.Animations[:ln-1]
-			break
-		}
-	}
-
-	return nil
-}
-
 // AddDynamicPartMappings adds the given related objects to the existing relationships
 // of the body_type, optionally inserting them as new records.
 // Appends related to o.R.DynamicPartMappings.
@@ -860,7 +786,7 @@ func (o *BodyType) AddDynamicPartMappings(ctx context.Context, exec boil.Context
 	var err error
 	for _, rel := range related {
 		if insert {
-			queries.Assign(&rel.BodyTypeID, o.ID)
+			rel.BodyTypeID = o.ID
 			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
 				return errors.Wrap(err, "failed to insert into foreign table")
 			}
@@ -881,7 +807,7 @@ func (o *BodyType) AddDynamicPartMappings(ctx context.Context, exec boil.Context
 				return errors.Wrap(err, "failed to update foreign table")
 			}
 
-			queries.Assign(&rel.BodyTypeID, o.ID)
+			rel.BodyTypeID = o.ID
 		}
 	}
 
@@ -905,80 +831,6 @@ func (o *BodyType) AddDynamicPartMappings(ctx context.Context, exec boil.Context
 	return nil
 }
 
-// SetDynamicPartMappings removes all previously related items of the
-// body_type replacing them completely with the passed
-// in related items, optionally inserting them as new records.
-// Sets o.R.BodyType's DynamicPartMappings accordingly.
-// Replaces o.R.DynamicPartMappings with related.
-// Sets related.R.BodyType's DynamicPartMappings accordingly.
-func (o *BodyType) SetDynamicPartMappings(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*DynamicPartMapping) error {
-	query := "update \"dynamic_part_mapping\" set \"body_type_id\" = null where \"body_type_id\" = $1"
-	values := []interface{}{o.ID}
-	if boil.IsDebug(ctx) {
-		writer := boil.DebugWriterFrom(ctx)
-		fmt.Fprintln(writer, query)
-		fmt.Fprintln(writer, values)
-	}
-	_, err := exec.ExecContext(ctx, query, values...)
-	if err != nil {
-		return errors.Wrap(err, "failed to remove relationships before set")
-	}
-
-	if o.R != nil {
-		for _, rel := range o.R.DynamicPartMappings {
-			queries.SetScanner(&rel.BodyTypeID, nil)
-			if rel.R == nil {
-				continue
-			}
-
-			rel.R.BodyType = nil
-		}
-		o.R.DynamicPartMappings = nil
-	}
-
-	return o.AddDynamicPartMappings(ctx, exec, insert, related...)
-}
-
-// RemoveDynamicPartMappings relationships from objects passed in.
-// Removes related items from R.DynamicPartMappings (uses pointer comparison, removal does not keep order)
-// Sets related.R.BodyType.
-func (o *BodyType) RemoveDynamicPartMappings(ctx context.Context, exec boil.ContextExecutor, related ...*DynamicPartMapping) error {
-	if len(related) == 0 {
-		return nil
-	}
-
-	var err error
-	for _, rel := range related {
-		queries.SetScanner(&rel.BodyTypeID, nil)
-		if rel.R != nil {
-			rel.R.BodyType = nil
-		}
-		if _, err = rel.Update(ctx, exec, boil.Whitelist("body_type_id")); err != nil {
-			return err
-		}
-	}
-	if o.R == nil {
-		return nil
-	}
-
-	for _, rel := range related {
-		for i, ri := range o.R.DynamicPartMappings {
-			if rel != ri {
-				continue
-			}
-
-			ln := len(o.R.DynamicPartMappings)
-			if ln > 1 && i < ln-1 {
-				o.R.DynamicPartMappings[i] = o.R.DynamicPartMappings[ln-1]
-			}
-			o.R.DynamicPartMappings = o.R.DynamicPartMappings[:ln-1]
-			break
-		}
-	}
-
-	return nil
-}
-
 // AddStaticParts adds the given related objects to the existing relationships
 // of the body_type, optionally inserting them as new records.
 // Appends related to o.R.StaticParts.
@@ -987,7 +839,7 @@ func (o *BodyType) AddStaticParts(ctx context.Context, exec boil.ContextExecutor
 	var err error
 	for _, rel := range related {
 		if insert {
-			queries.Assign(&rel.BodyTypeID, o.ID)
+			rel.BodyTypeID = o.ID
 			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
 				return errors.Wrap(err, "failed to insert into foreign table")
 			}
@@ -1008,7 +860,7 @@ func (o *BodyType) AddStaticParts(ctx context.Context, exec boil.ContextExecutor
 				return errors.Wrap(err, "failed to update foreign table")
 			}
 
-			queries.Assign(&rel.BodyTypeID, o.ID)
+			rel.BodyTypeID = o.ID
 		}
 	}
 
@@ -1029,80 +881,6 @@ func (o *BodyType) AddStaticParts(ctx context.Context, exec boil.ContextExecutor
 			rel.R.BodyType = o
 		}
 	}
-	return nil
-}
-
-// SetStaticParts removes all previously related items of the
-// body_type replacing them completely with the passed
-// in related items, optionally inserting them as new records.
-// Sets o.R.BodyType's StaticParts accordingly.
-// Replaces o.R.StaticParts with related.
-// Sets related.R.BodyType's StaticParts accordingly.
-func (o *BodyType) SetStaticParts(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*StaticPart) error {
-	query := "update \"static_part\" set \"body_type_id\" = null where \"body_type_id\" = $1"
-	values := []interface{}{o.ID}
-	if boil.IsDebug(ctx) {
-		writer := boil.DebugWriterFrom(ctx)
-		fmt.Fprintln(writer, query)
-		fmt.Fprintln(writer, values)
-	}
-	_, err := exec.ExecContext(ctx, query, values...)
-	if err != nil {
-		return errors.Wrap(err, "failed to remove relationships before set")
-	}
-
-	if o.R != nil {
-		for _, rel := range o.R.StaticParts {
-			queries.SetScanner(&rel.BodyTypeID, nil)
-			if rel.R == nil {
-				continue
-			}
-
-			rel.R.BodyType = nil
-		}
-		o.R.StaticParts = nil
-	}
-
-	return o.AddStaticParts(ctx, exec, insert, related...)
-}
-
-// RemoveStaticParts relationships from objects passed in.
-// Removes related items from R.StaticParts (uses pointer comparison, removal does not keep order)
-// Sets related.R.BodyType.
-func (o *BodyType) RemoveStaticParts(ctx context.Context, exec boil.ContextExecutor, related ...*StaticPart) error {
-	if len(related) == 0 {
-		return nil
-	}
-
-	var err error
-	for _, rel := range related {
-		queries.SetScanner(&rel.BodyTypeID, nil)
-		if rel.R != nil {
-			rel.R.BodyType = nil
-		}
-		if _, err = rel.Update(ctx, exec, boil.Whitelist("body_type_id")); err != nil {
-			return err
-		}
-	}
-	if o.R == nil {
-		return nil
-	}
-
-	for _, rel := range related {
-		for i, ri := range o.R.StaticParts {
-			if rel != ri {
-				continue
-			}
-
-			ln := len(o.R.StaticParts)
-			if ln > 1 && i < ln-1 {
-				o.R.StaticParts[i] = o.R.StaticParts[ln-1]
-			}
-			o.R.StaticParts = o.R.StaticParts[:ln-1]
-			break
-		}
-	}
-
 	return nil
 }
 

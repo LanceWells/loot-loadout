@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/friendsofgo/errors"
-	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -24,10 +23,10 @@ import (
 
 // StaticPartImage is an object representing the database table.
 type StaticPartImage struct {
-	StaticPartID int        `boil:"static_part_id" json:"static_part_id" toml:"static_part_id" yaml:"static_part_id"`
-	X            null.Int16 `boil:"x" json:"x,omitempty" toml:"x" yaml:"x,omitempty"`
-	Y            null.Int16 `boil:"y" json:"y,omitempty" toml:"y" yaml:"y,omitempty"`
-	ImageBytes   null.Bytes `boil:"image_bytes" json:"image_bytes,omitempty" toml:"image_bytes" yaml:"image_bytes,omitempty"`
+	StaticPartID int    `boil:"static_part_id" json:"static_part_id" toml:"static_part_id" yaml:"static_part_id"`
+	X            int16  `boil:"x" json:"x" toml:"x" yaml:"x"`
+	Y            int16  `boil:"y" json:"y" toml:"y" yaml:"y"`
+	ImageBytes   []byte `boil:"image_bytes" json:"image_bytes" toml:"image_bytes" yaml:"image_bytes"`
 
 	R *staticPartImageR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L staticPartImageL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -61,14 +60,14 @@ var StaticPartImageTableColumns = struct {
 
 var StaticPartImageWhere = struct {
 	StaticPartID whereHelperint
-	X            whereHelpernull_Int16
-	Y            whereHelpernull_Int16
-	ImageBytes   whereHelpernull_Bytes
+	X            whereHelperint16
+	Y            whereHelperint16
+	ImageBytes   whereHelper__byte
 }{
 	StaticPartID: whereHelperint{field: "\"static_part_image\".\"static_part_id\""},
-	X:            whereHelpernull_Int16{field: "\"static_part_image\".\"x\""},
-	Y:            whereHelpernull_Int16{field: "\"static_part_image\".\"y\""},
-	ImageBytes:   whereHelpernull_Bytes{field: "\"static_part_image\".\"image_bytes\""},
+	X:            whereHelperint16{field: "\"static_part_image\".\"x\""},
+	Y:            whereHelperint16{field: "\"static_part_image\".\"y\""},
+	ImageBytes:   whereHelper__byte{field: "\"static_part_image\".\"image_bytes\""},
 }
 
 // StaticPartImageRels is where relationship names are stored.
@@ -100,8 +99,8 @@ type staticPartImageL struct{}
 
 var (
 	staticPartImageAllColumns            = []string{"static_part_id", "x", "y", "image_bytes"}
-	staticPartImageColumnsWithoutDefault = []string{"static_part_id"}
-	staticPartImageColumnsWithDefault    = []string{"x", "y", "image_bytes"}
+	staticPartImageColumnsWithoutDefault = []string{"static_part_id", "x", "y", "image_bytes"}
+	staticPartImageColumnsWithDefault    = []string{}
 	staticPartImagePrimaryKeyColumns     = []string{"static_part_id"}
 	staticPartImageGeneratedColumns      = []string{}
 )

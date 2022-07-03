@@ -332,11 +332,11 @@ type CharacterImageDatabase interface {
 
 	AddDynamicMapping(ctx context.Context, m *pb.DynamicMapping, bodyID ID) (ID, error)
 
-	AddStatic(context.Context, *pb.Static) (ID, error)
+	AddStatic(ctx context.Context, s *pb.Static, bodyID ID) (ID, error)
 	ListStatics(context.Context, *StaticPartsFilter) (map[string]*pb.Static, error)
 
-	AddDynamic(ctx context.Context, d *pb.Dynamic, bodyID ID) (ID, error)
-	ListDynamics(context.Context, *DynamicPartsFilter) (map[string]*pb.Dynamic, error)
+	AddDynamic(ctx context.Context, d *pb.Dynamic, bodyID ID, image []byte) (ID, error)
+	ListDynamics(context.Context, *DynamicPartsFilter) (map[string]*pb.Dynamic, map[string][]byte, error)
 
 	AddAnimation(ctx context.Context, a *pb.Animation, bodyID ID) (ID, error)
 	ListAnimations(context.Context, *AnimationsFilter) (map[string]*pb.Animation, error)

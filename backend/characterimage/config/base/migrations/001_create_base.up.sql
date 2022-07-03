@@ -91,6 +91,11 @@ CREATE TABLE dynamic_part_pixel (
   PRIMARY KEY(color_string_id, dynamic_part_id)
 );
 
+CREATE TABLE dynamic_part_thumbnail (
+  dynamic_part_id int REFERENCES dynamic_part(id) PRIMARY KEY,
+  image_bytes bytea NOT NULL
+);
+
 -- static_part is represented by a static image that does not transform (but might rotate). Any
 -- static part may only be applied to a single body type.
 CREATE TABLE static_part (

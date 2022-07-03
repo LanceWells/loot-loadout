@@ -519,8 +519,9 @@ func testDynamicPartMappingToManyDynamicParts(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	queries.Assign(&b.DynamicPartMappingID, a.ID)
-	queries.Assign(&c.DynamicPartMappingID, a.ID)
+	b.DynamicPartMappingID = a.ID
+	c.DynamicPartMappingID = a.ID
+
 	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
 		t.Fatal(err)
 	}
@@ -535,10 +536,10 @@ func testDynamicPartMappingToManyDynamicParts(t *testing.T) {
 
 	bFound, cFound := false, false
 	for _, v := range check {
-		if queries.Equal(v.DynamicPartMappingID, b.DynamicPartMappingID) {
+		if v.DynamicPartMappingID == b.DynamicPartMappingID {
 			bFound = true
 		}
-		if queries.Equal(v.DynamicPartMappingID, c.DynamicPartMappingID) {
+		if v.DynamicPartMappingID == c.DynamicPartMappingID {
 			cFound = true
 		}
 	}
@@ -694,10 +695,10 @@ func testDynamicPartMappingToManyAddOpDynamicParts(t *testing.T) {
 		first := x[0]
 		second := x[1]
 
-		if !queries.Equal(a.ID, first.DynamicPartMappingID) {
+		if a.ID != first.DynamicPartMappingID {
 			t.Error("foreign key was wrong value", a.ID, first.DynamicPartMappingID)
 		}
-		if !queries.Equal(a.ID, second.DynamicPartMappingID) {
+		if a.ID != second.DynamicPartMappingID {
 			t.Error("foreign key was wrong value", a.ID, second.DynamicPartMappingID)
 		}
 
@@ -724,182 +725,6 @@ func testDynamicPartMappingToManyAddOpDynamicParts(t *testing.T) {
 		}
 	}
 }
-
-func testDynamicPartMappingToManySetOpDynamicParts(t *testing.T) {
-	var err error
-
-	ctx := context.Background()
-	tx := MustTx(boil.BeginTx(ctx, nil))
-	defer func() { _ = tx.Rollback() }()
-
-	var a DynamicPartMapping
-	var b, c, d, e DynamicPart
-
-	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, &a, dynamicPartMappingDBTypes, false, strmangle.SetComplement(dynamicPartMappingPrimaryKeyColumns, dynamicPartMappingColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
-	}
-	foreigners := []*DynamicPart{&b, &c, &d, &e}
-	for _, x := range foreigners {
-		if err = randomize.Struct(seed, x, dynamicPartDBTypes, false, strmangle.SetComplement(dynamicPartPrimaryKeyColumns, dynamicPartColumnsWithoutDefault)...); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	if err = a.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-	if err = c.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-
-	err = a.SetDynamicParts(ctx, tx, false, &b, &c)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err := a.DynamicParts().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 2 {
-		t.Error("count was wrong:", count)
-	}
-
-	err = a.SetDynamicParts(ctx, tx, true, &d, &e)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err = a.DynamicParts().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 2 {
-		t.Error("count was wrong:", count)
-	}
-
-	if !queries.IsValuerNil(b.DynamicPartMappingID) {
-		t.Error("want b's foreign key value to be nil")
-	}
-	if !queries.IsValuerNil(c.DynamicPartMappingID) {
-		t.Error("want c's foreign key value to be nil")
-	}
-	if !queries.Equal(a.ID, d.DynamicPartMappingID) {
-		t.Error("foreign key was wrong value", a.ID, d.DynamicPartMappingID)
-	}
-	if !queries.Equal(a.ID, e.DynamicPartMappingID) {
-		t.Error("foreign key was wrong value", a.ID, e.DynamicPartMappingID)
-	}
-
-	if b.R.DynamicPartMapping != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
-	}
-	if c.R.DynamicPartMapping != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
-	}
-	if d.R.DynamicPartMapping != &a {
-		t.Error("relationship was not added properly to the foreign struct")
-	}
-	if e.R.DynamicPartMapping != &a {
-		t.Error("relationship was not added properly to the foreign struct")
-	}
-
-	if a.R.DynamicParts[0] != &d {
-		t.Error("relationship struct slice not set to correct value")
-	}
-	if a.R.DynamicParts[1] != &e {
-		t.Error("relationship struct slice not set to correct value")
-	}
-}
-
-func testDynamicPartMappingToManyRemoveOpDynamicParts(t *testing.T) {
-	var err error
-
-	ctx := context.Background()
-	tx := MustTx(boil.BeginTx(ctx, nil))
-	defer func() { _ = tx.Rollback() }()
-
-	var a DynamicPartMapping
-	var b, c, d, e DynamicPart
-
-	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, &a, dynamicPartMappingDBTypes, false, strmangle.SetComplement(dynamicPartMappingPrimaryKeyColumns, dynamicPartMappingColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
-	}
-	foreigners := []*DynamicPart{&b, &c, &d, &e}
-	for _, x := range foreigners {
-		if err = randomize.Struct(seed, x, dynamicPartDBTypes, false, strmangle.SetComplement(dynamicPartPrimaryKeyColumns, dynamicPartColumnsWithoutDefault)...); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-
-	err = a.AddDynamicParts(ctx, tx, true, foreigners...)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err := a.DynamicParts().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 4 {
-		t.Error("count was wrong:", count)
-	}
-
-	err = a.RemoveDynamicParts(ctx, tx, foreigners[:2]...)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err = a.DynamicParts().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 2 {
-		t.Error("count was wrong:", count)
-	}
-
-	if !queries.IsValuerNil(b.DynamicPartMappingID) {
-		t.Error("want b's foreign key value to be nil")
-	}
-	if !queries.IsValuerNil(c.DynamicPartMappingID) {
-		t.Error("want c's foreign key value to be nil")
-	}
-
-	if b.R.DynamicPartMapping != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
-	}
-	if c.R.DynamicPartMapping != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
-	}
-	if d.R.DynamicPartMapping != &a {
-		t.Error("relationship to a should have been preserved")
-	}
-	if e.R.DynamicPartMapping != &a {
-		t.Error("relationship to a should have been preserved")
-	}
-
-	if len(a.R.DynamicParts) != 2 {
-		t.Error("should have preserved two relationships")
-	}
-
-	// Removal doesn't do a stable deletion for performance so we have to flip the order
-	if a.R.DynamicParts[1] != &d {
-		t.Error("relationship to d should have been preserved")
-	}
-	if a.R.DynamicParts[0] != &e {
-		t.Error("relationship to e should have been preserved")
-	}
-}
-
 func testDynamicPartMappingToManyAddOpDynamicPartMappingPixels(t *testing.T) {
 	var err error
 
@@ -984,7 +809,7 @@ func testDynamicPartMappingToOneBodyTypeUsingBodyType(t *testing.T) {
 	var foreign BodyType
 
 	seed := randomize.NewSeed()
-	if err := randomize.Struct(seed, &local, dynamicPartMappingDBTypes, true, dynamicPartMappingColumnsWithDefault...); err != nil {
+	if err := randomize.Struct(seed, &local, dynamicPartMappingDBTypes, false, dynamicPartMappingColumnsWithDefault...); err != nil {
 		t.Errorf("Unable to randomize DynamicPartMapping struct: %s", err)
 	}
 	if err := randomize.Struct(seed, &foreign, bodyTypeDBTypes, false, bodyTypeColumnsWithDefault...); err != nil {
@@ -995,7 +820,7 @@ func testDynamicPartMappingToOneBodyTypeUsingBodyType(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	queries.Assign(&local.BodyTypeID, foreign.ID)
+	local.BodyTypeID = foreign.ID
 	if err := local.Insert(ctx, tx, boil.Infer()); err != nil {
 		t.Fatal(err)
 	}
@@ -1005,7 +830,7 @@ func testDynamicPartMappingToOneBodyTypeUsingBodyType(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if !queries.Equal(check.ID, foreign.ID) {
+	if check.ID != foreign.ID {
 		t.Errorf("want: %v, got %v", foreign.ID, check.ID)
 	}
 
@@ -1067,7 +892,7 @@ func testDynamicPartMappingToOneSetOpBodyTypeUsingBodyType(t *testing.T) {
 		if x.R.DynamicPartMappings[0] != &a {
 			t.Error("failed to append to foreign relationship struct")
 		}
-		if !queries.Equal(a.BodyTypeID, x.ID) {
+		if a.BodyTypeID != x.ID {
 			t.Error("foreign key was wrong value", a.BodyTypeID)
 		}
 
@@ -1078,60 +903,9 @@ func testDynamicPartMappingToOneSetOpBodyTypeUsingBodyType(t *testing.T) {
 			t.Fatal("failed to reload", err)
 		}
 
-		if !queries.Equal(a.BodyTypeID, x.ID) {
+		if a.BodyTypeID != x.ID {
 			t.Error("foreign key was wrong value", a.BodyTypeID, x.ID)
 		}
-	}
-}
-
-func testDynamicPartMappingToOneRemoveOpBodyTypeUsingBodyType(t *testing.T) {
-	var err error
-
-	ctx := context.Background()
-	tx := MustTx(boil.BeginTx(ctx, nil))
-	defer func() { _ = tx.Rollback() }()
-
-	var a DynamicPartMapping
-	var b BodyType
-
-	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, &a, dynamicPartMappingDBTypes, false, strmangle.SetComplement(dynamicPartMappingPrimaryKeyColumns, dynamicPartMappingColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
-	}
-	if err = randomize.Struct(seed, &b, bodyTypeDBTypes, false, strmangle.SetComplement(bodyTypePrimaryKeyColumns, bodyTypeColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
-	}
-
-	if err = a.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-
-	if err = a.SetBodyType(ctx, tx, true, &b); err != nil {
-		t.Fatal(err)
-	}
-
-	if err = a.RemoveBodyType(ctx, tx, &b); err != nil {
-		t.Error("failed to remove relationship")
-	}
-
-	count, err := a.BodyType().Count(ctx, tx)
-	if err != nil {
-		t.Error(err)
-	}
-	if count != 0 {
-		t.Error("want no relationships remaining")
-	}
-
-	if a.R.BodyType != nil {
-		t.Error("R struct entry should be nil")
-	}
-
-	if !queries.IsValuerNil(a.BodyTypeID) {
-		t.Error("foreign key value should be nil")
-	}
-
-	if len(b.R.DynamicPartMappings) != 0 {
-		t.Error("failed to remove a from b's relationships")
 	}
 }
 

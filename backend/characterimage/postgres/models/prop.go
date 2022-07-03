@@ -23,9 +23,9 @@ import (
 
 // Prop is an object representing the database table.
 type Prop struct {
-	ID          int          `boil:"id" json:"id" toml:"id" yaml:"id"`
-	DisplayName string       `boil:"display_name" json:"display_name" toml:"display_name" yaml:"display_name"`
-	PartType    NullPropType `boil:"part_type" json:"part_type,omitempty" toml:"part_type" yaml:"part_type,omitempty"`
+	ID          int      `boil:"id" json:"id" toml:"id" yaml:"id"`
+	DisplayName string   `boil:"display_name" json:"display_name" toml:"display_name" yaml:"display_name"`
+	PartType    PropType `boil:"part_type" json:"part_type" toml:"part_type" yaml:"part_type"`
 
 	R *propR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L propL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -53,38 +53,14 @@ var PropTableColumns = struct {
 
 // Generated where
 
-type whereHelperNullPropType struct{ field string }
-
-func (w whereHelperNullPropType) EQ(x NullPropType) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, false, x)
-}
-func (w whereHelperNullPropType) NEQ(x NullPropType) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, true, x)
-}
-func (w whereHelperNullPropType) LT(x NullPropType) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LT, x)
-}
-func (w whereHelperNullPropType) LTE(x NullPropType) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LTE, x)
-}
-func (w whereHelperNullPropType) GT(x NullPropType) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GT, x)
-}
-func (w whereHelperNullPropType) GTE(x NullPropType) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GTE, x)
-}
-
-func (w whereHelperNullPropType) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
-func (w whereHelperNullPropType) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
-
 var PropWhere = struct {
 	ID          whereHelperint
 	DisplayName whereHelperstring
-	PartType    whereHelperNullPropType
+	PartType    whereHelperPropType
 }{
 	ID:          whereHelperint{field: "\"prop\".\"id\""},
 	DisplayName: whereHelperstring{field: "\"prop\".\"display_name\""},
-	PartType:    whereHelperNullPropType{field: "\"prop\".\"part_type\""},
+	PartType:    whereHelperPropType{field: "\"prop\".\"part_type\""},
 }
 
 // PropRels is where relationship names are stored.
@@ -116,8 +92,8 @@ type propL struct{}
 
 var (
 	propAllColumns            = []string{"id", "display_name", "part_type"}
-	propColumnsWithoutDefault = []string{"display_name"}
-	propColumnsWithDefault    = []string{"id", "part_type"}
+	propColumnsWithoutDefault = []string{"display_name", "part_type"}
+	propColumnsWithDefault    = []string{"id"}
 	propPrimaryKeyColumns     = []string{"id"}
 	propGeneratedColumns      = []string{}
 )

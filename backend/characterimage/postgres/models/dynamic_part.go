@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/friendsofgo/errors"
-	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -24,10 +23,10 @@ import (
 
 // DynamicPart is an object representing the database table.
 type DynamicPart struct {
-	ID                   int                 `boil:"id" json:"id" toml:"id" yaml:"id"`
-	DynamicPartMappingID null.Int            `boil:"dynamic_part_mapping_id" json:"dynamic_part_mapping_id,omitempty" toml:"dynamic_part_mapping_id" yaml:"dynamic_part_mapping_id,omitempty"`
-	DisplayName          string              `boil:"display_name" json:"display_name" toml:"display_name" yaml:"display_name"`
-	PartType             NullDynamicPartType `boil:"part_type" json:"part_type,omitempty" toml:"part_type" yaml:"part_type,omitempty"`
+	ID                   int             `boil:"id" json:"id" toml:"id" yaml:"id"`
+	DynamicPartMappingID int             `boil:"dynamic_part_mapping_id" json:"dynamic_part_mapping_id" toml:"dynamic_part_mapping_id" yaml:"dynamic_part_mapping_id"`
+	DisplayName          string          `boil:"display_name" json:"display_name" toml:"display_name" yaml:"display_name"`
+	PartType             DynamicPartType `boil:"part_type" json:"part_type" toml:"part_type" yaml:"part_type"`
 
 	R *dynamicPartR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L dynamicPartL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -59,57 +58,55 @@ var DynamicPartTableColumns = struct {
 
 // Generated where
 
-type whereHelperNullDynamicPartType struct{ field string }
+type whereHelperDynamicPartType struct{ field string }
 
-func (w whereHelperNullDynamicPartType) EQ(x NullDynamicPartType) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, false, x)
+func (w whereHelperDynamicPartType) EQ(x DynamicPartType) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.EQ, x)
 }
-func (w whereHelperNullDynamicPartType) NEQ(x NullDynamicPartType) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, true, x)
+func (w whereHelperDynamicPartType) NEQ(x DynamicPartType) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.NEQ, x)
 }
-func (w whereHelperNullDynamicPartType) LT(x NullDynamicPartType) qm.QueryMod {
+func (w whereHelperDynamicPartType) LT(x DynamicPartType) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.LT, x)
 }
-func (w whereHelperNullDynamicPartType) LTE(x NullDynamicPartType) qm.QueryMod {
+func (w whereHelperDynamicPartType) LTE(x DynamicPartType) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.LTE, x)
 }
-func (w whereHelperNullDynamicPartType) GT(x NullDynamicPartType) qm.QueryMod {
+func (w whereHelperDynamicPartType) GT(x DynamicPartType) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.GT, x)
 }
-func (w whereHelperNullDynamicPartType) GTE(x NullDynamicPartType) qm.QueryMod {
+func (w whereHelperDynamicPartType) GTE(x DynamicPartType) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.GTE, x)
-}
-
-func (w whereHelperNullDynamicPartType) IsNull() qm.QueryMod { return qmhelper.WhereIsNull(w.field) }
-func (w whereHelperNullDynamicPartType) IsNotNull() qm.QueryMod {
-	return qmhelper.WhereIsNotNull(w.field)
 }
 
 var DynamicPartWhere = struct {
 	ID                   whereHelperint
-	DynamicPartMappingID whereHelpernull_Int
+	DynamicPartMappingID whereHelperint
 	DisplayName          whereHelperstring
-	PartType             whereHelperNullDynamicPartType
+	PartType             whereHelperDynamicPartType
 }{
 	ID:                   whereHelperint{field: "\"dynamic_part\".\"id\""},
-	DynamicPartMappingID: whereHelpernull_Int{field: "\"dynamic_part\".\"dynamic_part_mapping_id\""},
+	DynamicPartMappingID: whereHelperint{field: "\"dynamic_part\".\"dynamic_part_mapping_id\""},
 	DisplayName:          whereHelperstring{field: "\"dynamic_part\".\"display_name\""},
-	PartType:             whereHelperNullDynamicPartType{field: "\"dynamic_part\".\"part_type\""},
+	PartType:             whereHelperDynamicPartType{field: "\"dynamic_part\".\"part_type\""},
 }
 
 // DynamicPartRels is where relationship names are stored.
 var DynamicPartRels = struct {
-	DynamicPartMapping string
-	DynamicPartPixels  string
+	DynamicPartMapping   string
+	DynamicPartThumbnail string
+	DynamicPartPixels    string
 }{
-	DynamicPartMapping: "DynamicPartMapping",
-	DynamicPartPixels:  "DynamicPartPixels",
+	DynamicPartMapping:   "DynamicPartMapping",
+	DynamicPartThumbnail: "DynamicPartThumbnail",
+	DynamicPartPixels:    "DynamicPartPixels",
 }
 
 // dynamicPartR is where relationships are stored.
 type dynamicPartR struct {
-	DynamicPartMapping *DynamicPartMapping   `boil:"DynamicPartMapping" json:"DynamicPartMapping" toml:"DynamicPartMapping" yaml:"DynamicPartMapping"`
-	DynamicPartPixels  DynamicPartPixelSlice `boil:"DynamicPartPixels" json:"DynamicPartPixels" toml:"DynamicPartPixels" yaml:"DynamicPartPixels"`
+	DynamicPartMapping   *DynamicPartMapping   `boil:"DynamicPartMapping" json:"DynamicPartMapping" toml:"DynamicPartMapping" yaml:"DynamicPartMapping"`
+	DynamicPartThumbnail *DynamicPartThumbnail `boil:"DynamicPartThumbnail" json:"DynamicPartThumbnail" toml:"DynamicPartThumbnail" yaml:"DynamicPartThumbnail"`
+	DynamicPartPixels    DynamicPartPixelSlice `boil:"DynamicPartPixels" json:"DynamicPartPixels" toml:"DynamicPartPixels" yaml:"DynamicPartPixels"`
 }
 
 // NewStruct creates a new relationship struct
@@ -124,6 +121,13 @@ func (r *dynamicPartR) GetDynamicPartMapping() *DynamicPartMapping {
 	return r.DynamicPartMapping
 }
 
+func (r *dynamicPartR) GetDynamicPartThumbnail() *DynamicPartThumbnail {
+	if r == nil {
+		return nil
+	}
+	return r.DynamicPartThumbnail
+}
+
 func (r *dynamicPartR) GetDynamicPartPixels() DynamicPartPixelSlice {
 	if r == nil {
 		return nil
@@ -136,8 +140,8 @@ type dynamicPartL struct{}
 
 var (
 	dynamicPartAllColumns            = []string{"id", "dynamic_part_mapping_id", "display_name", "part_type"}
-	dynamicPartColumnsWithoutDefault = []string{"display_name"}
-	dynamicPartColumnsWithDefault    = []string{"id", "dynamic_part_mapping_id", "part_type"}
+	dynamicPartColumnsWithoutDefault = []string{"dynamic_part_mapping_id", "display_name", "part_type"}
+	dynamicPartColumnsWithDefault    = []string{"id"}
 	dynamicPartPrimaryKeyColumns     = []string{"id"}
 	dynamicPartGeneratedColumns      = []string{}
 )
@@ -431,6 +435,17 @@ func (o *DynamicPart) DynamicPartMapping(mods ...qm.QueryMod) dynamicPartMapping
 	return DynamicPartMappings(queryMods...)
 }
 
+// DynamicPartThumbnail pointed to by the foreign key.
+func (o *DynamicPart) DynamicPartThumbnail(mods ...qm.QueryMod) dynamicPartThumbnailQuery {
+	queryMods := []qm.QueryMod{
+		qm.Where("\"dynamic_part_id\" = ?", o.ID),
+	}
+
+	queryMods = append(queryMods, mods...)
+
+	return DynamicPartThumbnails(queryMods...)
+}
+
 // DynamicPartPixels retrieves all the dynamic_part_pixel's DynamicPartPixels with an executor.
 func (o *DynamicPart) DynamicPartPixels(mods ...qm.QueryMod) dynamicPartPixelQuery {
 	var queryMods []qm.QueryMod
@@ -462,9 +477,7 @@ func (dynamicPartL) LoadDynamicPartMapping(ctx context.Context, e boil.ContextEx
 		if object.R == nil {
 			object.R = &dynamicPartR{}
 		}
-		if !queries.IsNil(object.DynamicPartMappingID) {
-			args = append(args, object.DynamicPartMappingID)
-		}
+		args = append(args, object.DynamicPartMappingID)
 
 	} else {
 	Outer:
@@ -474,14 +487,12 @@ func (dynamicPartL) LoadDynamicPartMapping(ctx context.Context, e boil.ContextEx
 			}
 
 			for _, a := range args {
-				if queries.Equal(a, obj.DynamicPartMappingID) {
+				if a == obj.DynamicPartMappingID {
 					continue Outer
 				}
 			}
 
-			if !queries.IsNil(obj.DynamicPartMappingID) {
-				args = append(args, obj.DynamicPartMappingID)
-			}
+			args = append(args, obj.DynamicPartMappingID)
 
 		}
 	}
@@ -539,12 +550,113 @@ func (dynamicPartL) LoadDynamicPartMapping(ctx context.Context, e boil.ContextEx
 
 	for _, local := range slice {
 		for _, foreign := range resultSlice {
-			if queries.Equal(local.DynamicPartMappingID, foreign.ID) {
+			if local.DynamicPartMappingID == foreign.ID {
 				local.R.DynamicPartMapping = foreign
 				if foreign.R == nil {
 					foreign.R = &dynamicPartMappingR{}
 				}
 				foreign.R.DynamicParts = append(foreign.R.DynamicParts, local)
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
+// LoadDynamicPartThumbnail allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-1 relationship.
+func (dynamicPartL) LoadDynamicPartThumbnail(ctx context.Context, e boil.ContextExecutor, singular bool, maybeDynamicPart interface{}, mods queries.Applicator) error {
+	var slice []*DynamicPart
+	var object *DynamicPart
+
+	if singular {
+		object = maybeDynamicPart.(*DynamicPart)
+	} else {
+		slice = *maybeDynamicPart.(*[]*DynamicPart)
+	}
+
+	args := make([]interface{}, 0, 1)
+	if singular {
+		if object.R == nil {
+			object.R = &dynamicPartR{}
+		}
+		args = append(args, object.ID)
+	} else {
+	Outer:
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &dynamicPartR{}
+			}
+
+			for _, a := range args {
+				if a == obj.ID {
+					continue Outer
+				}
+			}
+
+			args = append(args, obj.ID)
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	query := NewQuery(
+		qm.From(`dynamic_part_thumbnail`),
+		qm.WhereIn(`dynamic_part_thumbnail.dynamic_part_id in ?`, args...),
+	)
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load DynamicPartThumbnail")
+	}
+
+	var resultSlice []*DynamicPartThumbnail
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice DynamicPartThumbnail")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results of eager load for dynamic_part_thumbnail")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for dynamic_part_thumbnail")
+	}
+
+	if len(dynamicPartAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
+				return err
+			}
+		}
+	}
+
+	if len(resultSlice) == 0 {
+		return nil
+	}
+
+	if singular {
+		foreign := resultSlice[0]
+		object.R.DynamicPartThumbnail = foreign
+		if foreign.R == nil {
+			foreign.R = &dynamicPartThumbnailR{}
+		}
+		foreign.R.DynamicPart = object
+	}
+
+	for _, local := range slice {
+		for _, foreign := range resultSlice {
+			if local.ID == foreign.DynamicPartID {
+				local.R.DynamicPartThumbnail = foreign
+				if foreign.R == nil {
+					foreign.R = &dynamicPartThumbnailR{}
+				}
+				foreign.R.DynamicPart = local
 				break
 			}
 		}
@@ -678,7 +790,7 @@ func (o *DynamicPart) SetDynamicPartMapping(ctx context.Context, exec boil.Conte
 		return errors.Wrap(err, "failed to update local table")
 	}
 
-	queries.Assign(&o.DynamicPartMappingID, related.ID)
+	o.DynamicPartMappingID = related.ID
 	if o.R == nil {
 		o.R = &dynamicPartR{
 			DynamicPartMapping: related,
@@ -698,35 +810,52 @@ func (o *DynamicPart) SetDynamicPartMapping(ctx context.Context, exec boil.Conte
 	return nil
 }
 
-// RemoveDynamicPartMapping relationship.
-// Sets o.R.DynamicPartMapping to nil.
-// Removes o from all passed in related items' relationships struct.
-func (o *DynamicPart) RemoveDynamicPartMapping(ctx context.Context, exec boil.ContextExecutor, related *DynamicPartMapping) error {
+// SetDynamicPartThumbnail of the dynamicPart to the related item.
+// Sets o.R.DynamicPartThumbnail to related.
+// Adds o to related.R.DynamicPart.
+func (o *DynamicPart) SetDynamicPartThumbnail(ctx context.Context, exec boil.ContextExecutor, insert bool, related *DynamicPartThumbnail) error {
 	var err error
 
-	queries.SetScanner(&o.DynamicPartMappingID, nil)
-	if _, err = o.Update(ctx, exec, boil.Whitelist("dynamic_part_mapping_id")); err != nil {
-		return errors.Wrap(err, "failed to update local table")
-	}
+	if insert {
+		related.DynamicPartID = o.ID
 
-	if o.R != nil {
-		o.R.DynamicPartMapping = nil
-	}
-	if related == nil || related.R == nil {
-		return nil
-	}
+		if err = related.Insert(ctx, exec, boil.Infer()); err != nil {
+			return errors.Wrap(err, "failed to insert into foreign table")
+		}
+	} else {
+		updateQuery := fmt.Sprintf(
+			"UPDATE \"dynamic_part_thumbnail\" SET %s WHERE %s",
+			strmangle.SetParamNames("\"", "\"", 1, []string{"dynamic_part_id"}),
+			strmangle.WhereClause("\"", "\"", 2, dynamicPartThumbnailPrimaryKeyColumns),
+		)
+		values := []interface{}{o.ID, related.DynamicPartID}
 
-	for i, ri := range related.R.DynamicParts {
-		if queries.Equal(o.DynamicPartMappingID, ri.DynamicPartMappingID) {
-			continue
+		if boil.IsDebug(ctx) {
+			writer := boil.DebugWriterFrom(ctx)
+			fmt.Fprintln(writer, updateQuery)
+			fmt.Fprintln(writer, values)
+		}
+		if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+			return errors.Wrap(err, "failed to update foreign table")
 		}
 
-		ln := len(related.R.DynamicParts)
-		if ln > 1 && i < ln-1 {
-			related.R.DynamicParts[i] = related.R.DynamicParts[ln-1]
+		related.DynamicPartID = o.ID
+	}
+
+	if o.R == nil {
+		o.R = &dynamicPartR{
+			DynamicPartThumbnail: related,
 		}
-		related.R.DynamicParts = related.R.DynamicParts[:ln-1]
-		break
+	} else {
+		o.R.DynamicPartThumbnail = related
+	}
+
+	if related.R == nil {
+		related.R = &dynamicPartThumbnailR{
+			DynamicPart: o,
+		}
+	} else {
+		related.R.DynamicPart = o
 	}
 	return nil
 }

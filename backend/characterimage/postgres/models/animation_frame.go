@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/friendsofgo/errors"
-	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -25,7 +24,7 @@ import (
 // AnimationFrame is an object representing the database table.
 type AnimationFrame struct {
 	ID          int            `boil:"id" json:"id" toml:"id" yaml:"id"`
-	AnimationID null.Int       `boil:"animation_id" json:"animation_id,omitempty" toml:"animation_id" yaml:"animation_id,omitempty"`
+	AnimationID int            `boil:"animation_id" json:"animation_id" toml:"animation_id" yaml:"animation_id"`
 	FrameIndex  int            `boil:"frame_index" json:"frame_index" toml:"frame_index" yaml:"frame_index"`
 	Expression  ExpressionType `boil:"expression" json:"expression" toml:"expression" yaml:"expression"`
 
@@ -82,12 +81,12 @@ func (w whereHelperExpressionType) GTE(x ExpressionType) qm.QueryMod {
 
 var AnimationFrameWhere = struct {
 	ID          whereHelperint
-	AnimationID whereHelpernull_Int
+	AnimationID whereHelperint
 	FrameIndex  whereHelperint
 	Expression  whereHelperExpressionType
 }{
 	ID:          whereHelperint{field: "\"animation_frame\".\"id\""},
-	AnimationID: whereHelpernull_Int{field: "\"animation_frame\".\"animation_id\""},
+	AnimationID: whereHelperint{field: "\"animation_frame\".\"animation_id\""},
 	FrameIndex:  whereHelperint{field: "\"animation_frame\".\"frame_index\""},
 	Expression:  whereHelperExpressionType{field: "\"animation_frame\".\"expression\""},
 }
@@ -151,8 +150,8 @@ type animationFrameL struct{}
 
 var (
 	animationFrameAllColumns            = []string{"id", "animation_id", "frame_index", "expression"}
-	animationFrameColumnsWithoutDefault = []string{"frame_index", "expression"}
-	animationFrameColumnsWithDefault    = []string{"id", "animation_id"}
+	animationFrameColumnsWithoutDefault = []string{"animation_id", "frame_index", "expression"}
+	animationFrameColumnsWithDefault    = []string{"id"}
 	animationFramePrimaryKeyColumns     = []string{"id"}
 	animationFrameGeneratedColumns      = []string{}
 )
@@ -505,9 +504,7 @@ func (animationFrameL) LoadAnimation(ctx context.Context, e boil.ContextExecutor
 		if object.R == nil {
 			object.R = &animationFrameR{}
 		}
-		if !queries.IsNil(object.AnimationID) {
-			args = append(args, object.AnimationID)
-		}
+		args = append(args, object.AnimationID)
 
 	} else {
 	Outer:
@@ -517,14 +514,12 @@ func (animationFrameL) LoadAnimation(ctx context.Context, e boil.ContextExecutor
 			}
 
 			for _, a := range args {
-				if queries.Equal(a, obj.AnimationID) {
+				if a == obj.AnimationID {
 					continue Outer
 				}
 			}
 
-			if !queries.IsNil(obj.AnimationID) {
-				args = append(args, obj.AnimationID)
-			}
+			args = append(args, obj.AnimationID)
 
 		}
 	}
@@ -582,7 +577,7 @@ func (animationFrameL) LoadAnimation(ctx context.Context, e boil.ContextExecutor
 
 	for _, local := range slice {
 		for _, foreign := range resultSlice {
-			if queries.Equal(local.AnimationID, foreign.ID) {
+			if local.AnimationID == foreign.ID {
 				local.R.Animation = foreign
 				if foreign.R == nil {
 					foreign.R = &animationR{}
@@ -917,7 +912,7 @@ func (o *AnimationFrame) SetAnimation(ctx context.Context, exec boil.ContextExec
 		return errors.Wrap(err, "failed to update local table")
 	}
 
-	queries.Assign(&o.AnimationID, related.ID)
+	o.AnimationID = related.ID
 	if o.R == nil {
 		o.R = &animationFrameR{
 			Animation: related,
@@ -934,39 +929,6 @@ func (o *AnimationFrame) SetAnimation(ctx context.Context, exec boil.ContextExec
 		related.R.AnimationFrames = append(related.R.AnimationFrames, o)
 	}
 
-	return nil
-}
-
-// RemoveAnimation relationship.
-// Sets o.R.Animation to nil.
-// Removes o from all passed in related items' relationships struct.
-func (o *AnimationFrame) RemoveAnimation(ctx context.Context, exec boil.ContextExecutor, related *Animation) error {
-	var err error
-
-	queries.SetScanner(&o.AnimationID, nil)
-	if _, err = o.Update(ctx, exec, boil.Whitelist("animation_id")); err != nil {
-		return errors.Wrap(err, "failed to update local table")
-	}
-
-	if o.R != nil {
-		o.R.Animation = nil
-	}
-	if related == nil || related.R == nil {
-		return nil
-	}
-
-	for i, ri := range related.R.AnimationFrames {
-		if queries.Equal(o.AnimationID, ri.AnimationID) {
-			continue
-		}
-
-		ln := len(related.R.AnimationFrames)
-		if ln > 1 && i < ln-1 {
-			related.R.AnimationFrames[i] = related.R.AnimationFrames[ln-1]
-		}
-		related.R.AnimationFrames = related.R.AnimationFrames[:ln-1]
-		break
-	}
 	return nil
 }
 

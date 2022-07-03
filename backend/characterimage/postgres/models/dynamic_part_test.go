@@ -494,6 +494,118 @@ func testDynamicPartsInsertWhitelist(t *testing.T) {
 	}
 }
 
+func testDynamicPartOneToOneDynamicPartThumbnailUsingDynamicPartThumbnail(t *testing.T) {
+	ctx := context.Background()
+	tx := MustTx(boil.BeginTx(ctx, nil))
+	defer func() { _ = tx.Rollback() }()
+
+	var foreign DynamicPartThumbnail
+	var local DynamicPart
+
+	seed := randomize.NewSeed()
+	if err := randomize.Struct(seed, &foreign, dynamicPartThumbnailDBTypes, true, dynamicPartThumbnailColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize DynamicPartThumbnail struct: %s", err)
+	}
+	if err := randomize.Struct(seed, &local, dynamicPartDBTypes, true, dynamicPartColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize DynamicPart struct: %s", err)
+	}
+
+	if err := local.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	foreign.DynamicPartID = local.ID
+	if err := foreign.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	check, err := local.DynamicPartThumbnail().One(ctx, tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if check.DynamicPartID != foreign.DynamicPartID {
+		t.Errorf("want: %v, got %v", foreign.DynamicPartID, check.DynamicPartID)
+	}
+
+	slice := DynamicPartSlice{&local}
+	if err = local.L.LoadDynamicPartThumbnail(ctx, tx, false, (*[]*DynamicPart)(&slice), nil); err != nil {
+		t.Fatal(err)
+	}
+	if local.R.DynamicPartThumbnail == nil {
+		t.Error("struct should have been eager loaded")
+	}
+
+	local.R.DynamicPartThumbnail = nil
+	if err = local.L.LoadDynamicPartThumbnail(ctx, tx, true, &local, nil); err != nil {
+		t.Fatal(err)
+	}
+	if local.R.DynamicPartThumbnail == nil {
+		t.Error("struct should have been eager loaded")
+	}
+}
+
+func testDynamicPartOneToOneSetOpDynamicPartThumbnailUsingDynamicPartThumbnail(t *testing.T) {
+	var err error
+
+	ctx := context.Background()
+	tx := MustTx(boil.BeginTx(ctx, nil))
+	defer func() { _ = tx.Rollback() }()
+
+	var a DynamicPart
+	var b, c DynamicPartThumbnail
+
+	seed := randomize.NewSeed()
+	if err = randomize.Struct(seed, &a, dynamicPartDBTypes, false, strmangle.SetComplement(dynamicPartPrimaryKeyColumns, dynamicPartColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+	if err = randomize.Struct(seed, &b, dynamicPartThumbnailDBTypes, false, strmangle.SetComplement(dynamicPartThumbnailPrimaryKeyColumns, dynamicPartThumbnailColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+	if err = randomize.Struct(seed, &c, dynamicPartThumbnailDBTypes, false, strmangle.SetComplement(dynamicPartThumbnailPrimaryKeyColumns, dynamicPartThumbnailColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	for i, x := range []*DynamicPartThumbnail{&b, &c} {
+		err = a.SetDynamicPartThumbnail(ctx, tx, i != 0, x)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if a.R.DynamicPartThumbnail != x {
+			t.Error("relationship struct not set to correct value")
+		}
+		if x.R.DynamicPart != &a {
+			t.Error("failed to append to foreign relationship struct")
+		}
+
+		if a.ID != x.DynamicPartID {
+			t.Error("foreign key was wrong value", a.ID)
+		}
+
+		if exists, err := DynamicPartThumbnailExists(ctx, tx, x.DynamicPartID); err != nil {
+			t.Fatal(err)
+		} else if !exists {
+			t.Error("want 'x' to exist")
+		}
+
+		if a.ID != x.DynamicPartID {
+			t.Error("foreign key was wrong value", a.ID, x.DynamicPartID)
+		}
+
+		if _, err = x.Delete(ctx, tx); err != nil {
+			t.Fatal("failed to delete x", err)
+		}
+	}
+}
+
 func testDynamicPartToManyDynamicPartPixels(t *testing.T) {
 	var err error
 	ctx := context.Background()
@@ -656,7 +768,7 @@ func testDynamicPartToOneDynamicPartMappingUsingDynamicPartMapping(t *testing.T)
 	var foreign DynamicPartMapping
 
 	seed := randomize.NewSeed()
-	if err := randomize.Struct(seed, &local, dynamicPartDBTypes, true, dynamicPartColumnsWithDefault...); err != nil {
+	if err := randomize.Struct(seed, &local, dynamicPartDBTypes, false, dynamicPartColumnsWithDefault...); err != nil {
 		t.Errorf("Unable to randomize DynamicPart struct: %s", err)
 	}
 	if err := randomize.Struct(seed, &foreign, dynamicPartMappingDBTypes, false, dynamicPartMappingColumnsWithDefault...); err != nil {
@@ -667,7 +779,7 @@ func testDynamicPartToOneDynamicPartMappingUsingDynamicPartMapping(t *testing.T)
 		t.Fatal(err)
 	}
 
-	queries.Assign(&local.DynamicPartMappingID, foreign.ID)
+	local.DynamicPartMappingID = foreign.ID
 	if err := local.Insert(ctx, tx, boil.Infer()); err != nil {
 		t.Fatal(err)
 	}
@@ -677,7 +789,7 @@ func testDynamicPartToOneDynamicPartMappingUsingDynamicPartMapping(t *testing.T)
 		t.Fatal(err)
 	}
 
-	if !queries.Equal(check.ID, foreign.ID) {
+	if check.ID != foreign.ID {
 		t.Errorf("want: %v, got %v", foreign.ID, check.ID)
 	}
 
@@ -739,7 +851,7 @@ func testDynamicPartToOneSetOpDynamicPartMappingUsingDynamicPartMapping(t *testi
 		if x.R.DynamicParts[0] != &a {
 			t.Error("failed to append to foreign relationship struct")
 		}
-		if !queries.Equal(a.DynamicPartMappingID, x.ID) {
+		if a.DynamicPartMappingID != x.ID {
 			t.Error("foreign key was wrong value", a.DynamicPartMappingID)
 		}
 
@@ -750,60 +862,9 @@ func testDynamicPartToOneSetOpDynamicPartMappingUsingDynamicPartMapping(t *testi
 			t.Fatal("failed to reload", err)
 		}
 
-		if !queries.Equal(a.DynamicPartMappingID, x.ID) {
+		if a.DynamicPartMappingID != x.ID {
 			t.Error("foreign key was wrong value", a.DynamicPartMappingID, x.ID)
 		}
-	}
-}
-
-func testDynamicPartToOneRemoveOpDynamicPartMappingUsingDynamicPartMapping(t *testing.T) {
-	var err error
-
-	ctx := context.Background()
-	tx := MustTx(boil.BeginTx(ctx, nil))
-	defer func() { _ = tx.Rollback() }()
-
-	var a DynamicPart
-	var b DynamicPartMapping
-
-	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, &a, dynamicPartDBTypes, false, strmangle.SetComplement(dynamicPartPrimaryKeyColumns, dynamicPartColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
-	}
-	if err = randomize.Struct(seed, &b, dynamicPartMappingDBTypes, false, strmangle.SetComplement(dynamicPartMappingPrimaryKeyColumns, dynamicPartMappingColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
-	}
-
-	if err = a.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-
-	if err = a.SetDynamicPartMapping(ctx, tx, true, &b); err != nil {
-		t.Fatal(err)
-	}
-
-	if err = a.RemoveDynamicPartMapping(ctx, tx, &b); err != nil {
-		t.Error("failed to remove relationship")
-	}
-
-	count, err := a.DynamicPartMapping().Count(ctx, tx)
-	if err != nil {
-		t.Error(err)
-	}
-	if count != 0 {
-		t.Error("want no relationships remaining")
-	}
-
-	if a.R.DynamicPartMapping != nil {
-		t.Error("R struct entry should be nil")
-	}
-
-	if !queries.IsValuerNil(a.DynamicPartMappingID) {
-		t.Error("foreign key value should be nil")
-	}
-
-	if len(b.R.DynamicParts) != 0 {
-		t.Error("failed to remove a from b's relationships")
 	}
 }
 

@@ -615,7 +615,7 @@ func testStaticPartToOneBodyTypeUsingBodyType(t *testing.T) {
 	var foreign BodyType
 
 	seed := randomize.NewSeed()
-	if err := randomize.Struct(seed, &local, staticPartDBTypes, true, staticPartColumnsWithDefault...); err != nil {
+	if err := randomize.Struct(seed, &local, staticPartDBTypes, false, staticPartColumnsWithDefault...); err != nil {
 		t.Errorf("Unable to randomize StaticPart struct: %s", err)
 	}
 	if err := randomize.Struct(seed, &foreign, bodyTypeDBTypes, false, bodyTypeColumnsWithDefault...); err != nil {
@@ -626,7 +626,7 @@ func testStaticPartToOneBodyTypeUsingBodyType(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	queries.Assign(&local.BodyTypeID, foreign.ID)
+	local.BodyTypeID = foreign.ID
 	if err := local.Insert(ctx, tx, boil.Infer()); err != nil {
 		t.Fatal(err)
 	}
@@ -636,7 +636,7 @@ func testStaticPartToOneBodyTypeUsingBodyType(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if !queries.Equal(check.ID, foreign.ID) {
+	if check.ID != foreign.ID {
 		t.Errorf("want: %v, got %v", foreign.ID, check.ID)
 	}
 
@@ -698,7 +698,7 @@ func testStaticPartToOneSetOpBodyTypeUsingBodyType(t *testing.T) {
 		if x.R.StaticParts[0] != &a {
 			t.Error("failed to append to foreign relationship struct")
 		}
-		if !queries.Equal(a.BodyTypeID, x.ID) {
+		if a.BodyTypeID != x.ID {
 			t.Error("foreign key was wrong value", a.BodyTypeID)
 		}
 
@@ -709,60 +709,9 @@ func testStaticPartToOneSetOpBodyTypeUsingBodyType(t *testing.T) {
 			t.Fatal("failed to reload", err)
 		}
 
-		if !queries.Equal(a.BodyTypeID, x.ID) {
+		if a.BodyTypeID != x.ID {
 			t.Error("foreign key was wrong value", a.BodyTypeID, x.ID)
 		}
-	}
-}
-
-func testStaticPartToOneRemoveOpBodyTypeUsingBodyType(t *testing.T) {
-	var err error
-
-	ctx := context.Background()
-	tx := MustTx(boil.BeginTx(ctx, nil))
-	defer func() { _ = tx.Rollback() }()
-
-	var a StaticPart
-	var b BodyType
-
-	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, &a, staticPartDBTypes, false, strmangle.SetComplement(staticPartPrimaryKeyColumns, staticPartColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
-	}
-	if err = randomize.Struct(seed, &b, bodyTypeDBTypes, false, strmangle.SetComplement(bodyTypePrimaryKeyColumns, bodyTypeColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
-	}
-
-	if err = a.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-
-	if err = a.SetBodyType(ctx, tx, true, &b); err != nil {
-		t.Fatal(err)
-	}
-
-	if err = a.RemoveBodyType(ctx, tx, &b); err != nil {
-		t.Error("failed to remove relationship")
-	}
-
-	count, err := a.BodyType().Count(ctx, tx)
-	if err != nil {
-		t.Error(err)
-	}
-	if count != 0 {
-		t.Error("want no relationships remaining")
-	}
-
-	if a.R.BodyType != nil {
-		t.Error("R struct entry should be nil")
-	}
-
-	if !queries.IsValuerNil(a.BodyTypeID) {
-		t.Error("foreign key value should be nil")
-	}
-
-	if len(b.R.StaticParts) != 0 {
-		t.Error("failed to remove a from b's relationships")
 	}
 }
 

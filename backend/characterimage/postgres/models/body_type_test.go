@@ -519,8 +519,9 @@ func testBodyTypeToManyAnimations(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	queries.Assign(&b.BodyTypeID, a.ID)
-	queries.Assign(&c.BodyTypeID, a.ID)
+	b.BodyTypeID = a.ID
+	c.BodyTypeID = a.ID
+
 	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
 		t.Fatal(err)
 	}
@@ -535,10 +536,10 @@ func testBodyTypeToManyAnimations(t *testing.T) {
 
 	bFound, cFound := false, false
 	for _, v := range check {
-		if queries.Equal(v.BodyTypeID, b.BodyTypeID) {
+		if v.BodyTypeID == b.BodyTypeID {
 			bFound = true
 		}
-		if queries.Equal(v.BodyTypeID, c.BodyTypeID) {
+		if v.BodyTypeID == c.BodyTypeID {
 			cFound = true
 		}
 	}
@@ -596,8 +597,9 @@ func testBodyTypeToManyDynamicPartMappings(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	queries.Assign(&b.BodyTypeID, a.ID)
-	queries.Assign(&c.BodyTypeID, a.ID)
+	b.BodyTypeID = a.ID
+	c.BodyTypeID = a.ID
+
 	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
 		t.Fatal(err)
 	}
@@ -612,10 +614,10 @@ func testBodyTypeToManyDynamicPartMappings(t *testing.T) {
 
 	bFound, cFound := false, false
 	for _, v := range check {
-		if queries.Equal(v.BodyTypeID, b.BodyTypeID) {
+		if v.BodyTypeID == b.BodyTypeID {
 			bFound = true
 		}
-		if queries.Equal(v.BodyTypeID, c.BodyTypeID) {
+		if v.BodyTypeID == c.BodyTypeID {
 			cFound = true
 		}
 	}
@@ -673,8 +675,9 @@ func testBodyTypeToManyStaticParts(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	queries.Assign(&b.BodyTypeID, a.ID)
-	queries.Assign(&c.BodyTypeID, a.ID)
+	b.BodyTypeID = a.ID
+	c.BodyTypeID = a.ID
+
 	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
 		t.Fatal(err)
 	}
@@ -689,10 +692,10 @@ func testBodyTypeToManyStaticParts(t *testing.T) {
 
 	bFound, cFound := false, false
 	for _, v := range check {
-		if queries.Equal(v.BodyTypeID, b.BodyTypeID) {
+		if v.BodyTypeID == b.BodyTypeID {
 			bFound = true
 		}
-		if queries.Equal(v.BodyTypeID, c.BodyTypeID) {
+		if v.BodyTypeID == c.BodyTypeID {
 			cFound = true
 		}
 	}
@@ -770,10 +773,10 @@ func testBodyTypeToManyAddOpAnimations(t *testing.T) {
 		first := x[0]
 		second := x[1]
 
-		if !queries.Equal(a.ID, first.BodyTypeID) {
+		if a.ID != first.BodyTypeID {
 			t.Error("foreign key was wrong value", a.ID, first.BodyTypeID)
 		}
-		if !queries.Equal(a.ID, second.BodyTypeID) {
+		if a.ID != second.BodyTypeID {
 			t.Error("foreign key was wrong value", a.ID, second.BodyTypeID)
 		}
 
@@ -800,182 +803,6 @@ func testBodyTypeToManyAddOpAnimations(t *testing.T) {
 		}
 	}
 }
-
-func testBodyTypeToManySetOpAnimations(t *testing.T) {
-	var err error
-
-	ctx := context.Background()
-	tx := MustTx(boil.BeginTx(ctx, nil))
-	defer func() { _ = tx.Rollback() }()
-
-	var a BodyType
-	var b, c, d, e Animation
-
-	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, &a, bodyTypeDBTypes, false, strmangle.SetComplement(bodyTypePrimaryKeyColumns, bodyTypeColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
-	}
-	foreigners := []*Animation{&b, &c, &d, &e}
-	for _, x := range foreigners {
-		if err = randomize.Struct(seed, x, animationDBTypes, false, strmangle.SetComplement(animationPrimaryKeyColumns, animationColumnsWithoutDefault)...); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	if err = a.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-	if err = c.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-
-	err = a.SetAnimations(ctx, tx, false, &b, &c)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err := a.Animations().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 2 {
-		t.Error("count was wrong:", count)
-	}
-
-	err = a.SetAnimations(ctx, tx, true, &d, &e)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err = a.Animations().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 2 {
-		t.Error("count was wrong:", count)
-	}
-
-	if !queries.IsValuerNil(b.BodyTypeID) {
-		t.Error("want b's foreign key value to be nil")
-	}
-	if !queries.IsValuerNil(c.BodyTypeID) {
-		t.Error("want c's foreign key value to be nil")
-	}
-	if !queries.Equal(a.ID, d.BodyTypeID) {
-		t.Error("foreign key was wrong value", a.ID, d.BodyTypeID)
-	}
-	if !queries.Equal(a.ID, e.BodyTypeID) {
-		t.Error("foreign key was wrong value", a.ID, e.BodyTypeID)
-	}
-
-	if b.R.BodyType != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
-	}
-	if c.R.BodyType != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
-	}
-	if d.R.BodyType != &a {
-		t.Error("relationship was not added properly to the foreign struct")
-	}
-	if e.R.BodyType != &a {
-		t.Error("relationship was not added properly to the foreign struct")
-	}
-
-	if a.R.Animations[0] != &d {
-		t.Error("relationship struct slice not set to correct value")
-	}
-	if a.R.Animations[1] != &e {
-		t.Error("relationship struct slice not set to correct value")
-	}
-}
-
-func testBodyTypeToManyRemoveOpAnimations(t *testing.T) {
-	var err error
-
-	ctx := context.Background()
-	tx := MustTx(boil.BeginTx(ctx, nil))
-	defer func() { _ = tx.Rollback() }()
-
-	var a BodyType
-	var b, c, d, e Animation
-
-	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, &a, bodyTypeDBTypes, false, strmangle.SetComplement(bodyTypePrimaryKeyColumns, bodyTypeColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
-	}
-	foreigners := []*Animation{&b, &c, &d, &e}
-	for _, x := range foreigners {
-		if err = randomize.Struct(seed, x, animationDBTypes, false, strmangle.SetComplement(animationPrimaryKeyColumns, animationColumnsWithoutDefault)...); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-
-	err = a.AddAnimations(ctx, tx, true, foreigners...)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err := a.Animations().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 4 {
-		t.Error("count was wrong:", count)
-	}
-
-	err = a.RemoveAnimations(ctx, tx, foreigners[:2]...)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err = a.Animations().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 2 {
-		t.Error("count was wrong:", count)
-	}
-
-	if !queries.IsValuerNil(b.BodyTypeID) {
-		t.Error("want b's foreign key value to be nil")
-	}
-	if !queries.IsValuerNil(c.BodyTypeID) {
-		t.Error("want c's foreign key value to be nil")
-	}
-
-	if b.R.BodyType != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
-	}
-	if c.R.BodyType != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
-	}
-	if d.R.BodyType != &a {
-		t.Error("relationship to a should have been preserved")
-	}
-	if e.R.BodyType != &a {
-		t.Error("relationship to a should have been preserved")
-	}
-
-	if len(a.R.Animations) != 2 {
-		t.Error("should have preserved two relationships")
-	}
-
-	// Removal doesn't do a stable deletion for performance so we have to flip the order
-	if a.R.Animations[1] != &d {
-		t.Error("relationship to d should have been preserved")
-	}
-	if a.R.Animations[0] != &e {
-		t.Error("relationship to e should have been preserved")
-	}
-}
-
 func testBodyTypeToManyAddOpDynamicPartMappings(t *testing.T) {
 	var err error
 
@@ -1021,10 +848,10 @@ func testBodyTypeToManyAddOpDynamicPartMappings(t *testing.T) {
 		first := x[0]
 		second := x[1]
 
-		if !queries.Equal(a.ID, first.BodyTypeID) {
+		if a.ID != first.BodyTypeID {
 			t.Error("foreign key was wrong value", a.ID, first.BodyTypeID)
 		}
-		if !queries.Equal(a.ID, second.BodyTypeID) {
+		if a.ID != second.BodyTypeID {
 			t.Error("foreign key was wrong value", a.ID, second.BodyTypeID)
 		}
 
@@ -1051,182 +878,6 @@ func testBodyTypeToManyAddOpDynamicPartMappings(t *testing.T) {
 		}
 	}
 }
-
-func testBodyTypeToManySetOpDynamicPartMappings(t *testing.T) {
-	var err error
-
-	ctx := context.Background()
-	tx := MustTx(boil.BeginTx(ctx, nil))
-	defer func() { _ = tx.Rollback() }()
-
-	var a BodyType
-	var b, c, d, e DynamicPartMapping
-
-	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, &a, bodyTypeDBTypes, false, strmangle.SetComplement(bodyTypePrimaryKeyColumns, bodyTypeColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
-	}
-	foreigners := []*DynamicPartMapping{&b, &c, &d, &e}
-	for _, x := range foreigners {
-		if err = randomize.Struct(seed, x, dynamicPartMappingDBTypes, false, strmangle.SetComplement(dynamicPartMappingPrimaryKeyColumns, dynamicPartMappingColumnsWithoutDefault)...); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	if err = a.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-	if err = c.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-
-	err = a.SetDynamicPartMappings(ctx, tx, false, &b, &c)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err := a.DynamicPartMappings().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 2 {
-		t.Error("count was wrong:", count)
-	}
-
-	err = a.SetDynamicPartMappings(ctx, tx, true, &d, &e)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err = a.DynamicPartMappings().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 2 {
-		t.Error("count was wrong:", count)
-	}
-
-	if !queries.IsValuerNil(b.BodyTypeID) {
-		t.Error("want b's foreign key value to be nil")
-	}
-	if !queries.IsValuerNil(c.BodyTypeID) {
-		t.Error("want c's foreign key value to be nil")
-	}
-	if !queries.Equal(a.ID, d.BodyTypeID) {
-		t.Error("foreign key was wrong value", a.ID, d.BodyTypeID)
-	}
-	if !queries.Equal(a.ID, e.BodyTypeID) {
-		t.Error("foreign key was wrong value", a.ID, e.BodyTypeID)
-	}
-
-	if b.R.BodyType != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
-	}
-	if c.R.BodyType != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
-	}
-	if d.R.BodyType != &a {
-		t.Error("relationship was not added properly to the foreign struct")
-	}
-	if e.R.BodyType != &a {
-		t.Error("relationship was not added properly to the foreign struct")
-	}
-
-	if a.R.DynamicPartMappings[0] != &d {
-		t.Error("relationship struct slice not set to correct value")
-	}
-	if a.R.DynamicPartMappings[1] != &e {
-		t.Error("relationship struct slice not set to correct value")
-	}
-}
-
-func testBodyTypeToManyRemoveOpDynamicPartMappings(t *testing.T) {
-	var err error
-
-	ctx := context.Background()
-	tx := MustTx(boil.BeginTx(ctx, nil))
-	defer func() { _ = tx.Rollback() }()
-
-	var a BodyType
-	var b, c, d, e DynamicPartMapping
-
-	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, &a, bodyTypeDBTypes, false, strmangle.SetComplement(bodyTypePrimaryKeyColumns, bodyTypeColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
-	}
-	foreigners := []*DynamicPartMapping{&b, &c, &d, &e}
-	for _, x := range foreigners {
-		if err = randomize.Struct(seed, x, dynamicPartMappingDBTypes, false, strmangle.SetComplement(dynamicPartMappingPrimaryKeyColumns, dynamicPartMappingColumnsWithoutDefault)...); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-
-	err = a.AddDynamicPartMappings(ctx, tx, true, foreigners...)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err := a.DynamicPartMappings().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 4 {
-		t.Error("count was wrong:", count)
-	}
-
-	err = a.RemoveDynamicPartMappings(ctx, tx, foreigners[:2]...)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err = a.DynamicPartMappings().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 2 {
-		t.Error("count was wrong:", count)
-	}
-
-	if !queries.IsValuerNil(b.BodyTypeID) {
-		t.Error("want b's foreign key value to be nil")
-	}
-	if !queries.IsValuerNil(c.BodyTypeID) {
-		t.Error("want c's foreign key value to be nil")
-	}
-
-	if b.R.BodyType != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
-	}
-	if c.R.BodyType != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
-	}
-	if d.R.BodyType != &a {
-		t.Error("relationship to a should have been preserved")
-	}
-	if e.R.BodyType != &a {
-		t.Error("relationship to a should have been preserved")
-	}
-
-	if len(a.R.DynamicPartMappings) != 2 {
-		t.Error("should have preserved two relationships")
-	}
-
-	// Removal doesn't do a stable deletion for performance so we have to flip the order
-	if a.R.DynamicPartMappings[1] != &d {
-		t.Error("relationship to d should have been preserved")
-	}
-	if a.R.DynamicPartMappings[0] != &e {
-		t.Error("relationship to e should have been preserved")
-	}
-}
-
 func testBodyTypeToManyAddOpStaticParts(t *testing.T) {
 	var err error
 
@@ -1272,10 +923,10 @@ func testBodyTypeToManyAddOpStaticParts(t *testing.T) {
 		first := x[0]
 		second := x[1]
 
-		if !queries.Equal(a.ID, first.BodyTypeID) {
+		if a.ID != first.BodyTypeID {
 			t.Error("foreign key was wrong value", a.ID, first.BodyTypeID)
 		}
-		if !queries.Equal(a.ID, second.BodyTypeID) {
+		if a.ID != second.BodyTypeID {
 			t.Error("foreign key was wrong value", a.ID, second.BodyTypeID)
 		}
 
@@ -1300,181 +951,6 @@ func testBodyTypeToManyAddOpStaticParts(t *testing.T) {
 		if want := int64((i + 1) * 2); count != want {
 			t.Error("want", want, "got", count)
 		}
-	}
-}
-
-func testBodyTypeToManySetOpStaticParts(t *testing.T) {
-	var err error
-
-	ctx := context.Background()
-	tx := MustTx(boil.BeginTx(ctx, nil))
-	defer func() { _ = tx.Rollback() }()
-
-	var a BodyType
-	var b, c, d, e StaticPart
-
-	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, &a, bodyTypeDBTypes, false, strmangle.SetComplement(bodyTypePrimaryKeyColumns, bodyTypeColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
-	}
-	foreigners := []*StaticPart{&b, &c, &d, &e}
-	for _, x := range foreigners {
-		if err = randomize.Struct(seed, x, staticPartDBTypes, false, strmangle.SetComplement(staticPartPrimaryKeyColumns, staticPartColumnsWithoutDefault)...); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	if err = a.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-	if err = c.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-
-	err = a.SetStaticParts(ctx, tx, false, &b, &c)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err := a.StaticParts().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 2 {
-		t.Error("count was wrong:", count)
-	}
-
-	err = a.SetStaticParts(ctx, tx, true, &d, &e)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err = a.StaticParts().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 2 {
-		t.Error("count was wrong:", count)
-	}
-
-	if !queries.IsValuerNil(b.BodyTypeID) {
-		t.Error("want b's foreign key value to be nil")
-	}
-	if !queries.IsValuerNil(c.BodyTypeID) {
-		t.Error("want c's foreign key value to be nil")
-	}
-	if !queries.Equal(a.ID, d.BodyTypeID) {
-		t.Error("foreign key was wrong value", a.ID, d.BodyTypeID)
-	}
-	if !queries.Equal(a.ID, e.BodyTypeID) {
-		t.Error("foreign key was wrong value", a.ID, e.BodyTypeID)
-	}
-
-	if b.R.BodyType != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
-	}
-	if c.R.BodyType != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
-	}
-	if d.R.BodyType != &a {
-		t.Error("relationship was not added properly to the foreign struct")
-	}
-	if e.R.BodyType != &a {
-		t.Error("relationship was not added properly to the foreign struct")
-	}
-
-	if a.R.StaticParts[0] != &d {
-		t.Error("relationship struct slice not set to correct value")
-	}
-	if a.R.StaticParts[1] != &e {
-		t.Error("relationship struct slice not set to correct value")
-	}
-}
-
-func testBodyTypeToManyRemoveOpStaticParts(t *testing.T) {
-	var err error
-
-	ctx := context.Background()
-	tx := MustTx(boil.BeginTx(ctx, nil))
-	defer func() { _ = tx.Rollback() }()
-
-	var a BodyType
-	var b, c, d, e StaticPart
-
-	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, &a, bodyTypeDBTypes, false, strmangle.SetComplement(bodyTypePrimaryKeyColumns, bodyTypeColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
-	}
-	foreigners := []*StaticPart{&b, &c, &d, &e}
-	for _, x := range foreigners {
-		if err = randomize.Struct(seed, x, staticPartDBTypes, false, strmangle.SetComplement(staticPartPrimaryKeyColumns, staticPartColumnsWithoutDefault)...); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-
-	err = a.AddStaticParts(ctx, tx, true, foreigners...)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err := a.StaticParts().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 4 {
-		t.Error("count was wrong:", count)
-	}
-
-	err = a.RemoveStaticParts(ctx, tx, foreigners[:2]...)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err = a.StaticParts().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 2 {
-		t.Error("count was wrong:", count)
-	}
-
-	if !queries.IsValuerNil(b.BodyTypeID) {
-		t.Error("want b's foreign key value to be nil")
-	}
-	if !queries.IsValuerNil(c.BodyTypeID) {
-		t.Error("want c's foreign key value to be nil")
-	}
-
-	if b.R.BodyType != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
-	}
-	if c.R.BodyType != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
-	}
-	if d.R.BodyType != &a {
-		t.Error("relationship to a should have been preserved")
-	}
-	if e.R.BodyType != &a {
-		t.Error("relationship to a should have been preserved")
-	}
-
-	if len(a.R.StaticParts) != 2 {
-		t.Error("should have preserved two relationships")
-	}
-
-	// Removal doesn't do a stable deletion for performance so we have to flip the order
-	if a.R.StaticParts[1] != &d {
-		t.Error("relationship to d should have been preserved")
-	}
-	if a.R.StaticParts[0] != &e {
-		t.Error("relationship to e should have been preserved")
 	}
 }
 

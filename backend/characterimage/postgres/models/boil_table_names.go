@@ -15,6 +15,7 @@ var TableNames = struct {
 	DynamicPartMapping           string
 	DynamicPartMappingPixel      string
 	DynamicPartPixel             string
+	DynamicPartThumbnail         string
 	Prop                         string
 	PropImage                    string
 	SchemaMigrations             string
@@ -32,6 +33,7 @@ var TableNames = struct {
 	DynamicPartMapping:           "dynamic_part_mapping",
 	DynamicPartMappingPixel:      "dynamic_part_mapping_pixel",
 	DynamicPartPixel:             "dynamic_part_pixel",
+	DynamicPartThumbnail:         "dynamic_part_thumbnail",
 	Prop:                         "prop",
 	PropImage:                    "prop_image",
 	SchemaMigrations:             "schema_migrations",

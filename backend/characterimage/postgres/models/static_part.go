@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/friendsofgo/errors"
-	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -24,10 +23,10 @@ import (
 
 // StaticPart is an object representing the database table.
 type StaticPart struct {
-	ID          int                `boil:"id" json:"id" toml:"id" yaml:"id"`
-	BodyTypeID  null.Int           `boil:"body_type_id" json:"body_type_id,omitempty" toml:"body_type_id" yaml:"body_type_id,omitempty"`
-	DisplayName string             `boil:"display_name" json:"display_name" toml:"display_name" yaml:"display_name"`
-	PartType    NullStaticPartType `boil:"part_type" json:"part_type,omitempty" toml:"part_type" yaml:"part_type,omitempty"`
+	ID          int            `boil:"id" json:"id" toml:"id" yaml:"id"`
+	BodyTypeID  int            `boil:"body_type_id" json:"body_type_id" toml:"body_type_id" yaml:"body_type_id"`
+	DisplayName string         `boil:"display_name" json:"display_name" toml:"display_name" yaml:"display_name"`
+	PartType    StaticPartType `boil:"part_type" json:"part_type" toml:"part_type" yaml:"part_type"`
 
 	R *staticPartR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L staticPartL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -59,42 +58,16 @@ var StaticPartTableColumns = struct {
 
 // Generated where
 
-type whereHelperNullStaticPartType struct{ field string }
-
-func (w whereHelperNullStaticPartType) EQ(x NullStaticPartType) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, false, x)
-}
-func (w whereHelperNullStaticPartType) NEQ(x NullStaticPartType) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, true, x)
-}
-func (w whereHelperNullStaticPartType) LT(x NullStaticPartType) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LT, x)
-}
-func (w whereHelperNullStaticPartType) LTE(x NullStaticPartType) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LTE, x)
-}
-func (w whereHelperNullStaticPartType) GT(x NullStaticPartType) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GT, x)
-}
-func (w whereHelperNullStaticPartType) GTE(x NullStaticPartType) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GTE, x)
-}
-
-func (w whereHelperNullStaticPartType) IsNull() qm.QueryMod { return qmhelper.WhereIsNull(w.field) }
-func (w whereHelperNullStaticPartType) IsNotNull() qm.QueryMod {
-	return qmhelper.WhereIsNotNull(w.field)
-}
-
 var StaticPartWhere = struct {
 	ID          whereHelperint
-	BodyTypeID  whereHelpernull_Int
+	BodyTypeID  whereHelperint
 	DisplayName whereHelperstring
-	PartType    whereHelperNullStaticPartType
+	PartType    whereHelperStaticPartType
 }{
 	ID:          whereHelperint{field: "\"static_part\".\"id\""},
-	BodyTypeID:  whereHelpernull_Int{field: "\"static_part\".\"body_type_id\""},
+	BodyTypeID:  whereHelperint{field: "\"static_part\".\"body_type_id\""},
 	DisplayName: whereHelperstring{field: "\"static_part\".\"display_name\""},
-	PartType:    whereHelperNullStaticPartType{field: "\"static_part\".\"part_type\""},
+	PartType:    whereHelperStaticPartType{field: "\"static_part\".\"part_type\""},
 }
 
 // StaticPartRels is where relationship names are stored.
@@ -136,8 +109,8 @@ type staticPartL struct{}
 
 var (
 	staticPartAllColumns            = []string{"id", "body_type_id", "display_name", "part_type"}
-	staticPartColumnsWithoutDefault = []string{"display_name"}
-	staticPartColumnsWithDefault    = []string{"id", "body_type_id", "part_type"}
+	staticPartColumnsWithoutDefault = []string{"body_type_id", "display_name", "part_type"}
+	staticPartColumnsWithDefault    = []string{"id"}
 	staticPartPrimaryKeyColumns     = []string{"id"}
 	staticPartGeneratedColumns      = []string{}
 )
@@ -459,9 +432,7 @@ func (staticPartL) LoadBodyType(ctx context.Context, e boil.ContextExecutor, sin
 		if object.R == nil {
 			object.R = &staticPartR{}
 		}
-		if !queries.IsNil(object.BodyTypeID) {
-			args = append(args, object.BodyTypeID)
-		}
+		args = append(args, object.BodyTypeID)
 
 	} else {
 	Outer:
@@ -471,14 +442,12 @@ func (staticPartL) LoadBodyType(ctx context.Context, e boil.ContextExecutor, sin
 			}
 
 			for _, a := range args {
-				if queries.Equal(a, obj.BodyTypeID) {
+				if a == obj.BodyTypeID {
 					continue Outer
 				}
 			}
 
-			if !queries.IsNil(obj.BodyTypeID) {
-				args = append(args, obj.BodyTypeID)
-			}
+			args = append(args, obj.BodyTypeID)
 
 		}
 	}
@@ -536,7 +505,7 @@ func (staticPartL) LoadBodyType(ctx context.Context, e boil.ContextExecutor, sin
 
 	for _, local := range slice {
 		for _, foreign := range resultSlice {
-			if queries.Equal(local.BodyTypeID, foreign.ID) {
+			if local.BodyTypeID == foreign.ID {
 				local.R.BodyType = foreign
 				if foreign.R == nil {
 					foreign.R = &bodyTypeR{}
@@ -678,7 +647,7 @@ func (o *StaticPart) SetBodyType(ctx context.Context, exec boil.ContextExecutor,
 		return errors.Wrap(err, "failed to update local table")
 	}
 
-	queries.Assign(&o.BodyTypeID, related.ID)
+	o.BodyTypeID = related.ID
 	if o.R == nil {
 		o.R = &staticPartR{
 			BodyType: related,
@@ -695,39 +664,6 @@ func (o *StaticPart) SetBodyType(ctx context.Context, exec boil.ContextExecutor,
 		related.R.StaticParts = append(related.R.StaticParts, o)
 	}
 
-	return nil
-}
-
-// RemoveBodyType relationship.
-// Sets o.R.BodyType to nil.
-// Removes o from all passed in related items' relationships struct.
-func (o *StaticPart) RemoveBodyType(ctx context.Context, exec boil.ContextExecutor, related *BodyType) error {
-	var err error
-
-	queries.SetScanner(&o.BodyTypeID, nil)
-	if _, err = o.Update(ctx, exec, boil.Whitelist("body_type_id")); err != nil {
-		return errors.Wrap(err, "failed to update local table")
-	}
-
-	if o.R != nil {
-		o.R.BodyType = nil
-	}
-	if related == nil || related.R == nil {
-		return nil
-	}
-
-	for i, ri := range related.R.StaticParts {
-		if queries.Equal(o.BodyTypeID, ri.BodyTypeID) {
-			continue
-		}
-
-		ln := len(related.R.StaticParts)
-		if ln > 1 && i < ln-1 {
-			related.R.StaticParts[i] = related.R.StaticParts[ln-1]
-		}
-		related.R.StaticParts = related.R.StaticParts[:ln-1]
-		break
-	}
 	return nil
 }
 

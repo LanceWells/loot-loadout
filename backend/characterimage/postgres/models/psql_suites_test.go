@@ -28,6 +28,8 @@ func TestUpsert(t *testing.T) {
 
 	t.Run("DynamicPartPixels", testDynamicPartPixelsUpsert)
 
+	t.Run("DynamicPartThumbnails", testDynamicPartThumbnailsUpsert)
+
 	t.Run("Props", testPropsUpsert)
 
 	t.Run("PropImages", testPropImagesUpsert)

@@ -146,3 +146,75 @@ func (r CharacterImageServer) AddDynamicMapping(
 		Id: id,
 	}, nil
 }
+
+func (r CharacterImageServer) AddDynamic(
+	ctx context.Context,
+	req *api.AddDynamicRequest,
+) (*api.AddDynamicResponse, error) {
+	_, span := otel.Tracer("CharacterImageServer").Start(ctx, "AddDynamic")
+	defer span.End()
+
+	err := req.Validate()
+	if err != nil {
+		r.l.Printf("error validating: %v", err)
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	id, err := r.s.AddDynamic(ctx, req)
+	if err != nil {
+		r.l.Println("error adding dynamic part:", err)
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &api.AddDynamicResponse{
+		Id: id,
+	}, nil
+}
+
+func (r CharacterImageServer) AddStatic(
+	ctx context.Context,
+	req *api.AddStaticRequest,
+) (*api.AddStaticResponse, error) {
+	_, span := otel.Tracer("CharacterImageServer").Start(ctx, "AddStatic")
+	defer span.End()
+
+	err := req.Validate()
+	if err != nil {
+		r.l.Printf("error validating: %v", err)
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	id, err := r.s.AddStatic(ctx, req)
+	if err != nil {
+		r.l.Println("error adding static part:", err)
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &api.AddStaticResponse{
+		Id: id,
+	}, nil
+}
+
+func (r CharacterImageServer) ListStatics(
+	ctx context.Context,
+	req *api.ListStaticRequest,
+) (*api.ListStaticsResponse, error) {
+	_, span := otel.Tracer("CharacterImageServer").Start(ctx, "ListStatics")
+	defer span.End()
+
+	err := req.Validate()
+	if err != nil {
+		r.l.Printf("error validating: %v", err)
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	statics, err := r.s.ListStatics(ctx, req)
+	if err != nil {
+		r.l.Println("error listing bodies:", err)
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &api.ListStaticsResponse{
+		Statics: statics,
+	}, nil
+}

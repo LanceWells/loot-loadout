@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/friendsofgo/errors"
-	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -24,9 +23,9 @@ import (
 
 // DynamicPartMapping is an object representing the database table.
 type DynamicPartMapping struct {
-	ID         int                 `boil:"id" json:"id" toml:"id" yaml:"id"`
-	BodyTypeID null.Int            `boil:"body_type_id" json:"body_type_id,omitempty" toml:"body_type_id" yaml:"body_type_id,omitempty"`
-	PartType   NullDynamicPartType `boil:"part_type" json:"part_type,omitempty" toml:"part_type" yaml:"part_type,omitempty"`
+	ID         int             `boil:"id" json:"id" toml:"id" yaml:"id"`
+	BodyTypeID int             `boil:"body_type_id" json:"body_type_id" toml:"body_type_id" yaml:"body_type_id"`
+	PartType   DynamicPartType `boil:"part_type" json:"part_type" toml:"part_type" yaml:"part_type"`
 
 	R *dynamicPartMappingR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L dynamicPartMappingL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -56,12 +55,12 @@ var DynamicPartMappingTableColumns = struct {
 
 var DynamicPartMappingWhere = struct {
 	ID         whereHelperint
-	BodyTypeID whereHelpernull_Int
-	PartType   whereHelperNullDynamicPartType
+	BodyTypeID whereHelperint
+	PartType   whereHelperDynamicPartType
 }{
 	ID:         whereHelperint{field: "\"dynamic_part_mapping\".\"id\""},
-	BodyTypeID: whereHelpernull_Int{field: "\"dynamic_part_mapping\".\"body_type_id\""},
-	PartType:   whereHelperNullDynamicPartType{field: "\"dynamic_part_mapping\".\"part_type\""},
+	BodyTypeID: whereHelperint{field: "\"dynamic_part_mapping\".\"body_type_id\""},
+	PartType:   whereHelperDynamicPartType{field: "\"dynamic_part_mapping\".\"part_type\""},
 }
 
 // DynamicPartMappingRels is where relationship names are stored.
@@ -113,8 +112,8 @@ type dynamicPartMappingL struct{}
 
 var (
 	dynamicPartMappingAllColumns            = []string{"id", "body_type_id", "part_type"}
-	dynamicPartMappingColumnsWithoutDefault = []string{}
-	dynamicPartMappingColumnsWithDefault    = []string{"id", "body_type_id", "part_type"}
+	dynamicPartMappingColumnsWithoutDefault = []string{"body_type_id", "part_type"}
+	dynamicPartMappingColumnsWithDefault    = []string{"id"}
 	dynamicPartMappingPrimaryKeyColumns     = []string{"id"}
 	dynamicPartMappingGeneratedColumns      = []string{}
 )
@@ -453,9 +452,7 @@ func (dynamicPartMappingL) LoadBodyType(ctx context.Context, e boil.ContextExecu
 		if object.R == nil {
 			object.R = &dynamicPartMappingR{}
 		}
-		if !queries.IsNil(object.BodyTypeID) {
-			args = append(args, object.BodyTypeID)
-		}
+		args = append(args, object.BodyTypeID)
 
 	} else {
 	Outer:
@@ -465,14 +462,12 @@ func (dynamicPartMappingL) LoadBodyType(ctx context.Context, e boil.ContextExecu
 			}
 
 			for _, a := range args {
-				if queries.Equal(a, obj.BodyTypeID) {
+				if a == obj.BodyTypeID {
 					continue Outer
 				}
 			}
 
-			if !queries.IsNil(obj.BodyTypeID) {
-				args = append(args, obj.BodyTypeID)
-			}
+			args = append(args, obj.BodyTypeID)
 
 		}
 	}
@@ -530,7 +525,7 @@ func (dynamicPartMappingL) LoadBodyType(ctx context.Context, e boil.ContextExecu
 
 	for _, local := range slice {
 		for _, foreign := range resultSlice {
-			if queries.Equal(local.BodyTypeID, foreign.ID) {
+			if local.BodyTypeID == foreign.ID {
 				local.R.BodyType = foreign
 				if foreign.R == nil {
 					foreign.R = &bodyTypeR{}
@@ -570,7 +565,7 @@ func (dynamicPartMappingL) LoadDynamicParts(ctx context.Context, e boil.ContextE
 			}
 
 			for _, a := range args {
-				if queries.Equal(a, obj.ID) {
+				if a == obj.ID {
 					continue Outer
 				}
 			}
@@ -628,7 +623,7 @@ func (dynamicPartMappingL) LoadDynamicParts(ctx context.Context, e boil.ContextE
 
 	for _, foreign := range resultSlice {
 		for _, local := range slice {
-			if queries.Equal(local.ID, foreign.DynamicPartMappingID) {
+			if local.ID == foreign.DynamicPartMappingID {
 				local.R.DynamicParts = append(local.R.DynamicParts, foreign)
 				if foreign.R == nil {
 					foreign.R = &dynamicPartR{}
@@ -767,7 +762,7 @@ func (o *DynamicPartMapping) SetBodyType(ctx context.Context, exec boil.ContextE
 		return errors.Wrap(err, "failed to update local table")
 	}
 
-	queries.Assign(&o.BodyTypeID, related.ID)
+	o.BodyTypeID = related.ID
 	if o.R == nil {
 		o.R = &dynamicPartMappingR{
 			BodyType: related,
@@ -787,39 +782,6 @@ func (o *DynamicPartMapping) SetBodyType(ctx context.Context, exec boil.ContextE
 	return nil
 }
 
-// RemoveBodyType relationship.
-// Sets o.R.BodyType to nil.
-// Removes o from all passed in related items' relationships struct.
-func (o *DynamicPartMapping) RemoveBodyType(ctx context.Context, exec boil.ContextExecutor, related *BodyType) error {
-	var err error
-
-	queries.SetScanner(&o.BodyTypeID, nil)
-	if _, err = o.Update(ctx, exec, boil.Whitelist("body_type_id")); err != nil {
-		return errors.Wrap(err, "failed to update local table")
-	}
-
-	if o.R != nil {
-		o.R.BodyType = nil
-	}
-	if related == nil || related.R == nil {
-		return nil
-	}
-
-	for i, ri := range related.R.DynamicPartMappings {
-		if queries.Equal(o.BodyTypeID, ri.BodyTypeID) {
-			continue
-		}
-
-		ln := len(related.R.DynamicPartMappings)
-		if ln > 1 && i < ln-1 {
-			related.R.DynamicPartMappings[i] = related.R.DynamicPartMappings[ln-1]
-		}
-		related.R.DynamicPartMappings = related.R.DynamicPartMappings[:ln-1]
-		break
-	}
-	return nil
-}
-
 // AddDynamicParts adds the given related objects to the existing relationships
 // of the dynamic_part_mapping, optionally inserting them as new records.
 // Appends related to o.R.DynamicParts.
@@ -828,7 +790,7 @@ func (o *DynamicPartMapping) AddDynamicParts(ctx context.Context, exec boil.Cont
 	var err error
 	for _, rel := range related {
 		if insert {
-			queries.Assign(&rel.DynamicPartMappingID, o.ID)
+			rel.DynamicPartMappingID = o.ID
 			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
 				return errors.Wrap(err, "failed to insert into foreign table")
 			}
@@ -849,7 +811,7 @@ func (o *DynamicPartMapping) AddDynamicParts(ctx context.Context, exec boil.Cont
 				return errors.Wrap(err, "failed to update foreign table")
 			}
 
-			queries.Assign(&rel.DynamicPartMappingID, o.ID)
+			rel.DynamicPartMappingID = o.ID
 		}
 	}
 
@@ -870,80 +832,6 @@ func (o *DynamicPartMapping) AddDynamicParts(ctx context.Context, exec boil.Cont
 			rel.R.DynamicPartMapping = o
 		}
 	}
-	return nil
-}
-
-// SetDynamicParts removes all previously related items of the
-// dynamic_part_mapping replacing them completely with the passed
-// in related items, optionally inserting them as new records.
-// Sets o.R.DynamicPartMapping's DynamicParts accordingly.
-// Replaces o.R.DynamicParts with related.
-// Sets related.R.DynamicPartMapping's DynamicParts accordingly.
-func (o *DynamicPartMapping) SetDynamicParts(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*DynamicPart) error {
-	query := "update \"dynamic_part\" set \"dynamic_part_mapping_id\" = null where \"dynamic_part_mapping_id\" = $1"
-	values := []interface{}{o.ID}
-	if boil.IsDebug(ctx) {
-		writer := boil.DebugWriterFrom(ctx)
-		fmt.Fprintln(writer, query)
-		fmt.Fprintln(writer, values)
-	}
-	_, err := exec.ExecContext(ctx, query, values...)
-	if err != nil {
-		return errors.Wrap(err, "failed to remove relationships before set")
-	}
-
-	if o.R != nil {
-		for _, rel := range o.R.DynamicParts {
-			queries.SetScanner(&rel.DynamicPartMappingID, nil)
-			if rel.R == nil {
-				continue
-			}
-
-			rel.R.DynamicPartMapping = nil
-		}
-		o.R.DynamicParts = nil
-	}
-
-	return o.AddDynamicParts(ctx, exec, insert, related...)
-}
-
-// RemoveDynamicParts relationships from objects passed in.
-// Removes related items from R.DynamicParts (uses pointer comparison, removal does not keep order)
-// Sets related.R.DynamicPartMapping.
-func (o *DynamicPartMapping) RemoveDynamicParts(ctx context.Context, exec boil.ContextExecutor, related ...*DynamicPart) error {
-	if len(related) == 0 {
-		return nil
-	}
-
-	var err error
-	for _, rel := range related {
-		queries.SetScanner(&rel.DynamicPartMappingID, nil)
-		if rel.R != nil {
-			rel.R.DynamicPartMapping = nil
-		}
-		if _, err = rel.Update(ctx, exec, boil.Whitelist("dynamic_part_mapping_id")); err != nil {
-			return err
-		}
-	}
-	if o.R == nil {
-		return nil
-	}
-
-	for _, rel := range related {
-		for i, ri := range o.R.DynamicParts {
-			if rel != ri {
-				continue
-			}
-
-			ln := len(o.R.DynamicParts)
-			if ln > 1 && i < ln-1 {
-				o.R.DynamicParts[i] = o.R.DynamicParts[ln-1]
-			}
-			o.R.DynamicParts = o.R.DynamicParts[:ln-1]
-			break
-		}
-	}
-
 	return nil
 }
 

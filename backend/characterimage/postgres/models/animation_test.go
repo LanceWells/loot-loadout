@@ -519,8 +519,9 @@ func testAnimationToManyAnimationFrames(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	queries.Assign(&b.AnimationID, a.ID)
-	queries.Assign(&c.AnimationID, a.ID)
+	b.AnimationID = a.ID
+	c.AnimationID = a.ID
+
 	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
 		t.Fatal(err)
 	}
@@ -535,10 +536,10 @@ func testAnimationToManyAnimationFrames(t *testing.T) {
 
 	bFound, cFound := false, false
 	for _, v := range check {
-		if queries.Equal(v.AnimationID, b.AnimationID) {
+		if v.AnimationID == b.AnimationID {
 			bFound = true
 		}
-		if queries.Equal(v.AnimationID, c.AnimationID) {
+		if v.AnimationID == c.AnimationID {
 			cFound = true
 		}
 	}
@@ -616,10 +617,10 @@ func testAnimationToManyAddOpAnimationFrames(t *testing.T) {
 		first := x[0]
 		second := x[1]
 
-		if !queries.Equal(a.ID, first.AnimationID) {
+		if a.ID != first.AnimationID {
 			t.Error("foreign key was wrong value", a.ID, first.AnimationID)
 		}
-		if !queries.Equal(a.ID, second.AnimationID) {
+		if a.ID != second.AnimationID {
 			t.Error("foreign key was wrong value", a.ID, second.AnimationID)
 		}
 
@@ -646,182 +647,6 @@ func testAnimationToManyAddOpAnimationFrames(t *testing.T) {
 		}
 	}
 }
-
-func testAnimationToManySetOpAnimationFrames(t *testing.T) {
-	var err error
-
-	ctx := context.Background()
-	tx := MustTx(boil.BeginTx(ctx, nil))
-	defer func() { _ = tx.Rollback() }()
-
-	var a Animation
-	var b, c, d, e AnimationFrame
-
-	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, &a, animationDBTypes, false, strmangle.SetComplement(animationPrimaryKeyColumns, animationColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
-	}
-	foreigners := []*AnimationFrame{&b, &c, &d, &e}
-	for _, x := range foreigners {
-		if err = randomize.Struct(seed, x, animationFrameDBTypes, false, strmangle.SetComplement(animationFramePrimaryKeyColumns, animationFrameColumnsWithoutDefault)...); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	if err = a.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-	if err = c.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-
-	err = a.SetAnimationFrames(ctx, tx, false, &b, &c)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err := a.AnimationFrames().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 2 {
-		t.Error("count was wrong:", count)
-	}
-
-	err = a.SetAnimationFrames(ctx, tx, true, &d, &e)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err = a.AnimationFrames().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 2 {
-		t.Error("count was wrong:", count)
-	}
-
-	if !queries.IsValuerNil(b.AnimationID) {
-		t.Error("want b's foreign key value to be nil")
-	}
-	if !queries.IsValuerNil(c.AnimationID) {
-		t.Error("want c's foreign key value to be nil")
-	}
-	if !queries.Equal(a.ID, d.AnimationID) {
-		t.Error("foreign key was wrong value", a.ID, d.AnimationID)
-	}
-	if !queries.Equal(a.ID, e.AnimationID) {
-		t.Error("foreign key was wrong value", a.ID, e.AnimationID)
-	}
-
-	if b.R.Animation != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
-	}
-	if c.R.Animation != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
-	}
-	if d.R.Animation != &a {
-		t.Error("relationship was not added properly to the foreign struct")
-	}
-	if e.R.Animation != &a {
-		t.Error("relationship was not added properly to the foreign struct")
-	}
-
-	if a.R.AnimationFrames[0] != &d {
-		t.Error("relationship struct slice not set to correct value")
-	}
-	if a.R.AnimationFrames[1] != &e {
-		t.Error("relationship struct slice not set to correct value")
-	}
-}
-
-func testAnimationToManyRemoveOpAnimationFrames(t *testing.T) {
-	var err error
-
-	ctx := context.Background()
-	tx := MustTx(boil.BeginTx(ctx, nil))
-	defer func() { _ = tx.Rollback() }()
-
-	var a Animation
-	var b, c, d, e AnimationFrame
-
-	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, &a, animationDBTypes, false, strmangle.SetComplement(animationPrimaryKeyColumns, animationColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
-	}
-	foreigners := []*AnimationFrame{&b, &c, &d, &e}
-	for _, x := range foreigners {
-		if err = randomize.Struct(seed, x, animationFrameDBTypes, false, strmangle.SetComplement(animationFramePrimaryKeyColumns, animationFrameColumnsWithoutDefault)...); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-
-	err = a.AddAnimationFrames(ctx, tx, true, foreigners...)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err := a.AnimationFrames().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 4 {
-		t.Error("count was wrong:", count)
-	}
-
-	err = a.RemoveAnimationFrames(ctx, tx, foreigners[:2]...)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err = a.AnimationFrames().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 2 {
-		t.Error("count was wrong:", count)
-	}
-
-	if !queries.IsValuerNil(b.AnimationID) {
-		t.Error("want b's foreign key value to be nil")
-	}
-	if !queries.IsValuerNil(c.AnimationID) {
-		t.Error("want c's foreign key value to be nil")
-	}
-
-	if b.R.Animation != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
-	}
-	if c.R.Animation != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
-	}
-	if d.R.Animation != &a {
-		t.Error("relationship to a should have been preserved")
-	}
-	if e.R.Animation != &a {
-		t.Error("relationship to a should have been preserved")
-	}
-
-	if len(a.R.AnimationFrames) != 2 {
-		t.Error("should have preserved two relationships")
-	}
-
-	// Removal doesn't do a stable deletion for performance so we have to flip the order
-	if a.R.AnimationFrames[1] != &d {
-		t.Error("relationship to d should have been preserved")
-	}
-	if a.R.AnimationFrames[0] != &e {
-		t.Error("relationship to e should have been preserved")
-	}
-}
-
 func testAnimationToOneBodyTypeUsingBodyType(t *testing.T) {
 	ctx := context.Background()
 	tx := MustTx(boil.BeginTx(ctx, nil))
@@ -831,7 +656,7 @@ func testAnimationToOneBodyTypeUsingBodyType(t *testing.T) {
 	var foreign BodyType
 
 	seed := randomize.NewSeed()
-	if err := randomize.Struct(seed, &local, animationDBTypes, true, animationColumnsWithDefault...); err != nil {
+	if err := randomize.Struct(seed, &local, animationDBTypes, false, animationColumnsWithDefault...); err != nil {
 		t.Errorf("Unable to randomize Animation struct: %s", err)
 	}
 	if err := randomize.Struct(seed, &foreign, bodyTypeDBTypes, false, bodyTypeColumnsWithDefault...); err != nil {
@@ -842,7 +667,7 @@ func testAnimationToOneBodyTypeUsingBodyType(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	queries.Assign(&local.BodyTypeID, foreign.ID)
+	local.BodyTypeID = foreign.ID
 	if err := local.Insert(ctx, tx, boil.Infer()); err != nil {
 		t.Fatal(err)
 	}
@@ -852,7 +677,7 @@ func testAnimationToOneBodyTypeUsingBodyType(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if !queries.Equal(check.ID, foreign.ID) {
+	if check.ID != foreign.ID {
 		t.Errorf("want: %v, got %v", foreign.ID, check.ID)
 	}
 
@@ -914,7 +739,7 @@ func testAnimationToOneSetOpBodyTypeUsingBodyType(t *testing.T) {
 		if x.R.Animations[0] != &a {
 			t.Error("failed to append to foreign relationship struct")
 		}
-		if !queries.Equal(a.BodyTypeID, x.ID) {
+		if a.BodyTypeID != x.ID {
 			t.Error("foreign key was wrong value", a.BodyTypeID)
 		}
 
@@ -925,60 +750,9 @@ func testAnimationToOneSetOpBodyTypeUsingBodyType(t *testing.T) {
 			t.Fatal("failed to reload", err)
 		}
 
-		if !queries.Equal(a.BodyTypeID, x.ID) {
+		if a.BodyTypeID != x.ID {
 			t.Error("foreign key was wrong value", a.BodyTypeID, x.ID)
 		}
-	}
-}
-
-func testAnimationToOneRemoveOpBodyTypeUsingBodyType(t *testing.T) {
-	var err error
-
-	ctx := context.Background()
-	tx := MustTx(boil.BeginTx(ctx, nil))
-	defer func() { _ = tx.Rollback() }()
-
-	var a Animation
-	var b BodyType
-
-	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, &a, animationDBTypes, false, strmangle.SetComplement(animationPrimaryKeyColumns, animationColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
-	}
-	if err = randomize.Struct(seed, &b, bodyTypeDBTypes, false, strmangle.SetComplement(bodyTypePrimaryKeyColumns, bodyTypeColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
-	}
-
-	if err = a.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-
-	if err = a.SetBodyType(ctx, tx, true, &b); err != nil {
-		t.Fatal(err)
-	}
-
-	if err = a.RemoveBodyType(ctx, tx, &b); err != nil {
-		t.Error("failed to remove relationship")
-	}
-
-	count, err := a.BodyType().Count(ctx, tx)
-	if err != nil {
-		t.Error(err)
-	}
-	if count != 0 {
-		t.Error("want no relationships remaining")
-	}
-
-	if a.R.BodyType != nil {
-		t.Error("R struct entry should be nil")
-	}
-
-	if !queries.IsValuerNil(a.BodyTypeID) {
-		t.Error("foreign key value should be nil")
-	}
-
-	if len(b.R.Animations) != 0 {
-		t.Error("failed to remove a from b's relationships")
 	}
 }
 

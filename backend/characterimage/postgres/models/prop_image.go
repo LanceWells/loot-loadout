@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/friendsofgo/errors"
-	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -24,10 +23,10 @@ import (
 
 // PropImage is an object representing the database table.
 type PropImage struct {
-	PropID     int        `boil:"prop_id" json:"prop_id" toml:"prop_id" yaml:"prop_id"`
-	X          null.Int16 `boil:"x" json:"x,omitempty" toml:"x" yaml:"x,omitempty"`
-	Y          null.Int16 `boil:"y" json:"y,omitempty" toml:"y" yaml:"y,omitempty"`
-	ImageBytes null.Bytes `boil:"image_bytes" json:"image_bytes,omitempty" toml:"image_bytes" yaml:"image_bytes,omitempty"`
+	PropID     int    `boil:"prop_id" json:"prop_id" toml:"prop_id" yaml:"prop_id"`
+	X          int16  `boil:"x" json:"x" toml:"x" yaml:"x"`
+	Y          int16  `boil:"y" json:"y" toml:"y" yaml:"y"`
+	ImageBytes []byte `boil:"image_bytes" json:"image_bytes" toml:"image_bytes" yaml:"image_bytes"`
 
 	R *propImageR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L propImageL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -59,40 +58,16 @@ var PropImageTableColumns = struct {
 
 // Generated where
 
-type whereHelpernull_Bytes struct{ field string }
-
-func (w whereHelpernull_Bytes) EQ(x null.Bytes) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, false, x)
-}
-func (w whereHelpernull_Bytes) NEQ(x null.Bytes) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, true, x)
-}
-func (w whereHelpernull_Bytes) LT(x null.Bytes) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LT, x)
-}
-func (w whereHelpernull_Bytes) LTE(x null.Bytes) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LTE, x)
-}
-func (w whereHelpernull_Bytes) GT(x null.Bytes) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GT, x)
-}
-func (w whereHelpernull_Bytes) GTE(x null.Bytes) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GTE, x)
-}
-
-func (w whereHelpernull_Bytes) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
-func (w whereHelpernull_Bytes) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
-
 var PropImageWhere = struct {
 	PropID     whereHelperint
-	X          whereHelpernull_Int16
-	Y          whereHelpernull_Int16
-	ImageBytes whereHelpernull_Bytes
+	X          whereHelperint16
+	Y          whereHelperint16
+	ImageBytes whereHelper__byte
 }{
 	PropID:     whereHelperint{field: "\"prop_image\".\"prop_id\""},
-	X:          whereHelpernull_Int16{field: "\"prop_image\".\"x\""},
-	Y:          whereHelpernull_Int16{field: "\"prop_image\".\"y\""},
-	ImageBytes: whereHelpernull_Bytes{field: "\"prop_image\".\"image_bytes\""},
+	X:          whereHelperint16{field: "\"prop_image\".\"x\""},
+	Y:          whereHelperint16{field: "\"prop_image\".\"y\""},
+	ImageBytes: whereHelper__byte{field: "\"prop_image\".\"image_bytes\""},
 }
 
 // PropImageRels is where relationship names are stored.
@@ -124,8 +99,8 @@ type propImageL struct{}
 
 var (
 	propImageAllColumns            = []string{"prop_id", "x", "y", "image_bytes"}
-	propImageColumnsWithoutDefault = []string{"prop_id"}
-	propImageColumnsWithDefault    = []string{"x", "y", "image_bytes"}
+	propImageColumnsWithoutDefault = []string{"prop_id", "x", "y", "image_bytes"}
+	propImageColumnsWithDefault    = []string{}
 	propImagePrimaryKeyColumns     = []string{"prop_id"}
 	propImageGeneratedColumns      = []string{}
 )

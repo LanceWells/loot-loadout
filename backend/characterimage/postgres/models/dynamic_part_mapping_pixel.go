@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/friendsofgo/errors"
-	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -24,10 +23,10 @@ import (
 
 // DynamicPartMappingPixel is an object representing the database table.
 type DynamicPartMappingPixel struct {
-	ColorStringID        int        `boil:"color_string_id" json:"color_string_id" toml:"color_string_id" yaml:"color_string_id"`
-	DynamicPartMappingID int        `boil:"dynamic_part_mapping_id" json:"dynamic_part_mapping_id" toml:"dynamic_part_mapping_id" yaml:"dynamic_part_mapping_id"`
-	X                    null.Int16 `boil:"x" json:"x,omitempty" toml:"x" yaml:"x,omitempty"`
-	Y                    null.Int16 `boil:"y" json:"y,omitempty" toml:"y" yaml:"y,omitempty"`
+	ColorStringID        int   `boil:"color_string_id" json:"color_string_id" toml:"color_string_id" yaml:"color_string_id"`
+	DynamicPartMappingID int   `boil:"dynamic_part_mapping_id" json:"dynamic_part_mapping_id" toml:"dynamic_part_mapping_id" yaml:"dynamic_part_mapping_id"`
+	X                    int16 `boil:"x" json:"x" toml:"x" yaml:"x"`
+	Y                    int16 `boil:"y" json:"y" toml:"y" yaml:"y"`
 
 	R *dynamicPartMappingPixelR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L dynamicPartMappingPixelL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -62,13 +61,13 @@ var DynamicPartMappingPixelTableColumns = struct {
 var DynamicPartMappingPixelWhere = struct {
 	ColorStringID        whereHelperint
 	DynamicPartMappingID whereHelperint
-	X                    whereHelpernull_Int16
-	Y                    whereHelpernull_Int16
+	X                    whereHelperint16
+	Y                    whereHelperint16
 }{
 	ColorStringID:        whereHelperint{field: "\"dynamic_part_mapping_pixel\".\"color_string_id\""},
 	DynamicPartMappingID: whereHelperint{field: "\"dynamic_part_mapping_pixel\".\"dynamic_part_mapping_id\""},
-	X:                    whereHelpernull_Int16{field: "\"dynamic_part_mapping_pixel\".\"x\""},
-	Y:                    whereHelpernull_Int16{field: "\"dynamic_part_mapping_pixel\".\"y\""},
+	X:                    whereHelperint16{field: "\"dynamic_part_mapping_pixel\".\"x\""},
+	Y:                    whereHelperint16{field: "\"dynamic_part_mapping_pixel\".\"y\""},
 }
 
 // DynamicPartMappingPixelRels is where relationship names are stored.
@@ -110,8 +109,8 @@ type dynamicPartMappingPixelL struct{}
 
 var (
 	dynamicPartMappingPixelAllColumns            = []string{"color_string_id", "dynamic_part_mapping_id", "x", "y"}
-	dynamicPartMappingPixelColumnsWithoutDefault = []string{"color_string_id", "dynamic_part_mapping_id"}
-	dynamicPartMappingPixelColumnsWithDefault    = []string{"x", "y"}
+	dynamicPartMappingPixelColumnsWithoutDefault = []string{"color_string_id", "dynamic_part_mapping_id", "x", "y"}
+	dynamicPartMappingPixelColumnsWithDefault    = []string{}
 	dynamicPartMappingPixelPrimaryKeyColumns     = []string{"color_string_id", "dynamic_part_mapping_id"}
 	dynamicPartMappingPixelGeneratedColumns      = []string{}
 )

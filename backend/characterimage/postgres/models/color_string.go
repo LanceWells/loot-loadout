@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/friendsofgo/errors"
-	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -24,8 +23,8 @@ import (
 
 // ColorString is an object representing the database table.
 type ColorString struct {
-	ID        int         `boil:"id" json:"id" toml:"id" yaml:"id"`
-	Hexstring null.String `boil:"hexstring" json:"hexstring,omitempty" toml:"hexstring" yaml:"hexstring,omitempty"`
+	ID        int    `boil:"id" json:"id" toml:"id" yaml:"id"`
+	Hexstring string `boil:"hexstring" json:"hexstring" toml:"hexstring" yaml:"hexstring"`
 
 	R *colorStringR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L colorStringL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -49,36 +48,12 @@ var ColorStringTableColumns = struct {
 
 // Generated where
 
-type whereHelpernull_String struct{ field string }
-
-func (w whereHelpernull_String) EQ(x null.String) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, false, x)
-}
-func (w whereHelpernull_String) NEQ(x null.String) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, true, x)
-}
-func (w whereHelpernull_String) LT(x null.String) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LT, x)
-}
-func (w whereHelpernull_String) LTE(x null.String) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LTE, x)
-}
-func (w whereHelpernull_String) GT(x null.String) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GT, x)
-}
-func (w whereHelpernull_String) GTE(x null.String) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GTE, x)
-}
-
-func (w whereHelpernull_String) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
-func (w whereHelpernull_String) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
-
 var ColorStringWhere = struct {
 	ID        whereHelperint
-	Hexstring whereHelpernull_String
+	Hexstring whereHelperstring
 }{
 	ID:        whereHelperint{field: "\"color_string\".\"id\""},
-	Hexstring: whereHelpernull_String{field: "\"color_string\".\"hexstring\""},
+	Hexstring: whereHelperstring{field: "\"color_string\".\"hexstring\""},
 }
 
 // ColorStringRels is where relationship names are stored.
@@ -130,8 +105,8 @@ type colorStringL struct{}
 
 var (
 	colorStringAllColumns            = []string{"id", "hexstring"}
-	colorStringColumnsWithoutDefault = []string{}
-	colorStringColumnsWithDefault    = []string{"id", "hexstring"}
+	colorStringColumnsWithoutDefault = []string{"hexstring"}
+	colorStringColumnsWithDefault    = []string{"id"}
 	colorStringPrimaryKeyColumns     = []string{"id"}
 	colorStringGeneratedColumns      = []string{}
 )

@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/friendsofgo/errors"
-	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -24,10 +23,10 @@ import (
 
 // AnimationFramePixel is an object representing the database table.
 type AnimationFramePixel struct {
-	ColorStringID    int        `boil:"color_string_id" json:"color_string_id" toml:"color_string_id" yaml:"color_string_id"`
-	AnimationFrameID int        `boil:"animation_frame_id" json:"animation_frame_id" toml:"animation_frame_id" yaml:"animation_frame_id"`
-	X                null.Int16 `boil:"x" json:"x,omitempty" toml:"x" yaml:"x,omitempty"`
-	Y                null.Int16 `boil:"y" json:"y,omitempty" toml:"y" yaml:"y,omitempty"`
+	ColorStringID    int   `boil:"color_string_id" json:"color_string_id" toml:"color_string_id" yaml:"color_string_id"`
+	AnimationFrameID int   `boil:"animation_frame_id" json:"animation_frame_id" toml:"animation_frame_id" yaml:"animation_frame_id"`
+	X                int16 `boil:"x" json:"x" toml:"x" yaml:"x"`
+	Y                int16 `boil:"y" json:"y" toml:"y" yaml:"y"`
 
 	R *animationFramePixelR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L animationFramePixelL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -59,40 +58,39 @@ var AnimationFramePixelTableColumns = struct {
 
 // Generated where
 
-type whereHelpernull_Int16 struct{ field string }
+type whereHelperint16 struct{ field string }
 
-func (w whereHelpernull_Int16) EQ(x null.Int16) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, false, x)
+func (w whereHelperint16) EQ(x int16) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.EQ, x) }
+func (w whereHelperint16) NEQ(x int16) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.NEQ, x) }
+func (w whereHelperint16) LT(x int16) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.LT, x) }
+func (w whereHelperint16) LTE(x int16) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.LTE, x) }
+func (w whereHelperint16) GT(x int16) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.GT, x) }
+func (w whereHelperint16) GTE(x int16) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.GTE, x) }
+func (w whereHelperint16) IN(slice []int16) qm.QueryMod {
+	values := make([]interface{}, 0, len(slice))
+	for _, value := range slice {
+		values = append(values, value)
+	}
+	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
 }
-func (w whereHelpernull_Int16) NEQ(x null.Int16) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, true, x)
+func (w whereHelperint16) NIN(slice []int16) qm.QueryMod {
+	values := make([]interface{}, 0, len(slice))
+	for _, value := range slice {
+		values = append(values, value)
+	}
+	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
 }
-func (w whereHelpernull_Int16) LT(x null.Int16) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LT, x)
-}
-func (w whereHelpernull_Int16) LTE(x null.Int16) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LTE, x)
-}
-func (w whereHelpernull_Int16) GT(x null.Int16) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GT, x)
-}
-func (w whereHelpernull_Int16) GTE(x null.Int16) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GTE, x)
-}
-
-func (w whereHelpernull_Int16) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
-func (w whereHelpernull_Int16) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
 
 var AnimationFramePixelWhere = struct {
 	ColorStringID    whereHelperint
 	AnimationFrameID whereHelperint
-	X                whereHelpernull_Int16
-	Y                whereHelpernull_Int16
+	X                whereHelperint16
+	Y                whereHelperint16
 }{
 	ColorStringID:    whereHelperint{field: "\"animation_frame_pixel\".\"color_string_id\""},
 	AnimationFrameID: whereHelperint{field: "\"animation_frame_pixel\".\"animation_frame_id\""},
-	X:                whereHelpernull_Int16{field: "\"animation_frame_pixel\".\"x\""},
-	Y:                whereHelpernull_Int16{field: "\"animation_frame_pixel\".\"y\""},
+	X:                whereHelperint16{field: "\"animation_frame_pixel\".\"x\""},
+	Y:                whereHelperint16{field: "\"animation_frame_pixel\".\"y\""},
 }
 
 // AnimationFramePixelRels is where relationship names are stored.
@@ -134,8 +132,8 @@ type animationFramePixelL struct{}
 
 var (
 	animationFramePixelAllColumns            = []string{"color_string_id", "animation_frame_id", "x", "y"}
-	animationFramePixelColumnsWithoutDefault = []string{"color_string_id", "animation_frame_id"}
-	animationFramePixelColumnsWithDefault    = []string{"x", "y"}
+	animationFramePixelColumnsWithoutDefault = []string{"color_string_id", "animation_frame_id", "x", "y"}
+	animationFramePixelColumnsWithDefault    = []string{}
 	animationFramePixelPrimaryKeyColumns     = []string{"color_string_id", "animation_frame_id"}
 	animationFramePixelGeneratedColumns      = []string{}
 )

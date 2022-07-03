@@ -23,6 +23,7 @@ func TestParent(t *testing.T) {
 	t.Run("DynamicPartMappings", testDynamicPartMappings)
 	t.Run("DynamicPartMappingPixels", testDynamicPartMappingPixels)
 	t.Run("DynamicPartPixels", testDynamicPartPixels)
+	t.Run("DynamicPartThumbnails", testDynamicPartThumbnails)
 	t.Run("Props", testProps)
 	t.Run("PropImages", testPropImages)
 	t.Run("SchemaMigrations", testSchemaMigrations)
@@ -42,6 +43,7 @@ func TestDelete(t *testing.T) {
 	t.Run("DynamicPartMappings", testDynamicPartMappingsDelete)
 	t.Run("DynamicPartMappingPixels", testDynamicPartMappingPixelsDelete)
 	t.Run("DynamicPartPixels", testDynamicPartPixelsDelete)
+	t.Run("DynamicPartThumbnails", testDynamicPartThumbnailsDelete)
 	t.Run("Props", testPropsDelete)
 	t.Run("PropImages", testPropImagesDelete)
 	t.Run("SchemaMigrations", testSchemaMigrationsDelete)
@@ -61,6 +63,7 @@ func TestQueryDeleteAll(t *testing.T) {
 	t.Run("DynamicPartMappings", testDynamicPartMappingsQueryDeleteAll)
 	t.Run("DynamicPartMappingPixels", testDynamicPartMappingPixelsQueryDeleteAll)
 	t.Run("DynamicPartPixels", testDynamicPartPixelsQueryDeleteAll)
+	t.Run("DynamicPartThumbnails", testDynamicPartThumbnailsQueryDeleteAll)
 	t.Run("Props", testPropsQueryDeleteAll)
 	t.Run("PropImages", testPropImagesQueryDeleteAll)
 	t.Run("SchemaMigrations", testSchemaMigrationsQueryDeleteAll)
@@ -80,6 +83,7 @@ func TestSliceDeleteAll(t *testing.T) {
 	t.Run("DynamicPartMappings", testDynamicPartMappingsSliceDeleteAll)
 	t.Run("DynamicPartMappingPixels", testDynamicPartMappingPixelsSliceDeleteAll)
 	t.Run("DynamicPartPixels", testDynamicPartPixelsSliceDeleteAll)
+	t.Run("DynamicPartThumbnails", testDynamicPartThumbnailsSliceDeleteAll)
 	t.Run("Props", testPropsSliceDeleteAll)
 	t.Run("PropImages", testPropImagesSliceDeleteAll)
 	t.Run("SchemaMigrations", testSchemaMigrationsSliceDeleteAll)
@@ -99,6 +103,7 @@ func TestExists(t *testing.T) {
 	t.Run("DynamicPartMappings", testDynamicPartMappingsExists)
 	t.Run("DynamicPartMappingPixels", testDynamicPartMappingPixelsExists)
 	t.Run("DynamicPartPixels", testDynamicPartPixelsExists)
+	t.Run("DynamicPartThumbnails", testDynamicPartThumbnailsExists)
 	t.Run("Props", testPropsExists)
 	t.Run("PropImages", testPropImagesExists)
 	t.Run("SchemaMigrations", testSchemaMigrationsExists)
@@ -118,6 +123,7 @@ func TestFind(t *testing.T) {
 	t.Run("DynamicPartMappings", testDynamicPartMappingsFind)
 	t.Run("DynamicPartMappingPixels", testDynamicPartMappingPixelsFind)
 	t.Run("DynamicPartPixels", testDynamicPartPixelsFind)
+	t.Run("DynamicPartThumbnails", testDynamicPartThumbnailsFind)
 	t.Run("Props", testPropsFind)
 	t.Run("PropImages", testPropImagesFind)
 	t.Run("SchemaMigrations", testSchemaMigrationsFind)
@@ -137,6 +143,7 @@ func TestBind(t *testing.T) {
 	t.Run("DynamicPartMappings", testDynamicPartMappingsBind)
 	t.Run("DynamicPartMappingPixels", testDynamicPartMappingPixelsBind)
 	t.Run("DynamicPartPixels", testDynamicPartPixelsBind)
+	t.Run("DynamicPartThumbnails", testDynamicPartThumbnailsBind)
 	t.Run("Props", testPropsBind)
 	t.Run("PropImages", testPropImagesBind)
 	t.Run("SchemaMigrations", testSchemaMigrationsBind)
@@ -156,6 +163,7 @@ func TestOne(t *testing.T) {
 	t.Run("DynamicPartMappings", testDynamicPartMappingsOne)
 	t.Run("DynamicPartMappingPixels", testDynamicPartMappingPixelsOne)
 	t.Run("DynamicPartPixels", testDynamicPartPixelsOne)
+	t.Run("DynamicPartThumbnails", testDynamicPartThumbnailsOne)
 	t.Run("Props", testPropsOne)
 	t.Run("PropImages", testPropImagesOne)
 	t.Run("SchemaMigrations", testSchemaMigrationsOne)
@@ -175,6 +183,7 @@ func TestAll(t *testing.T) {
 	t.Run("DynamicPartMappings", testDynamicPartMappingsAll)
 	t.Run("DynamicPartMappingPixels", testDynamicPartMappingPixelsAll)
 	t.Run("DynamicPartPixels", testDynamicPartPixelsAll)
+	t.Run("DynamicPartThumbnails", testDynamicPartThumbnailsAll)
 	t.Run("Props", testPropsAll)
 	t.Run("PropImages", testPropImagesAll)
 	t.Run("SchemaMigrations", testSchemaMigrationsAll)
@@ -194,6 +203,7 @@ func TestCount(t *testing.T) {
 	t.Run("DynamicPartMappings", testDynamicPartMappingsCount)
 	t.Run("DynamicPartMappingPixels", testDynamicPartMappingPixelsCount)
 	t.Run("DynamicPartPixels", testDynamicPartPixelsCount)
+	t.Run("DynamicPartThumbnails", testDynamicPartThumbnailsCount)
 	t.Run("Props", testPropsCount)
 	t.Run("PropImages", testPropImagesCount)
 	t.Run("SchemaMigrations", testSchemaMigrationsCount)
@@ -213,6 +223,7 @@ func TestHooks(t *testing.T) {
 	t.Run("DynamicPartMappings", testDynamicPartMappingsHooks)
 	t.Run("DynamicPartMappingPixels", testDynamicPartMappingPixelsHooks)
 	t.Run("DynamicPartPixels", testDynamicPartPixelsHooks)
+	t.Run("DynamicPartThumbnails", testDynamicPartThumbnailsHooks)
 	t.Run("Props", testPropsHooks)
 	t.Run("PropImages", testPropImagesHooks)
 	t.Run("SchemaMigrations", testSchemaMigrationsHooks)
@@ -243,6 +254,8 @@ func TestInsert(t *testing.T) {
 	t.Run("DynamicPartMappingPixels", testDynamicPartMappingPixelsInsertWhitelist)
 	t.Run("DynamicPartPixels", testDynamicPartPixelsInsert)
 	t.Run("DynamicPartPixels", testDynamicPartPixelsInsertWhitelist)
+	t.Run("DynamicPartThumbnails", testDynamicPartThumbnailsInsert)
+	t.Run("DynamicPartThumbnails", testDynamicPartThumbnailsInsertWhitelist)
 	t.Run("Props", testPropsInsert)
 	t.Run("Props", testPropsInsertWhitelist)
 	t.Run("PropImages", testPropImagesInsert)
@@ -270,6 +283,7 @@ func TestToOne(t *testing.T) {
 	t.Run("DynamicPartMappingPixelToDynamicPartMappingUsingDynamicPartMapping", testDynamicPartMappingPixelToOneDynamicPartMappingUsingDynamicPartMapping)
 	t.Run("DynamicPartPixelToColorStringUsingColorString", testDynamicPartPixelToOneColorStringUsingColorString)
 	t.Run("DynamicPartPixelToDynamicPartUsingDynamicPart", testDynamicPartPixelToOneDynamicPartUsingDynamicPart)
+	t.Run("DynamicPartThumbnailToDynamicPartUsingDynamicPart", testDynamicPartThumbnailToOneDynamicPartUsingDynamicPart)
 	t.Run("PropImageToPropUsingProp", testPropImageToOnePropUsingProp)
 	t.Run("StaticPartToBodyTypeUsingBodyType", testStaticPartToOneBodyTypeUsingBodyType)
 	t.Run("StaticPartImageToStaticPartUsingStaticPart", testStaticPartImageToOneStaticPartUsingStaticPart)
@@ -278,6 +292,7 @@ func TestToOne(t *testing.T) {
 // TestOneToOne tests cannot be run in parallel
 // or deadlocks can occur.
 func TestOneToOne(t *testing.T) {
+	t.Run("DynamicPartToDynamicPartThumbnailUsingDynamicPartThumbnail", testDynamicPartOneToOneDynamicPartThumbnailUsingDynamicPartThumbnail)
 	t.Run("PropToPropImageUsingPropImage", testPropOneToOnePropImageUsingPropImage)
 	t.Run("StaticPartToStaticPartImageUsingStaticPartImage", testStaticPartOneToOneStaticPartImageUsingStaticPartImage)
 }
@@ -315,6 +330,7 @@ func TestToOneSet(t *testing.T) {
 	t.Run("DynamicPartMappingPixelToDynamicPartMappingUsingDynamicPartMappingPixels", testDynamicPartMappingPixelToOneSetOpDynamicPartMappingUsingDynamicPartMapping)
 	t.Run("DynamicPartPixelToColorStringUsingDynamicPartPixels", testDynamicPartPixelToOneSetOpColorStringUsingColorString)
 	t.Run("DynamicPartPixelToDynamicPartUsingDynamicPartPixels", testDynamicPartPixelToOneSetOpDynamicPartUsingDynamicPart)
+	t.Run("DynamicPartThumbnailToDynamicPartUsingDynamicPartThumbnail", testDynamicPartThumbnailToOneSetOpDynamicPartUsingDynamicPart)
 	t.Run("PropImageToPropUsingPropImage", testPropImageToOneSetOpPropUsingProp)
 	t.Run("StaticPartToBodyTypeUsingStaticParts", testStaticPartToOneSetOpBodyTypeUsingBodyType)
 	t.Run("StaticPartImageToStaticPartUsingStaticPartImage", testStaticPartImageToOneSetOpStaticPartUsingStaticPart)
@@ -322,17 +338,12 @@ func TestToOneSet(t *testing.T) {
 
 // TestToOneRemove tests cannot be run in parallel
 // or deadlocks can occur.
-func TestToOneRemove(t *testing.T) {
-	t.Run("AnimationToBodyTypeUsingAnimations", testAnimationToOneRemoveOpBodyTypeUsingBodyType)
-	t.Run("AnimationFrameToAnimationUsingAnimationFrames", testAnimationFrameToOneRemoveOpAnimationUsingAnimation)
-	t.Run("DynamicPartToDynamicPartMappingUsingDynamicParts", testDynamicPartToOneRemoveOpDynamicPartMappingUsingDynamicPartMapping)
-	t.Run("DynamicPartMappingToBodyTypeUsingDynamicPartMappings", testDynamicPartMappingToOneRemoveOpBodyTypeUsingBodyType)
-	t.Run("StaticPartToBodyTypeUsingStaticParts", testStaticPartToOneRemoveOpBodyTypeUsingBodyType)
-}
+func TestToOneRemove(t *testing.T) {}
 
 // TestOneToOneSet tests cannot be run in parallel
 // or deadlocks can occur.
 func TestOneToOneSet(t *testing.T) {
+	t.Run("DynamicPartToDynamicPartThumbnailUsingDynamicPartThumbnail", testDynamicPartOneToOneSetOpDynamicPartThumbnailUsingDynamicPartThumbnail)
 	t.Run("PropToPropImageUsingPropImage", testPropOneToOneSetOpPropImageUsingPropImage)
 	t.Run("StaticPartToStaticPartImageUsingStaticPartImage", testStaticPartOneToOneSetOpStaticPartImageUsingStaticPartImage)
 }
@@ -361,23 +372,11 @@ func TestToManyAdd(t *testing.T) {
 
 // TestToManySet tests cannot be run in parallel
 // or deadlocks can occur.
-func TestToManySet(t *testing.T) {
-	t.Run("AnimationToAnimationFrames", testAnimationToManySetOpAnimationFrames)
-	t.Run("BodyTypeToAnimations", testBodyTypeToManySetOpAnimations)
-	t.Run("BodyTypeToDynamicPartMappings", testBodyTypeToManySetOpDynamicPartMappings)
-	t.Run("BodyTypeToStaticParts", testBodyTypeToManySetOpStaticParts)
-	t.Run("DynamicPartMappingToDynamicParts", testDynamicPartMappingToManySetOpDynamicParts)
-}
+func TestToManySet(t *testing.T) {}
 
 // TestToManyRemove tests cannot be run in parallel
 // or deadlocks can occur.
-func TestToManyRemove(t *testing.T) {
-	t.Run("AnimationToAnimationFrames", testAnimationToManyRemoveOpAnimationFrames)
-	t.Run("BodyTypeToAnimations", testBodyTypeToManyRemoveOpAnimations)
-	t.Run("BodyTypeToDynamicPartMappings", testBodyTypeToManyRemoveOpDynamicPartMappings)
-	t.Run("BodyTypeToStaticParts", testBodyTypeToManyRemoveOpStaticParts)
-	t.Run("DynamicPartMappingToDynamicParts", testDynamicPartMappingToManyRemoveOpDynamicParts)
-}
+func TestToManyRemove(t *testing.T) {}
 
 func TestReload(t *testing.T) {
 	t.Run("Animations", testAnimationsReload)
@@ -391,6 +390,7 @@ func TestReload(t *testing.T) {
 	t.Run("DynamicPartMappings", testDynamicPartMappingsReload)
 	t.Run("DynamicPartMappingPixels", testDynamicPartMappingPixelsReload)
 	t.Run("DynamicPartPixels", testDynamicPartPixelsReload)
+	t.Run("DynamicPartThumbnails", testDynamicPartThumbnailsReload)
 	t.Run("Props", testPropsReload)
 	t.Run("PropImages", testPropImagesReload)
 	t.Run("SchemaMigrations", testSchemaMigrationsReload)
@@ -410,6 +410,7 @@ func TestReloadAll(t *testing.T) {
 	t.Run("DynamicPartMappings", testDynamicPartMappingsReloadAll)
 	t.Run("DynamicPartMappingPixels", testDynamicPartMappingPixelsReloadAll)
 	t.Run("DynamicPartPixels", testDynamicPartPixelsReloadAll)
+	t.Run("DynamicPartThumbnails", testDynamicPartThumbnailsReloadAll)
 	t.Run("Props", testPropsReloadAll)
 	t.Run("PropImages", testPropImagesReloadAll)
 	t.Run("SchemaMigrations", testSchemaMigrationsReloadAll)
@@ -429,6 +430,7 @@ func TestSelect(t *testing.T) {
 	t.Run("DynamicPartMappings", testDynamicPartMappingsSelect)
 	t.Run("DynamicPartMappingPixels", testDynamicPartMappingPixelsSelect)
 	t.Run("DynamicPartPixels", testDynamicPartPixelsSelect)
+	t.Run("DynamicPartThumbnails", testDynamicPartThumbnailsSelect)
 	t.Run("Props", testPropsSelect)
 	t.Run("PropImages", testPropImagesSelect)
 	t.Run("SchemaMigrations", testSchemaMigrationsSelect)
@@ -448,6 +450,7 @@ func TestUpdate(t *testing.T) {
 	t.Run("DynamicPartMappings", testDynamicPartMappingsUpdate)
 	t.Run("DynamicPartMappingPixels", testDynamicPartMappingPixelsUpdate)
 	t.Run("DynamicPartPixels", testDynamicPartPixelsUpdate)
+	t.Run("DynamicPartThumbnails", testDynamicPartThumbnailsUpdate)
 	t.Run("Props", testPropsUpdate)
 	t.Run("PropImages", testPropImagesUpdate)
 	t.Run("SchemaMigrations", testSchemaMigrationsUpdate)
@@ -467,6 +470,7 @@ func TestSliceUpdateAll(t *testing.T) {
 	t.Run("DynamicPartMappings", testDynamicPartMappingsSliceUpdateAll)
 	t.Run("DynamicPartMappingPixels", testDynamicPartMappingPixelsSliceUpdateAll)
 	t.Run("DynamicPartPixels", testDynamicPartPixelsSliceUpdateAll)
+	t.Run("DynamicPartThumbnails", testDynamicPartThumbnailsSliceUpdateAll)
 	t.Run("Props", testPropsSliceUpdateAll)
 	t.Run("PropImages", testPropImagesSliceUpdateAll)
 	t.Run("SchemaMigrations", testSchemaMigrationsSliceUpdateAll)

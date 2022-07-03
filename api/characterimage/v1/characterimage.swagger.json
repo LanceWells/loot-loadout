@@ -117,10 +117,6 @@
         },
         "part": {
           "$ref": "#/definitions/characterimageDynamicPartType"
-        },
-        "image": {
-          "type": "string",
-          "format": "byte"
         }
       }
     },
@@ -158,10 +154,6 @@
     "characterimageFrame": {
       "type": "object",
       "properties": {
-        "image": {
-          "type": "string",
-          "format": "byte"
-        },
         "staticPositioning": {
           "type": "object",
           "additionalProperties": {
@@ -205,6 +197,12 @@
       "type": "object",
       "properties": {
         "dynamics": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/characterimageDynamic"
+          }
+        },
+        "thumbnails": {
           "type": "object",
           "additionalProperties": {
             "$ref": "#/definitions/characterimageDynamic"

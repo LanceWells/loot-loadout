@@ -668,8 +668,6 @@ func (m *Dynamic) validate(all bool) error {
 
 	// no validation rules for Part
 
-	// no validation rules for Image
-
 	if len(errors) > 0 {
 		return DynamicMultiError(errors)
 	}
@@ -767,8 +765,6 @@ func (m *Frame) validate(all bool) error {
 	}
 
 	var errors []error
-
-	// no validation rules for Image
 
 	{
 		sorted_keys := make([]string, len(m.GetStaticPositioning()))
@@ -2311,6 +2307,8 @@ func (m *AddDynamicRequest) validate(all bool) error {
 
 	// no validation rules for BodyID
 
+	// no validation rules for Image
+
 	if len(errors) > 0 {
 		return AddDynamicRequestMultiError(errors)
 	}
@@ -3166,6 +3164,8 @@ func (m *AddFrameRequest) validate(all bool) error {
 	}
 
 	// no validation rules for AnimationID
+
+	// no validation rules for Image
 
 	if len(errors) > 0 {
 		return AddFrameRequestMultiError(errors)

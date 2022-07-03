@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/friendsofgo/errors"
-	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -26,9 +25,9 @@ import (
 type AnimationFrameStaticPosition struct {
 	AnimationFrameID int            `boil:"animation_frame_id" json:"animation_frame_id" toml:"animation_frame_id" yaml:"animation_frame_id"`
 	PartType         StaticPartType `boil:"part_type" json:"part_type" toml:"part_type" yaml:"part_type"`
-	X                null.Int16     `boil:"x" json:"x,omitempty" toml:"x" yaml:"x,omitempty"`
-	Y                null.Int16     `boil:"y" json:"y,omitempty" toml:"y" yaml:"y,omitempty"`
-	Rotation         null.Int16     `boil:"rotation" json:"rotation,omitempty" toml:"rotation" yaml:"rotation,omitempty"`
+	X                int16          `boil:"x" json:"x" toml:"x" yaml:"x"`
+	Y                int16          `boil:"y" json:"y" toml:"y" yaml:"y"`
+	Rotation         int16          `boil:"rotation" json:"rotation" toml:"rotation" yaml:"rotation"`
 
 	R *animationFrameStaticPositionR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L animationFrameStaticPositionL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -88,15 +87,15 @@ func (w whereHelperStaticPartType) GTE(x StaticPartType) qm.QueryMod {
 var AnimationFrameStaticPositionWhere = struct {
 	AnimationFrameID whereHelperint
 	PartType         whereHelperStaticPartType
-	X                whereHelpernull_Int16
-	Y                whereHelpernull_Int16
-	Rotation         whereHelpernull_Int16
+	X                whereHelperint16
+	Y                whereHelperint16
+	Rotation         whereHelperint16
 }{
 	AnimationFrameID: whereHelperint{field: "\"animation_frame_static_position\".\"animation_frame_id\""},
 	PartType:         whereHelperStaticPartType{field: "\"animation_frame_static_position\".\"part_type\""},
-	X:                whereHelpernull_Int16{field: "\"animation_frame_static_position\".\"x\""},
-	Y:                whereHelpernull_Int16{field: "\"animation_frame_static_position\".\"y\""},
-	Rotation:         whereHelpernull_Int16{field: "\"animation_frame_static_position\".\"rotation\""},
+	X:                whereHelperint16{field: "\"animation_frame_static_position\".\"x\""},
+	Y:                whereHelperint16{field: "\"animation_frame_static_position\".\"y\""},
+	Rotation:         whereHelperint16{field: "\"animation_frame_static_position\".\"rotation\""},
 }
 
 // AnimationFrameStaticPositionRels is where relationship names are stored.
@@ -128,8 +127,8 @@ type animationFrameStaticPositionL struct{}
 
 var (
 	animationFrameStaticPositionAllColumns            = []string{"animation_frame_id", "part_type", "x", "y", "rotation"}
-	animationFrameStaticPositionColumnsWithoutDefault = []string{"animation_frame_id", "part_type"}
-	animationFrameStaticPositionColumnsWithDefault    = []string{"x", "y", "rotation"}
+	animationFrameStaticPositionColumnsWithoutDefault = []string{"animation_frame_id", "part_type", "x", "y", "rotation"}
+	animationFrameStaticPositionColumnsWithDefault    = []string{}
 	animationFrameStaticPositionPrimaryKeyColumns     = []string{"animation_frame_id", "part_type"}
 	animationFrameStaticPositionGeneratedColumns      = []string{}
 )

@@ -70,14 +70,12 @@ message Static {
 message Dynamic {
   string displayName = 1;
   DynamicPartType part = 2;
-  bytes image = 3;
 }
 
 message Frame {
-  bytes image = 1;
-  map<string, Positioning> staticPositioning = 2;
-  map<string, Positioning> propPositioning = 3;
-  ExpressionType expression = 4;
+  map<string, Positioning> staticPositioning = 1;
+  map<string, Positioning> propPositioning = 2;
+  ExpressionType expression = 3;
 }
 
 message Animation {
@@ -145,6 +143,7 @@ message ListStaticsResponse {
 message AddDynamicRequest {
   Dynamic dynamic = 1;
   string bodyID = 2;
+  bytes image = 3;
 }
 message AddDynamicResponse {
   string id = 1;
@@ -154,6 +153,7 @@ message ListDynamicsRequest {}
 message ListDynamicsResponse {
   option (validate.disabled) = true;
   map<string, Dynamic> dynamics = 1;
+  map<string, Dynamic> thumbnails = 2;
 }
 
 message AddAnimationRequest {
@@ -173,6 +173,7 @@ message ListAnimationsResponse {
 message AddFrameRequest {
   Frame frame = 1;
   string animationID = 2;
+  bytes image = 3;
 }
 message AddFrameResponse {
   string id = 1;

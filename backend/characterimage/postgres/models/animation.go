@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/friendsofgo/errors"
-	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -26,9 +25,9 @@ import (
 // Animation is an object representing the database table.
 type Animation struct {
 	ID          int               `boil:"id" json:"id" toml:"id" yaml:"id"`
-	BodyTypeID  null.Int          `boil:"body_type_id" json:"body_type_id,omitempty" toml:"body_type_id" yaml:"body_type_id,omitempty"`
+	BodyTypeID  int               `boil:"body_type_id" json:"body_type_id" toml:"body_type_id" yaml:"body_type_id"`
 	DisplayName string            `boil:"display_name" json:"display_name" toml:"display_name" yaml:"display_name"`
-	PartType    types.StringArray `boil:"part_type" json:"part_type,omitempty" toml:"part_type" yaml:"part_type,omitempty"`
+	PartType    types.StringArray `boil:"part_type" json:"part_type" toml:"part_type" yaml:"part_type"`
 
 	R *animationR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L animationL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -83,30 +82,6 @@ func (w whereHelperint) NIN(slice []int) qm.QueryMod {
 	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
 }
 
-type whereHelpernull_Int struct{ field string }
-
-func (w whereHelpernull_Int) EQ(x null.Int) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, false, x)
-}
-func (w whereHelpernull_Int) NEQ(x null.Int) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, true, x)
-}
-func (w whereHelpernull_Int) LT(x null.Int) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LT, x)
-}
-func (w whereHelpernull_Int) LTE(x null.Int) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LTE, x)
-}
-func (w whereHelpernull_Int) GT(x null.Int) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GT, x)
-}
-func (w whereHelpernull_Int) GTE(x null.Int) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GTE, x)
-}
-
-func (w whereHelpernull_Int) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
-func (w whereHelpernull_Int) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
-
 type whereHelperstring struct{ field string }
 
 func (w whereHelperstring) EQ(x string) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.EQ, x) }
@@ -133,10 +108,10 @@ func (w whereHelperstring) NIN(slice []string) qm.QueryMod {
 type whereHelpertypes_StringArray struct{ field string }
 
 func (w whereHelpertypes_StringArray) EQ(x types.StringArray) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, false, x)
+	return qmhelper.Where(w.field, qmhelper.EQ, x)
 }
 func (w whereHelpertypes_StringArray) NEQ(x types.StringArray) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, true, x)
+	return qmhelper.Where(w.field, qmhelper.NEQ, x)
 }
 func (w whereHelpertypes_StringArray) LT(x types.StringArray) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.LT, x)
@@ -151,19 +126,14 @@ func (w whereHelpertypes_StringArray) GTE(x types.StringArray) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.GTE, x)
 }
 
-func (w whereHelpertypes_StringArray) IsNull() qm.QueryMod { return qmhelper.WhereIsNull(w.field) }
-func (w whereHelpertypes_StringArray) IsNotNull() qm.QueryMod {
-	return qmhelper.WhereIsNotNull(w.field)
-}
-
 var AnimationWhere = struct {
 	ID          whereHelperint
-	BodyTypeID  whereHelpernull_Int
+	BodyTypeID  whereHelperint
 	DisplayName whereHelperstring
 	PartType    whereHelpertypes_StringArray
 }{
 	ID:          whereHelperint{field: "\"animation\".\"id\""},
-	BodyTypeID:  whereHelpernull_Int{field: "\"animation\".\"body_type_id\""},
+	BodyTypeID:  whereHelperint{field: "\"animation\".\"body_type_id\""},
 	DisplayName: whereHelperstring{field: "\"animation\".\"display_name\""},
 	PartType:    whereHelpertypes_StringArray{field: "\"animation\".\"part_type\""},
 }
@@ -207,8 +177,8 @@ type animationL struct{}
 
 var (
 	animationAllColumns            = []string{"id", "body_type_id", "display_name", "part_type"}
-	animationColumnsWithoutDefault = []string{"display_name"}
-	animationColumnsWithDefault    = []string{"id", "body_type_id", "part_type"}
+	animationColumnsWithoutDefault = []string{"body_type_id", "display_name", "part_type"}
+	animationColumnsWithDefault    = []string{"id"}
 	animationPrimaryKeyColumns     = []string{"id"}
 	animationGeneratedColumns      = []string{}
 )
@@ -533,9 +503,7 @@ func (animationL) LoadBodyType(ctx context.Context, e boil.ContextExecutor, sing
 		if object.R == nil {
 			object.R = &animationR{}
 		}
-		if !queries.IsNil(object.BodyTypeID) {
-			args = append(args, object.BodyTypeID)
-		}
+		args = append(args, object.BodyTypeID)
 
 	} else {
 	Outer:
@@ -545,14 +513,12 @@ func (animationL) LoadBodyType(ctx context.Context, e boil.ContextExecutor, sing
 			}
 
 			for _, a := range args {
-				if queries.Equal(a, obj.BodyTypeID) {
+				if a == obj.BodyTypeID {
 					continue Outer
 				}
 			}
 
-			if !queries.IsNil(obj.BodyTypeID) {
-				args = append(args, obj.BodyTypeID)
-			}
+			args = append(args, obj.BodyTypeID)
 
 		}
 	}
@@ -610,7 +576,7 @@ func (animationL) LoadBodyType(ctx context.Context, e boil.ContextExecutor, sing
 
 	for _, local := range slice {
 		for _, foreign := range resultSlice {
-			if queries.Equal(local.BodyTypeID, foreign.ID) {
+			if local.BodyTypeID == foreign.ID {
 				local.R.BodyType = foreign
 				if foreign.R == nil {
 					foreign.R = &bodyTypeR{}
@@ -650,7 +616,7 @@ func (animationL) LoadAnimationFrames(ctx context.Context, e boil.ContextExecuto
 			}
 
 			for _, a := range args {
-				if queries.Equal(a, obj.ID) {
+				if a == obj.ID {
 					continue Outer
 				}
 			}
@@ -708,7 +674,7 @@ func (animationL) LoadAnimationFrames(ctx context.Context, e boil.ContextExecuto
 
 	for _, foreign := range resultSlice {
 		for _, local := range slice {
-			if queries.Equal(local.ID, foreign.AnimationID) {
+			if local.ID == foreign.AnimationID {
 				local.R.AnimationFrames = append(local.R.AnimationFrames, foreign)
 				if foreign.R == nil {
 					foreign.R = &animationFrameR{}
@@ -749,7 +715,7 @@ func (o *Animation) SetBodyType(ctx context.Context, exec boil.ContextExecutor, 
 		return errors.Wrap(err, "failed to update local table")
 	}
 
-	queries.Assign(&o.BodyTypeID, related.ID)
+	o.BodyTypeID = related.ID
 	if o.R == nil {
 		o.R = &animationR{
 			BodyType: related,
@@ -769,39 +735,6 @@ func (o *Animation) SetBodyType(ctx context.Context, exec boil.ContextExecutor, 
 	return nil
 }
 
-// RemoveBodyType relationship.
-// Sets o.R.BodyType to nil.
-// Removes o from all passed in related items' relationships struct.
-func (o *Animation) RemoveBodyType(ctx context.Context, exec boil.ContextExecutor, related *BodyType) error {
-	var err error
-
-	queries.SetScanner(&o.BodyTypeID, nil)
-	if _, err = o.Update(ctx, exec, boil.Whitelist("body_type_id")); err != nil {
-		return errors.Wrap(err, "failed to update local table")
-	}
-
-	if o.R != nil {
-		o.R.BodyType = nil
-	}
-	if related == nil || related.R == nil {
-		return nil
-	}
-
-	for i, ri := range related.R.Animations {
-		if queries.Equal(o.BodyTypeID, ri.BodyTypeID) {
-			continue
-		}
-
-		ln := len(related.R.Animations)
-		if ln > 1 && i < ln-1 {
-			related.R.Animations[i] = related.R.Animations[ln-1]
-		}
-		related.R.Animations = related.R.Animations[:ln-1]
-		break
-	}
-	return nil
-}
-
 // AddAnimationFrames adds the given related objects to the existing relationships
 // of the animation, optionally inserting them as new records.
 // Appends related to o.R.AnimationFrames.
@@ -810,7 +743,7 @@ func (o *Animation) AddAnimationFrames(ctx context.Context, exec boil.ContextExe
 	var err error
 	for _, rel := range related {
 		if insert {
-			queries.Assign(&rel.AnimationID, o.ID)
+			rel.AnimationID = o.ID
 			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
 				return errors.Wrap(err, "failed to insert into foreign table")
 			}
@@ -831,7 +764,7 @@ func (o *Animation) AddAnimationFrames(ctx context.Context, exec boil.ContextExe
 				return errors.Wrap(err, "failed to update foreign table")
 			}
 
-			queries.Assign(&rel.AnimationID, o.ID)
+			rel.AnimationID = o.ID
 		}
 	}
 
@@ -852,80 +785,6 @@ func (o *Animation) AddAnimationFrames(ctx context.Context, exec boil.ContextExe
 			rel.R.Animation = o
 		}
 	}
-	return nil
-}
-
-// SetAnimationFrames removes all previously related items of the
-// animation replacing them completely with the passed
-// in related items, optionally inserting them as new records.
-// Sets o.R.Animation's AnimationFrames accordingly.
-// Replaces o.R.AnimationFrames with related.
-// Sets related.R.Animation's AnimationFrames accordingly.
-func (o *Animation) SetAnimationFrames(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*AnimationFrame) error {
-	query := "update \"animation_frame\" set \"animation_id\" = null where \"animation_id\" = $1"
-	values := []interface{}{o.ID}
-	if boil.IsDebug(ctx) {
-		writer := boil.DebugWriterFrom(ctx)
-		fmt.Fprintln(writer, query)
-		fmt.Fprintln(writer, values)
-	}
-	_, err := exec.ExecContext(ctx, query, values...)
-	if err != nil {
-		return errors.Wrap(err, "failed to remove relationships before set")
-	}
-
-	if o.R != nil {
-		for _, rel := range o.R.AnimationFrames {
-			queries.SetScanner(&rel.AnimationID, nil)
-			if rel.R == nil {
-				continue
-			}
-
-			rel.R.Animation = nil
-		}
-		o.R.AnimationFrames = nil
-	}
-
-	return o.AddAnimationFrames(ctx, exec, insert, related...)
-}
-
-// RemoveAnimationFrames relationships from objects passed in.
-// Removes related items from R.AnimationFrames (uses pointer comparison, removal does not keep order)
-// Sets related.R.Animation.
-func (o *Animation) RemoveAnimationFrames(ctx context.Context, exec boil.ContextExecutor, related ...*AnimationFrame) error {
-	if len(related) == 0 {
-		return nil
-	}
-
-	var err error
-	for _, rel := range related {
-		queries.SetScanner(&rel.AnimationID, nil)
-		if rel.R != nil {
-			rel.R.Animation = nil
-		}
-		if _, err = rel.Update(ctx, exec, boil.Whitelist("animation_id")); err != nil {
-			return err
-		}
-	}
-	if o.R == nil {
-		return nil
-	}
-
-	for _, rel := range related {
-		for i, ri := range o.R.AnimationFrames {
-			if rel != ri {
-				continue
-			}
-
-			ln := len(o.R.AnimationFrames)
-			if ln > 1 && i < ln-1 {
-				o.R.AnimationFrames[i] = o.R.AnimationFrames[ln-1]
-			}
-			o.R.AnimationFrames = o.R.AnimationFrames[:ln-1]
-			break
-		}
-	}
-
 	return nil
 }
 

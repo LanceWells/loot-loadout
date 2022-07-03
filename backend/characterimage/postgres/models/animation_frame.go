@@ -94,21 +94,21 @@ var AnimationFrameWhere = struct {
 // AnimationFrameRels is where relationship names are stored.
 var AnimationFrameRels = struct {
 	Animation                     string
+	AnimationFramePropPosition    string
 	AnimationFramePixels          string
-	AnimationFramePropPositions   string
 	AnimationFrameStaticPositions string
 }{
 	Animation:                     "Animation",
+	AnimationFramePropPosition:    "AnimationFramePropPosition",
 	AnimationFramePixels:          "AnimationFramePixels",
-	AnimationFramePropPositions:   "AnimationFramePropPositions",
 	AnimationFrameStaticPositions: "AnimationFrameStaticPositions",
 }
 
 // animationFrameR is where relationships are stored.
 type animationFrameR struct {
 	Animation                     *Animation                        `boil:"Animation" json:"Animation" toml:"Animation" yaml:"Animation"`
+	AnimationFramePropPosition    *AnimationFramePropPosition       `boil:"AnimationFramePropPosition" json:"AnimationFramePropPosition" toml:"AnimationFramePropPosition" yaml:"AnimationFramePropPosition"`
 	AnimationFramePixels          AnimationFramePixelSlice          `boil:"AnimationFramePixels" json:"AnimationFramePixels" toml:"AnimationFramePixels" yaml:"AnimationFramePixels"`
-	AnimationFramePropPositions   AnimationFramePropPositionSlice   `boil:"AnimationFramePropPositions" json:"AnimationFramePropPositions" toml:"AnimationFramePropPositions" yaml:"AnimationFramePropPositions"`
 	AnimationFrameStaticPositions AnimationFrameStaticPositionSlice `boil:"AnimationFrameStaticPositions" json:"AnimationFrameStaticPositions" toml:"AnimationFrameStaticPositions" yaml:"AnimationFrameStaticPositions"`
 }
 
@@ -124,18 +124,18 @@ func (r *animationFrameR) GetAnimation() *Animation {
 	return r.Animation
 }
 
+func (r *animationFrameR) GetAnimationFramePropPosition() *AnimationFramePropPosition {
+	if r == nil {
+		return nil
+	}
+	return r.AnimationFramePropPosition
+}
+
 func (r *animationFrameR) GetAnimationFramePixels() AnimationFramePixelSlice {
 	if r == nil {
 		return nil
 	}
 	return r.AnimationFramePixels
-}
-
-func (r *animationFrameR) GetAnimationFramePropPositions() AnimationFramePropPositionSlice {
-	if r == nil {
-		return nil
-	}
-	return r.AnimationFramePropPositions
 }
 
 func (r *animationFrameR) GetAnimationFrameStaticPositions() AnimationFrameStaticPositionSlice {
@@ -445,6 +445,17 @@ func (o *AnimationFrame) Animation(mods ...qm.QueryMod) animationQuery {
 	return Animations(queryMods...)
 }
 
+// AnimationFramePropPosition pointed to by the foreign key.
+func (o *AnimationFrame) AnimationFramePropPosition(mods ...qm.QueryMod) animationFramePropPositionQuery {
+	queryMods := []qm.QueryMod{
+		qm.Where("\"animation_frame_id\" = ?", o.ID),
+	}
+
+	queryMods = append(queryMods, mods...)
+
+	return AnimationFramePropPositions(queryMods...)
+}
+
 // AnimationFramePixels retrieves all the animation_frame_pixel's AnimationFramePixels with an executor.
 func (o *AnimationFrame) AnimationFramePixels(mods ...qm.QueryMod) animationFramePixelQuery {
 	var queryMods []qm.QueryMod
@@ -457,20 +468,6 @@ func (o *AnimationFrame) AnimationFramePixels(mods ...qm.QueryMod) animationFram
 	)
 
 	return AnimationFramePixels(queryMods...)
-}
-
-// AnimationFramePropPositions retrieves all the animation_frame_prop_position's AnimationFramePropPositions with an executor.
-func (o *AnimationFrame) AnimationFramePropPositions(mods ...qm.QueryMod) animationFramePropPositionQuery {
-	var queryMods []qm.QueryMod
-	if len(mods) != 0 {
-		queryMods = append(queryMods, mods...)
-	}
-
-	queryMods = append(queryMods,
-		qm.Where("\"animation_frame_prop_position\".\"animation_frame_id\"=?", o.ID),
-	)
-
-	return AnimationFramePropPositions(queryMods...)
 }
 
 // AnimationFrameStaticPositions retrieves all the animation_frame_static_position's AnimationFrameStaticPositions with an executor.
@@ -591,6 +588,107 @@ func (animationFrameL) LoadAnimation(ctx context.Context, e boil.ContextExecutor
 	return nil
 }
 
+// LoadAnimationFramePropPosition allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-1 relationship.
+func (animationFrameL) LoadAnimationFramePropPosition(ctx context.Context, e boil.ContextExecutor, singular bool, maybeAnimationFrame interface{}, mods queries.Applicator) error {
+	var slice []*AnimationFrame
+	var object *AnimationFrame
+
+	if singular {
+		object = maybeAnimationFrame.(*AnimationFrame)
+	} else {
+		slice = *maybeAnimationFrame.(*[]*AnimationFrame)
+	}
+
+	args := make([]interface{}, 0, 1)
+	if singular {
+		if object.R == nil {
+			object.R = &animationFrameR{}
+		}
+		args = append(args, object.ID)
+	} else {
+	Outer:
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &animationFrameR{}
+			}
+
+			for _, a := range args {
+				if a == obj.ID {
+					continue Outer
+				}
+			}
+
+			args = append(args, obj.ID)
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	query := NewQuery(
+		qm.From(`animation_frame_prop_position`),
+		qm.WhereIn(`animation_frame_prop_position.animation_frame_id in ?`, args...),
+	)
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load AnimationFramePropPosition")
+	}
+
+	var resultSlice []*AnimationFramePropPosition
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice AnimationFramePropPosition")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results of eager load for animation_frame_prop_position")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for animation_frame_prop_position")
+	}
+
+	if len(animationFrameAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
+				return err
+			}
+		}
+	}
+
+	if len(resultSlice) == 0 {
+		return nil
+	}
+
+	if singular {
+		foreign := resultSlice[0]
+		object.R.AnimationFramePropPosition = foreign
+		if foreign.R == nil {
+			foreign.R = &animationFramePropPositionR{}
+		}
+		foreign.R.AnimationFrame = object
+	}
+
+	for _, local := range slice {
+		for _, foreign := range resultSlice {
+			if local.ID == foreign.AnimationFrameID {
+				local.R.AnimationFramePropPosition = foreign
+				if foreign.R == nil {
+					foreign.R = &animationFramePropPositionR{}
+				}
+				foreign.R.AnimationFrame = local
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
 // LoadAnimationFramePixels allows an eager lookup of values, cached into the
 // loaded structs of the objects. This is for a 1-M or N-M relationship.
 func (animationFrameL) LoadAnimationFramePixels(ctx context.Context, e boil.ContextExecutor, singular bool, maybeAnimationFrame interface{}, mods queries.Applicator) error {
@@ -679,104 +777,6 @@ func (animationFrameL) LoadAnimationFramePixels(ctx context.Context, e boil.Cont
 				local.R.AnimationFramePixels = append(local.R.AnimationFramePixels, foreign)
 				if foreign.R == nil {
 					foreign.R = &animationFramePixelR{}
-				}
-				foreign.R.AnimationFrame = local
-				break
-			}
-		}
-	}
-
-	return nil
-}
-
-// LoadAnimationFramePropPositions allows an eager lookup of values, cached into the
-// loaded structs of the objects. This is for a 1-M or N-M relationship.
-func (animationFrameL) LoadAnimationFramePropPositions(ctx context.Context, e boil.ContextExecutor, singular bool, maybeAnimationFrame interface{}, mods queries.Applicator) error {
-	var slice []*AnimationFrame
-	var object *AnimationFrame
-
-	if singular {
-		object = maybeAnimationFrame.(*AnimationFrame)
-	} else {
-		slice = *maybeAnimationFrame.(*[]*AnimationFrame)
-	}
-
-	args := make([]interface{}, 0, 1)
-	if singular {
-		if object.R == nil {
-			object.R = &animationFrameR{}
-		}
-		args = append(args, object.ID)
-	} else {
-	Outer:
-		for _, obj := range slice {
-			if obj.R == nil {
-				obj.R = &animationFrameR{}
-			}
-
-			for _, a := range args {
-				if a == obj.ID {
-					continue Outer
-				}
-			}
-
-			args = append(args, obj.ID)
-		}
-	}
-
-	if len(args) == 0 {
-		return nil
-	}
-
-	query := NewQuery(
-		qm.From(`animation_frame_prop_position`),
-		qm.WhereIn(`animation_frame_prop_position.animation_frame_id in ?`, args...),
-	)
-	if mods != nil {
-		mods.Apply(query)
-	}
-
-	results, err := query.QueryContext(ctx, e)
-	if err != nil {
-		return errors.Wrap(err, "failed to eager load animation_frame_prop_position")
-	}
-
-	var resultSlice []*AnimationFramePropPosition
-	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice animation_frame_prop_position")
-	}
-
-	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results in eager load on animation_frame_prop_position")
-	}
-	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for animation_frame_prop_position")
-	}
-
-	if len(animationFramePropPositionAfterSelectHooks) != 0 {
-		for _, obj := range resultSlice {
-			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
-				return err
-			}
-		}
-	}
-	if singular {
-		object.R.AnimationFramePropPositions = resultSlice
-		for _, foreign := range resultSlice {
-			if foreign.R == nil {
-				foreign.R = &animationFramePropPositionR{}
-			}
-			foreign.R.AnimationFrame = object
-		}
-		return nil
-	}
-
-	for _, foreign := range resultSlice {
-		for _, local := range slice {
-			if local.ID == foreign.AnimationFrameID {
-				local.R.AnimationFramePropPositions = append(local.R.AnimationFramePropPositions, foreign)
-				if foreign.R == nil {
-					foreign.R = &animationFramePropPositionR{}
 				}
 				foreign.R.AnimationFrame = local
 				break
@@ -932,6 +932,56 @@ func (o *AnimationFrame) SetAnimation(ctx context.Context, exec boil.ContextExec
 	return nil
 }
 
+// SetAnimationFramePropPosition of the animationFrame to the related item.
+// Sets o.R.AnimationFramePropPosition to related.
+// Adds o to related.R.AnimationFrame.
+func (o *AnimationFrame) SetAnimationFramePropPosition(ctx context.Context, exec boil.ContextExecutor, insert bool, related *AnimationFramePropPosition) error {
+	var err error
+
+	if insert {
+		related.AnimationFrameID = o.ID
+
+		if err = related.Insert(ctx, exec, boil.Infer()); err != nil {
+			return errors.Wrap(err, "failed to insert into foreign table")
+		}
+	} else {
+		updateQuery := fmt.Sprintf(
+			"UPDATE \"animation_frame_prop_position\" SET %s WHERE %s",
+			strmangle.SetParamNames("\"", "\"", 1, []string{"animation_frame_id"}),
+			strmangle.WhereClause("\"", "\"", 2, animationFramePropPositionPrimaryKeyColumns),
+		)
+		values := []interface{}{o.ID, related.AnimationFrameID}
+
+		if boil.IsDebug(ctx) {
+			writer := boil.DebugWriterFrom(ctx)
+			fmt.Fprintln(writer, updateQuery)
+			fmt.Fprintln(writer, values)
+		}
+		if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+			return errors.Wrap(err, "failed to update foreign table")
+		}
+
+		related.AnimationFrameID = o.ID
+	}
+
+	if o.R == nil {
+		o.R = &animationFrameR{
+			AnimationFramePropPosition: related,
+		}
+	} else {
+		o.R.AnimationFramePropPosition = related
+	}
+
+	if related.R == nil {
+		related.R = &animationFramePropPositionR{
+			AnimationFrame: o,
+		}
+	} else {
+		related.R.AnimationFrame = o
+	}
+	return nil
+}
+
 // AddAnimationFramePixels adds the given related objects to the existing relationships
 // of the animation_frame, optionally inserting them as new records.
 // Appends related to o.R.AnimationFramePixels.
@@ -976,59 +1026,6 @@ func (o *AnimationFrame) AddAnimationFramePixels(ctx context.Context, exec boil.
 	for _, rel := range related {
 		if rel.R == nil {
 			rel.R = &animationFramePixelR{
-				AnimationFrame: o,
-			}
-		} else {
-			rel.R.AnimationFrame = o
-		}
-	}
-	return nil
-}
-
-// AddAnimationFramePropPositions adds the given related objects to the existing relationships
-// of the animation_frame, optionally inserting them as new records.
-// Appends related to o.R.AnimationFramePropPositions.
-// Sets related.R.AnimationFrame appropriately.
-func (o *AnimationFrame) AddAnimationFramePropPositions(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*AnimationFramePropPosition) error {
-	var err error
-	for _, rel := range related {
-		if insert {
-			rel.AnimationFrameID = o.ID
-			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
-				return errors.Wrap(err, "failed to insert into foreign table")
-			}
-		} else {
-			updateQuery := fmt.Sprintf(
-				"UPDATE \"animation_frame_prop_position\" SET %s WHERE %s",
-				strmangle.SetParamNames("\"", "\"", 1, []string{"animation_frame_id"}),
-				strmangle.WhereClause("\"", "\"", 2, animationFramePropPositionPrimaryKeyColumns),
-			)
-			values := []interface{}{o.ID, rel.AnimationFrameID, rel.PartType}
-
-			if boil.IsDebug(ctx) {
-				writer := boil.DebugWriterFrom(ctx)
-				fmt.Fprintln(writer, updateQuery)
-				fmt.Fprintln(writer, values)
-			}
-			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
-				return errors.Wrap(err, "failed to update foreign table")
-			}
-
-			rel.AnimationFrameID = o.ID
-		}
-	}
-
-	if o.R == nil {
-		o.R = &animationFrameR{
-			AnimationFramePropPositions: related,
-		}
-	} else {
-		o.R.AnimationFramePropPositions = append(o.R.AnimationFramePropPositions, related...)
-	}
-
-	for _, rel := range related {
-		if rel.R == nil {
-			rel.R = &animationFramePropPositionR{
 				AnimationFrame: o,
 			}
 		} else {

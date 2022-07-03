@@ -74,7 +74,7 @@ message Dynamic {
 
 message Frame {
   map<string, Positioning> staticPositioning = 1;
-  map<string, Positioning> propPositioning = 2;
+  Positioning propPositioning = 2;
   ExpressionType expression = 3;
 }
 

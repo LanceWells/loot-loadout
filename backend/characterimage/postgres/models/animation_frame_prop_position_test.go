@@ -149,7 +149,7 @@ func testAnimationFramePropPositionsExists(t *testing.T) {
 		t.Error(err)
 	}
 
-	e, err := AnimationFramePropPositionExists(ctx, tx, o.AnimationFrameID, o.PartType)
+	e, err := AnimationFramePropPositionExists(ctx, tx, o.AnimationFrameID)
 	if err != nil {
 		t.Errorf("Unable to check if AnimationFramePropPosition exists: %s", err)
 	}
@@ -175,7 +175,7 @@ func testAnimationFramePropPositionsFind(t *testing.T) {
 		t.Error(err)
 	}
 
-	animationFramePropPositionFound, err := FindAnimationFramePropPosition(ctx, tx, o.AnimationFrameID, o.PartType)
+	animationFramePropPositionFound, err := FindAnimationFramePropPosition(ctx, tx, o.AnimationFrameID)
 	if err != nil {
 		t.Error(err)
 	}
@@ -583,14 +583,14 @@ func testAnimationFramePropPositionToOneSetOpAnimationFrameUsingAnimationFrame(t
 			t.Error("relationship struct not set to correct value")
 		}
 
-		if x.R.AnimationFramePropPositions[0] != &a {
+		if x.R.AnimationFramePropPosition != &a {
 			t.Error("failed to append to foreign relationship struct")
 		}
 		if a.AnimationFrameID != x.ID {
 			t.Error("foreign key was wrong value", a.AnimationFrameID)
 		}
 
-		if exists, err := AnimationFramePropPositionExists(ctx, tx, a.AnimationFrameID, a.PartType); err != nil {
+		if exists, err := AnimationFramePropPositionExists(ctx, tx, a.AnimationFrameID); err != nil {
 			t.Fatal(err)
 		} else if !exists {
 			t.Error("want 'a' to exist")
@@ -673,7 +673,7 @@ func testAnimationFramePropPositionsSelect(t *testing.T) {
 }
 
 var (
-	animationFramePropPositionDBTypes = map[string]string{`AnimationFrameID`: `integer`, `PartType`: `enum.prop_type('WEAPON_MELEE_1H','WEAPON_MELEE_2H','WEAPON_RANGE_1H','WEAPON_RANGE_2H')`, `X`: `smallint`, `Y`: `smallint`, `Rotation`: `smallint`}
+	animationFramePropPositionDBTypes = map[string]string{`AnimationFrameID`: `integer`, `X`: `smallint`, `Y`: `smallint`, `Rotation`: `smallint`}
 	_                                 = bytes.MinRead
 )
 

@@ -193,7 +193,7 @@ func (db CharacterImageDB) AddDynamicMapping(
 	}
 
 	// Validate the enums.
-	bodyTypeID, err := strconv.Atoi(bodyID)
+	bodyIDVal, err := strconv.Atoi(bodyID)
 	if err != nil {
 		err := fmt.Errorf("provided ID %v is invalid, %v", bodyID, err)
 		fmt.Println(err)
@@ -210,7 +210,7 @@ func (db CharacterImageDB) AddDynamicMapping(
 	// Insert the base mapping. This needs to happen before we insert any of the pixels. This should
 	// be rolled-back if we have any errors in this transaction.
 	mapping := models.DynamicPartMapping{
-		BodyTypeID: bodyTypeID,
+		BodyTypeID: bodyIDVal,
 		PartType:   partType,
 	}
 
@@ -507,10 +507,12 @@ func (db CharacterImageDB) AddDynamic(
 				}
 			}
 
-			// max is always just the last pixel we've encountered that isn't transparent.
+			// Max is always just the last pixel we've encountered that isn't transparent.
+			// We add 1 to each because the max points are exclusive, whereas the Min points are
+			// inclusive. This ensures that we're referencing the correct row/column.
 			cropRect.Max = image.Point{
-				X: x,
-				Y: y,
+				X: x + 1,
+				Y: y + 1,
 			}
 
 			_, ok := mappingPixelMap[image.Point{
@@ -625,7 +627,10 @@ func (db CharacterImageDB) ListDynamics(
 			Part:        api.DynamicPartType(dynamicPartType),
 		}
 
-		apiThumbnails[id] = v.R.DynamicPartThumbnail.ImageBytes
+		// Thumbnails are *technically* not needed, though they should be added with each entry.
+		if v.R.DynamicPartThumbnail != nil {
+			apiThumbnails[id] = v.R.DynamicPartThumbnail.ImageBytes
+		}
 	}
 
 	return apiDynamics, apiThumbnails, nil
@@ -636,8 +641,52 @@ func (db CharacterImageDB) AddAnimation(
 	ctx context.Context,
 	a *api.Animation,
 	bodyID characterimage.ID,
-) (characterimage.ID, error) {
-	return "", nil
+) (id characterimage.ID, err error) {
+	_, span := otel.Tracer("CharacterImageDB").Start(ctx, "AddAnimation")
+	tx, err := db.db.BeginTx(ctx, nil)
+
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+		span.End()
+	}()
+
+	bodyIDVal, err := strconv.Atoi(bodyID)
+	if err != nil {
+		db.l.Println("error converting ID value for body:", err)
+		return "", err
+	}
+
+	// This is technically an array of models.PropType, but sqlboiler converts these to strings.
+	partTypes := []string{}
+	for _, v := range a.Allowed {
+		partType := models.PropType(api.PropType_name[int32(v)])
+		err = partType.IsValid()
+		if err != nil {
+			err = fmt.Errorf("invalid prop type: %v", v)
+			db.l.Println(err)
+			return "", err
+		}
+
+		partTypes = append(partTypes, string(partType))
+	}
+
+	animation := models.Animation{
+		BodyTypeID:  bodyIDVal,
+		DisplayName: a.DisplayName,
+		PartType:    partTypes,
+	}
+
+	err = animation.Insert(ctx, db.db, boil.Infer())
+	if err != nil {
+		fmt.Println("error inserting animation:", err)
+		return "", err
+	}
+
+	return strconv.Itoa(animation.ID), nil
 }
 
 // ListAnimations returns a list of all animations in the DB.
@@ -646,7 +695,46 @@ func (db CharacterImageDB) ListAnimations(
 	ctx context.Context,
 	f *characterimage.AnimationsFilter,
 ) (map[string]*api.Animation, error) {
-	return nil, nil
+	_, span := otel.Tracer("CharacterImageDB").Start(ctx, "ListAnimations")
+	tx, err := db.db.BeginTx(ctx, nil)
+
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+
+		span.End()
+	}()
+
+	animations, err := models.Animations().All(ctx, db.db)
+	if err != nil {
+		fmt.Println("error listing animations:", err)
+		return nil, err
+	}
+
+	apiAnimations := make(map[string]*api.Animation, len(animations))
+	for _, a := range animations {
+		allowed := []api.PropType{}
+		for _, pt := range a.PartType {
+			ptVal, ok := api.PropType_value[pt]
+			if !ok {
+				err = fmt.Errorf("propType %v does not exist", pt)
+				fmt.Println("error getting statics:", err)
+				return nil, err
+			}
+
+			allowed = append(allowed, api.PropType(ptVal))
+		}
+
+		apiAnimations[strconv.Itoa(a.ID)] = &api.Animation{
+			DisplayName: a.DisplayName,
+			Allowed:     allowed,
+		}
+	}
+
+	return apiAnimations, nil
 }
 
 // AddFrame inserts a new frame into the given animation in the DB.
@@ -654,8 +742,157 @@ func (db CharacterImageDB) AddFrame(
 	ctx context.Context,
 	f *api.Frame,
 	animationID characterimage.ID,
-) (characterimage.ID, error) {
-	return "", nil
+	imageBytes []byte,
+) (id characterimage.ID, err error) {
+	_, span := otel.Tracer("CharacterImageDB").Start(ctx, "AddFrame")
+	tx, err := db.db.BeginTx(ctx, nil)
+
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+		span.End()
+	}()
+
+	animationIDVal, err := strconv.Atoi(animationID)
+	if err != nil {
+		err := fmt.Errorf("provided ID %v is invalid, %v", animationID, err)
+		fmt.Println(err)
+		return "", err
+	}
+
+	// First, ensure that the provided PNG is properly base64-encoded, and that it is also a valid
+	// .png image.
+	dst := make([]byte, base64.StdEncoding.DecodedLen(len(imageBytes)))
+	_, err = base64.StdEncoding.Decode(dst, []byte(imageBytes))
+	if err != nil {
+		fmt.Println("decoding error:", err)
+		return "", err
+	}
+
+	r := bytes.NewReader(dst)
+	img, err := png.Decode(r)
+	if err != nil {
+		fmt.Println("invalid png:", err)
+		return "", err
+	}
+
+	lastFrame, err := models.AnimationFrames(
+		qm.Where(fmt.Sprintf("%v = ?", models.AnimationFrameColumns.AnimationID), animationID),
+		qm.OrderBy(fmt.Sprintf("%v DESC", models.AnimationFrameColumns.FrameIndex)),
+	).One(ctx, db.db)
+	if err != nil && err != sql.ErrNoRows {
+		db.l.Println("error getting last animation frame:", err)
+		return "", err
+	}
+
+	lastFrameIndex := 0
+	if lastFrame != nil {
+		lastFrameIndex = lastFrame.FrameIndex + 1
+	}
+
+	expression := models.ExpressionType(f.Expression.String())
+	err = expression.IsValid()
+	if err != nil {
+		err = fmt.Errorf("invalid expression: %v", f.Expression.String())
+		db.l.Println(err)
+		return "", err
+	}
+
+	frame := models.AnimationFrame{
+		AnimationID: animationIDVal,
+		FrameIndex:  lastFrameIndex,
+		Expression:  expression,
+	}
+
+	err = frame.Insert(ctx, db.db, boil.Infer())
+	if err != nil {
+		db.l.Println("error inserting animation frame:", err)
+		return "", err
+	}
+
+	propPos := models.AnimationFramePropPosition{
+		AnimationFrameID: frame.ID,
+		X:                int16(f.PropPositioning.Coordinates.X),
+		Y:                int16(f.PropPositioning.Coordinates.Y),
+		Rotation:         int16(f.PropPositioning.Rotation),
+	}
+
+	propPos.Insert(ctx, db.db, boil.Infer())
+	if err != nil {
+		db.l.Println("error inserting prop pos:", err)
+		return "", err
+	}
+
+	for k, v := range f.StaticPositioning {
+		staticPart := models.StaticPartType(k)
+		err = staticPart.IsValid()
+		if err != nil {
+			err = fmt.Errorf("invalid static part: %v", k)
+			db.l.Println(err)
+			return "", err
+		}
+
+		staticPos := models.AnimationFrameStaticPosition{
+			AnimationFrameID: animationIDVal,
+			PartType:         staticPart,
+			X:                int16(v.Coordinates.X),
+			Y:                int16(v.Coordinates.Y),
+			Rotation:         int16(v.Rotation),
+		}
+
+		err = staticPos.Insert(ctx, db.db, boil.Infer())
+		if err != nil {
+			db.l.Println("error inserting static part pos:", err)
+			return "", err
+		}
+	}
+
+	colors := []string{}
+	pixels := map[string]*models.AnimationFramePixel{}
+	b := img.Bounds()
+	for x := b.Min.X; x < b.Max.X; x++ {
+		for y := b.Min.Y; y < b.Max.Y; y++ {
+			c := color.NRGBAModel.Convert(b.RGBA64At(x, y)).(color.NRGBA)
+			r := c.R
+			g := c.G
+			b := c.B
+			a := c.A
+
+			// Do not save transparent pixels.
+			if a == 0 {
+				continue
+			}
+
+			hexString := fmt.Sprintf("#%02x%02x%02x%02x", r, g, b, a)
+			colors = append(colors, hexString)
+			pixels[hexString] = &models.AnimationFramePixel{
+				AnimationFrameID: animationIDVal,
+				X:                int16(x),
+				Y:                int16(y),
+			}
+		}
+	}
+
+	colorStrings, err := db.insertMissingColors(ctx, colors)
+	if err != nil {
+		return "", err
+	}
+
+	for _, c := range colorStrings {
+		pixel := pixels[c.Hexstring]
+		pixel.ColorStringID = c.ID
+
+		err = pixel.Insert(ctx, db.db, boil.Infer())
+		if err != nil {
+			db.l.Println("error inserting frame pixel:", err)
+			return "", err
+		}
+	}
+
+	return strconv.Itoa(frame.ID), nil
 }
 
 // AddProp inserts a new prop into the DB.

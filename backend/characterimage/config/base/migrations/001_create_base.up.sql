@@ -166,10 +166,8 @@ CREATE TABLE animation_frame_static_position (
 );
 
 CREATE TABLE animation_frame_prop_position (
-  animation_frame_id int REFERENCES animation_frame(id) NOT NULL,
-  part_type prop_type NOT NULL,
+  animation_frame_id int REFERENCES animation_frame(id) PRIMARY KEY,
   x smallint NOT NULL,
   y smallint NOT NULL,
-  rotation smallint NOT NULL,
-  PRIMARY KEY(animation_frame_id, part_type)
+  rotation smallint NOT NULL
 );

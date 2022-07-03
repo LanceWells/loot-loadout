@@ -53,6 +53,27 @@ var PropTableColumns = struct {
 
 // Generated where
 
+type whereHelperPropType struct{ field string }
+
+func (w whereHelperPropType) EQ(x PropType) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.EQ, x)
+}
+func (w whereHelperPropType) NEQ(x PropType) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.NEQ, x)
+}
+func (w whereHelperPropType) LT(x PropType) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LT, x)
+}
+func (w whereHelperPropType) LTE(x PropType) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LTE, x)
+}
+func (w whereHelperPropType) GT(x PropType) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GT, x)
+}
+func (w whereHelperPropType) GTE(x PropType) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GTE, x)
+}
+
 var PropWhere = struct {
 	ID          whereHelperint
 	DisplayName whereHelperstring

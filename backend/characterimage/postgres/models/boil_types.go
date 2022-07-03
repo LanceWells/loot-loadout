@@ -77,38 +77,6 @@ func (e ExpressionType) String() string {
 	return string(e)
 }
 
-type PropType string
-
-// Enum values for PropType
-const (
-	PropTypeWEAPON_MELEE_1H PropType = "WEAPON_MELEE_1H"
-	PropTypeWEAPON_MELEE_2H PropType = "WEAPON_MELEE_2H"
-	PropTypeWEAPON_RANGE_1H PropType = "WEAPON_RANGE_1H"
-	PropTypeWEAPON_RANGE_2H PropType = "WEAPON_RANGE_2H"
-)
-
-func AllPropType() []PropType {
-	return []PropType{
-		PropTypeWEAPON_MELEE_1H,
-		PropTypeWEAPON_MELEE_2H,
-		PropTypeWEAPON_RANGE_1H,
-		PropTypeWEAPON_RANGE_2H,
-	}
-}
-
-func (e PropType) IsValid() error {
-	switch e {
-	case PropTypeWEAPON_MELEE_1H, PropTypeWEAPON_MELEE_2H, PropTypeWEAPON_RANGE_1H, PropTypeWEAPON_RANGE_2H:
-		return nil
-	default:
-		return errors.New("enum is not valid")
-	}
-}
-
-func (e PropType) String() string {
-	return string(e)
-}
-
 type StaticPartType string
 
 // Enum values for StaticPartType
@@ -172,5 +140,37 @@ func (e DynamicPartType) IsValid() error {
 }
 
 func (e DynamicPartType) String() string {
+	return string(e)
+}
+
+type PropType string
+
+// Enum values for PropType
+const (
+	PropTypeWEAPON_MELEE_1H PropType = "WEAPON_MELEE_1H"
+	PropTypeWEAPON_MELEE_2H PropType = "WEAPON_MELEE_2H"
+	PropTypeWEAPON_RANGE_1H PropType = "WEAPON_RANGE_1H"
+	PropTypeWEAPON_RANGE_2H PropType = "WEAPON_RANGE_2H"
+)
+
+func AllPropType() []PropType {
+	return []PropType{
+		PropTypeWEAPON_MELEE_1H,
+		PropTypeWEAPON_MELEE_2H,
+		PropTypeWEAPON_RANGE_1H,
+		PropTypeWEAPON_RANGE_2H,
+	}
+}
+
+func (e PropType) IsValid() error {
+	switch e {
+	case PropTypeWEAPON_MELEE_1H, PropTypeWEAPON_MELEE_2H, PropTypeWEAPON_RANGE_1H, PropTypeWEAPON_RANGE_2H:
+		return nil
+	default:
+		return errors.New("enum is not valid")
+	}
+}
+
+func (e PropType) String() string {
 	return string(e)
 }

@@ -292,6 +292,7 @@ func TestToOne(t *testing.T) {
 // TestOneToOne tests cannot be run in parallel
 // or deadlocks can occur.
 func TestOneToOne(t *testing.T) {
+	t.Run("AnimationFrameToAnimationFramePropPositionUsingAnimationFramePropPosition", testAnimationFrameOneToOneAnimationFramePropPositionUsingAnimationFramePropPosition)
 	t.Run("DynamicPartToDynamicPartThumbnailUsingDynamicPartThumbnail", testDynamicPartOneToOneDynamicPartThumbnailUsingDynamicPartThumbnail)
 	t.Run("PropToPropImageUsingPropImage", testPropOneToOnePropImageUsingPropImage)
 	t.Run("StaticPartToStaticPartImageUsingStaticPartImage", testStaticPartOneToOneStaticPartImageUsingStaticPartImage)
@@ -302,7 +303,6 @@ func TestOneToOne(t *testing.T) {
 func TestToMany(t *testing.T) {
 	t.Run("AnimationToAnimationFrames", testAnimationToManyAnimationFrames)
 	t.Run("AnimationFrameToAnimationFramePixels", testAnimationFrameToManyAnimationFramePixels)
-	t.Run("AnimationFrameToAnimationFramePropPositions", testAnimationFrameToManyAnimationFramePropPositions)
 	t.Run("AnimationFrameToAnimationFrameStaticPositions", testAnimationFrameToManyAnimationFrameStaticPositions)
 	t.Run("BodyTypeToAnimations", testBodyTypeToManyAnimations)
 	t.Run("BodyTypeToDynamicPartMappings", testBodyTypeToManyDynamicPartMappings)
@@ -322,7 +322,7 @@ func TestToOneSet(t *testing.T) {
 	t.Run("AnimationFrameToAnimationUsingAnimationFrames", testAnimationFrameToOneSetOpAnimationUsingAnimation)
 	t.Run("AnimationFramePixelToAnimationFrameUsingAnimationFramePixels", testAnimationFramePixelToOneSetOpAnimationFrameUsingAnimationFrame)
 	t.Run("AnimationFramePixelToColorStringUsingAnimationFramePixels", testAnimationFramePixelToOneSetOpColorStringUsingColorString)
-	t.Run("AnimationFramePropPositionToAnimationFrameUsingAnimationFramePropPositions", testAnimationFramePropPositionToOneSetOpAnimationFrameUsingAnimationFrame)
+	t.Run("AnimationFramePropPositionToAnimationFrameUsingAnimationFramePropPosition", testAnimationFramePropPositionToOneSetOpAnimationFrameUsingAnimationFrame)
 	t.Run("AnimationFrameStaticPositionToAnimationFrameUsingAnimationFrameStaticPositions", testAnimationFrameStaticPositionToOneSetOpAnimationFrameUsingAnimationFrame)
 	t.Run("DynamicPartToDynamicPartMappingUsingDynamicParts", testDynamicPartToOneSetOpDynamicPartMappingUsingDynamicPartMapping)
 	t.Run("DynamicPartMappingToBodyTypeUsingDynamicPartMappings", testDynamicPartMappingToOneSetOpBodyTypeUsingBodyType)
@@ -343,6 +343,7 @@ func TestToOneRemove(t *testing.T) {}
 // TestOneToOneSet tests cannot be run in parallel
 // or deadlocks can occur.
 func TestOneToOneSet(t *testing.T) {
+	t.Run("AnimationFrameToAnimationFramePropPositionUsingAnimationFramePropPosition", testAnimationFrameOneToOneSetOpAnimationFramePropPositionUsingAnimationFramePropPosition)
 	t.Run("DynamicPartToDynamicPartThumbnailUsingDynamicPartThumbnail", testDynamicPartOneToOneSetOpDynamicPartThumbnailUsingDynamicPartThumbnail)
 	t.Run("PropToPropImageUsingPropImage", testPropOneToOneSetOpPropImageUsingPropImage)
 	t.Run("StaticPartToStaticPartImageUsingStaticPartImage", testStaticPartOneToOneSetOpStaticPartImageUsingStaticPartImage)
@@ -357,7 +358,6 @@ func TestOneToOneRemove(t *testing.T) {}
 func TestToManyAdd(t *testing.T) {
 	t.Run("AnimationToAnimationFrames", testAnimationToManyAddOpAnimationFrames)
 	t.Run("AnimationFrameToAnimationFramePixels", testAnimationFrameToManyAddOpAnimationFramePixels)
-	t.Run("AnimationFrameToAnimationFramePropPositions", testAnimationFrameToManyAddOpAnimationFramePropPositions)
 	t.Run("AnimationFrameToAnimationFrameStaticPositions", testAnimationFrameToManyAddOpAnimationFrameStaticPositions)
 	t.Run("BodyTypeToAnimations", testBodyTypeToManyAddOpAnimations)
 	t.Run("BodyTypeToDynamicPartMappings", testBodyTypeToManyAddOpDynamicPartMappings)

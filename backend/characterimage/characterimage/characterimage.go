@@ -203,7 +203,7 @@ func (s CharacterImageService) AddFrame(
 	_, span := otel.Tracer("CharacterImageService").Start(ctx, "AddFrame")
 	defer span.End()
 
-	id, err := s.db.AddFrame(ctx, req.Frame, req.AnimationID)
+	id, err := s.db.AddFrame(ctx, req.Frame, req.AnimationID, req.Image)
 	if err != nil {
 		s.l.Println("error adding frame:", err)
 	}

@@ -494,6 +494,118 @@ func testAnimationFramesInsertWhitelist(t *testing.T) {
 	}
 }
 
+func testAnimationFrameOneToOneAnimationFramePropPositionUsingAnimationFramePropPosition(t *testing.T) {
+	ctx := context.Background()
+	tx := MustTx(boil.BeginTx(ctx, nil))
+	defer func() { _ = tx.Rollback() }()
+
+	var foreign AnimationFramePropPosition
+	var local AnimationFrame
+
+	seed := randomize.NewSeed()
+	if err := randomize.Struct(seed, &foreign, animationFramePropPositionDBTypes, true, animationFramePropPositionColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize AnimationFramePropPosition struct: %s", err)
+	}
+	if err := randomize.Struct(seed, &local, animationFrameDBTypes, true, animationFrameColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize AnimationFrame struct: %s", err)
+	}
+
+	if err := local.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	foreign.AnimationFrameID = local.ID
+	if err := foreign.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	check, err := local.AnimationFramePropPosition().One(ctx, tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if check.AnimationFrameID != foreign.AnimationFrameID {
+		t.Errorf("want: %v, got %v", foreign.AnimationFrameID, check.AnimationFrameID)
+	}
+
+	slice := AnimationFrameSlice{&local}
+	if err = local.L.LoadAnimationFramePropPosition(ctx, tx, false, (*[]*AnimationFrame)(&slice), nil); err != nil {
+		t.Fatal(err)
+	}
+	if local.R.AnimationFramePropPosition == nil {
+		t.Error("struct should have been eager loaded")
+	}
+
+	local.R.AnimationFramePropPosition = nil
+	if err = local.L.LoadAnimationFramePropPosition(ctx, tx, true, &local, nil); err != nil {
+		t.Fatal(err)
+	}
+	if local.R.AnimationFramePropPosition == nil {
+		t.Error("struct should have been eager loaded")
+	}
+}
+
+func testAnimationFrameOneToOneSetOpAnimationFramePropPositionUsingAnimationFramePropPosition(t *testing.T) {
+	var err error
+
+	ctx := context.Background()
+	tx := MustTx(boil.BeginTx(ctx, nil))
+	defer func() { _ = tx.Rollback() }()
+
+	var a AnimationFrame
+	var b, c AnimationFramePropPosition
+
+	seed := randomize.NewSeed()
+	if err = randomize.Struct(seed, &a, animationFrameDBTypes, false, strmangle.SetComplement(animationFramePrimaryKeyColumns, animationFrameColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+	if err = randomize.Struct(seed, &b, animationFramePropPositionDBTypes, false, strmangle.SetComplement(animationFramePropPositionPrimaryKeyColumns, animationFramePropPositionColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+	if err = randomize.Struct(seed, &c, animationFramePropPositionDBTypes, false, strmangle.SetComplement(animationFramePropPositionPrimaryKeyColumns, animationFramePropPositionColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	for i, x := range []*AnimationFramePropPosition{&b, &c} {
+		err = a.SetAnimationFramePropPosition(ctx, tx, i != 0, x)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if a.R.AnimationFramePropPosition != x {
+			t.Error("relationship struct not set to correct value")
+		}
+		if x.R.AnimationFrame != &a {
+			t.Error("failed to append to foreign relationship struct")
+		}
+
+		if a.ID != x.AnimationFrameID {
+			t.Error("foreign key was wrong value", a.ID)
+		}
+
+		if exists, err := AnimationFramePropPositionExists(ctx, tx, x.AnimationFrameID); err != nil {
+			t.Fatal(err)
+		} else if !exists {
+			t.Error("want 'x' to exist")
+		}
+
+		if a.ID != x.AnimationFrameID {
+			t.Error("foreign key was wrong value", a.ID, x.AnimationFrameID)
+		}
+
+		if _, err = x.Delete(ctx, tx); err != nil {
+			t.Fatal("failed to delete x", err)
+		}
+	}
+}
+
 func testAnimationFrameToManyAnimationFramePixels(t *testing.T) {
 	var err error
 	ctx := context.Background()
@@ -564,84 +676,6 @@ func testAnimationFrameToManyAnimationFramePixels(t *testing.T) {
 		t.Fatal(err)
 	}
 	if got := len(a.R.AnimationFramePixels); got != 2 {
-		t.Error("number of eager loaded records wrong, got:", got)
-	}
-
-	if t.Failed() {
-		t.Logf("%#v", check)
-	}
-}
-
-func testAnimationFrameToManyAnimationFramePropPositions(t *testing.T) {
-	var err error
-	ctx := context.Background()
-	tx := MustTx(boil.BeginTx(ctx, nil))
-	defer func() { _ = tx.Rollback() }()
-
-	var a AnimationFrame
-	var b, c AnimationFramePropPosition
-
-	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, &a, animationFrameDBTypes, true, animationFrameColumnsWithDefault...); err != nil {
-		t.Errorf("Unable to randomize AnimationFrame struct: %s", err)
-	}
-
-	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-
-	if err = randomize.Struct(seed, &b, animationFramePropPositionDBTypes, false, animationFramePropPositionColumnsWithDefault...); err != nil {
-		t.Fatal(err)
-	}
-	if err = randomize.Struct(seed, &c, animationFramePropPositionDBTypes, false, animationFramePropPositionColumnsWithDefault...); err != nil {
-		t.Fatal(err)
-	}
-
-	b.AnimationFrameID = a.ID
-	c.AnimationFrameID = a.ID
-
-	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-	if err = c.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-
-	check, err := a.AnimationFramePropPositions().All(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	bFound, cFound := false, false
-	for _, v := range check {
-		if v.AnimationFrameID == b.AnimationFrameID {
-			bFound = true
-		}
-		if v.AnimationFrameID == c.AnimationFrameID {
-			cFound = true
-		}
-	}
-
-	if !bFound {
-		t.Error("expected to find b")
-	}
-	if !cFound {
-		t.Error("expected to find c")
-	}
-
-	slice := AnimationFrameSlice{&a}
-	if err = a.L.LoadAnimationFramePropPositions(ctx, tx, false, (*[]*AnimationFrame)(&slice), nil); err != nil {
-		t.Fatal(err)
-	}
-	if got := len(a.R.AnimationFramePropPositions); got != 2 {
-		t.Error("number of eager loaded records wrong, got:", got)
-	}
-
-	a.R.AnimationFramePropPositions = nil
-	if err = a.L.LoadAnimationFramePropPositions(ctx, tx, true, &a, nil); err != nil {
-		t.Fatal(err)
-	}
-	if got := len(a.R.AnimationFramePropPositions); got != 2 {
 		t.Error("number of eager loaded records wrong, got:", got)
 	}
 
@@ -795,81 +829,6 @@ func testAnimationFrameToManyAddOpAnimationFramePixels(t *testing.T) {
 		}
 
 		count, err := a.AnimationFramePixels().Count(ctx, tx)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if want := int64((i + 1) * 2); count != want {
-			t.Error("want", want, "got", count)
-		}
-	}
-}
-func testAnimationFrameToManyAddOpAnimationFramePropPositions(t *testing.T) {
-	var err error
-
-	ctx := context.Background()
-	tx := MustTx(boil.BeginTx(ctx, nil))
-	defer func() { _ = tx.Rollback() }()
-
-	var a AnimationFrame
-	var b, c, d, e AnimationFramePropPosition
-
-	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, &a, animationFrameDBTypes, false, strmangle.SetComplement(animationFramePrimaryKeyColumns, animationFrameColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
-	}
-	foreigners := []*AnimationFramePropPosition{&b, &c, &d, &e}
-	for _, x := range foreigners {
-		if err = randomize.Struct(seed, x, animationFramePropPositionDBTypes, false, strmangle.SetComplement(animationFramePropPositionPrimaryKeyColumns, animationFramePropPositionColumnsWithoutDefault)...); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-	if err = c.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-
-	foreignersSplitByInsertion := [][]*AnimationFramePropPosition{
-		{&b, &c},
-		{&d, &e},
-	}
-
-	for i, x := range foreignersSplitByInsertion {
-		err = a.AddAnimationFramePropPositions(ctx, tx, i != 0, x...)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		first := x[0]
-		second := x[1]
-
-		if a.ID != first.AnimationFrameID {
-			t.Error("foreign key was wrong value", a.ID, first.AnimationFrameID)
-		}
-		if a.ID != second.AnimationFrameID {
-			t.Error("foreign key was wrong value", a.ID, second.AnimationFrameID)
-		}
-
-		if first.R.AnimationFrame != &a {
-			t.Error("relationship was not added properly to the foreign slice")
-		}
-		if second.R.AnimationFrame != &a {
-			t.Error("relationship was not added properly to the foreign slice")
-		}
-
-		if a.R.AnimationFramePropPositions[i*2] != first {
-			t.Error("relationship struct slice not set to correct value")
-		}
-		if a.R.AnimationFramePropPositions[i*2+1] != second {
-			t.Error("relationship struct slice not set to correct value")
-		}
-
-		count, err := a.AnimationFramePropPositions().Count(ctx, tx)
 		if err != nil {
 			t.Fatal(err)
 		}

@@ -243,3 +243,75 @@ func (r CharacterImageServer) ListStatics(
 		Statics: statics,
 	}, nil
 }
+
+func (r CharacterImageServer) AddAnimation(
+	ctx context.Context,
+	req *api.AddAnimationRequest,
+) (*api.AddAnimationResponse, error) {
+	_, span := otel.Tracer("CharacterImageServer").Start(ctx, "AddAnimation")
+	defer span.End()
+
+	err := req.Validate()
+	if err != nil {
+		r.l.Printf("error validating: %v", err)
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	id, err := r.s.AddAnimation(ctx, req)
+	if err != nil {
+		r.l.Println("error adding animation:", err)
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &api.AddAnimationResponse{
+		Id: id,
+	}, nil
+}
+
+func (r CharacterImageServer) ListAnimations(
+	ctx context.Context,
+	req *api.ListAnimationsRequest,
+) (*api.ListAnimationsResponse, error) {
+	_, span := otel.Tracer("CharacterImageServer").Start(ctx, "ListAnimations")
+	defer span.End()
+
+	err := req.Validate()
+	if err != nil {
+		r.l.Printf("error validating: %v", err)
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	animations, err := r.s.ListAnimations(ctx, req)
+	if err != nil {
+		r.l.Println("error listing animations:", err)
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &api.ListAnimationsResponse{
+		Animations: animations,
+	}, nil
+}
+
+func (r CharacterImageServer) AddFrame(
+	ctx context.Context,
+	req *api.AddFrameRequest,
+) (*api.AddFrameResponse, error) {
+	_, span := otel.Tracer("CharacterImageServer").Start(ctx, "AddFrame")
+	defer span.End()
+
+	err := req.Validate()
+	if err != nil {
+		r.l.Printf("error validating: %v", err)
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	id, err := r.s.AddFrame(ctx, req)
+	if err != nil {
+		r.l.Println("error adding frame:", err)
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &api.AddFrameResponse{
+		Id: id,
+	}, nil
+}

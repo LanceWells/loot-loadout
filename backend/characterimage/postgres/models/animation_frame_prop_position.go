@@ -23,11 +23,10 @@ import (
 
 // AnimationFramePropPosition is an object representing the database table.
 type AnimationFramePropPosition struct {
-	AnimationFrameID int      `boil:"animation_frame_id" json:"animation_frame_id" toml:"animation_frame_id" yaml:"animation_frame_id"`
-	PartType         PropType `boil:"part_type" json:"part_type" toml:"part_type" yaml:"part_type"`
-	X                int16    `boil:"x" json:"x" toml:"x" yaml:"x"`
-	Y                int16    `boil:"y" json:"y" toml:"y" yaml:"y"`
-	Rotation         int16    `boil:"rotation" json:"rotation" toml:"rotation" yaml:"rotation"`
+	AnimationFrameID int   `boil:"animation_frame_id" json:"animation_frame_id" toml:"animation_frame_id" yaml:"animation_frame_id"`
+	X                int16 `boil:"x" json:"x" toml:"x" yaml:"x"`
+	Y                int16 `boil:"y" json:"y" toml:"y" yaml:"y"`
+	Rotation         int16 `boil:"rotation" json:"rotation" toml:"rotation" yaml:"rotation"`
 
 	R *animationFramePropPositionR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L animationFramePropPositionL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -35,13 +34,11 @@ type AnimationFramePropPosition struct {
 
 var AnimationFramePropPositionColumns = struct {
 	AnimationFrameID string
-	PartType         string
 	X                string
 	Y                string
 	Rotation         string
 }{
 	AnimationFrameID: "animation_frame_id",
-	PartType:         "part_type",
 	X:                "x",
 	Y:                "y",
 	Rotation:         "rotation",
@@ -49,13 +46,11 @@ var AnimationFramePropPositionColumns = struct {
 
 var AnimationFramePropPositionTableColumns = struct {
 	AnimationFrameID string
-	PartType         string
 	X                string
 	Y                string
 	Rotation         string
 }{
 	AnimationFrameID: "animation_frame_prop_position.animation_frame_id",
-	PartType:         "animation_frame_prop_position.part_type",
 	X:                "animation_frame_prop_position.x",
 	Y:                "animation_frame_prop_position.y",
 	Rotation:         "animation_frame_prop_position.rotation",
@@ -63,36 +58,13 @@ var AnimationFramePropPositionTableColumns = struct {
 
 // Generated where
 
-type whereHelperPropType struct{ field string }
-
-func (w whereHelperPropType) EQ(x PropType) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.EQ, x)
-}
-func (w whereHelperPropType) NEQ(x PropType) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.NEQ, x)
-}
-func (w whereHelperPropType) LT(x PropType) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LT, x)
-}
-func (w whereHelperPropType) LTE(x PropType) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LTE, x)
-}
-func (w whereHelperPropType) GT(x PropType) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GT, x)
-}
-func (w whereHelperPropType) GTE(x PropType) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GTE, x)
-}
-
 var AnimationFramePropPositionWhere = struct {
 	AnimationFrameID whereHelperint
-	PartType         whereHelperPropType
 	X                whereHelperint16
 	Y                whereHelperint16
 	Rotation         whereHelperint16
 }{
 	AnimationFrameID: whereHelperint{field: "\"animation_frame_prop_position\".\"animation_frame_id\""},
-	PartType:         whereHelperPropType{field: "\"animation_frame_prop_position\".\"part_type\""},
 	X:                whereHelperint16{field: "\"animation_frame_prop_position\".\"x\""},
 	Y:                whereHelperint16{field: "\"animation_frame_prop_position\".\"y\""},
 	Rotation:         whereHelperint16{field: "\"animation_frame_prop_position\".\"rotation\""},
@@ -126,10 +98,10 @@ func (r *animationFramePropPositionR) GetAnimationFrame() *AnimationFrame {
 type animationFramePropPositionL struct{}
 
 var (
-	animationFramePropPositionAllColumns            = []string{"animation_frame_id", "part_type", "x", "y", "rotation"}
-	animationFramePropPositionColumnsWithoutDefault = []string{"animation_frame_id", "part_type", "x", "y", "rotation"}
+	animationFramePropPositionAllColumns            = []string{"animation_frame_id", "x", "y", "rotation"}
+	animationFramePropPositionColumnsWithoutDefault = []string{"animation_frame_id", "x", "y", "rotation"}
 	animationFramePropPositionColumnsWithDefault    = []string{}
-	animationFramePropPositionPrimaryKeyColumns     = []string{"animation_frame_id", "part_type"}
+	animationFramePropPositionPrimaryKeyColumns     = []string{"animation_frame_id"}
 	animationFramePropPositionGeneratedColumns      = []string{}
 )
 
@@ -506,7 +478,7 @@ func (animationFramePropPositionL) LoadAnimationFrame(ctx context.Context, e boi
 		if foreign.R == nil {
 			foreign.R = &animationFrameR{}
 		}
-		foreign.R.AnimationFramePropPositions = append(foreign.R.AnimationFramePropPositions, object)
+		foreign.R.AnimationFramePropPosition = object
 		return nil
 	}
 
@@ -517,7 +489,7 @@ func (animationFramePropPositionL) LoadAnimationFrame(ctx context.Context, e boi
 				if foreign.R == nil {
 					foreign.R = &animationFrameR{}
 				}
-				foreign.R.AnimationFramePropPositions = append(foreign.R.AnimationFramePropPositions, local)
+				foreign.R.AnimationFramePropPosition = local
 				break
 			}
 		}
@@ -528,7 +500,7 @@ func (animationFramePropPositionL) LoadAnimationFrame(ctx context.Context, e boi
 
 // SetAnimationFrame of the animationFramePropPosition to the related item.
 // Sets o.R.AnimationFrame to related.
-// Adds o to related.R.AnimationFramePropPositions.
+// Adds o to related.R.AnimationFramePropPosition.
 func (o *AnimationFramePropPosition) SetAnimationFrame(ctx context.Context, exec boil.ContextExecutor, insert bool, related *AnimationFrame) error {
 	var err error
 	if insert {
@@ -542,7 +514,7 @@ func (o *AnimationFramePropPosition) SetAnimationFrame(ctx context.Context, exec
 		strmangle.SetParamNames("\"", "\"", 1, []string{"animation_frame_id"}),
 		strmangle.WhereClause("\"", "\"", 2, animationFramePropPositionPrimaryKeyColumns),
 	)
-	values := []interface{}{related.ID, o.AnimationFrameID, o.PartType}
+	values := []interface{}{related.ID, o.AnimationFrameID}
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -564,10 +536,10 @@ func (o *AnimationFramePropPosition) SetAnimationFrame(ctx context.Context, exec
 
 	if related.R == nil {
 		related.R = &animationFrameR{
-			AnimationFramePropPositions: AnimationFramePropPositionSlice{o},
+			AnimationFramePropPosition: o,
 		}
 	} else {
-		related.R.AnimationFramePropPositions = append(related.R.AnimationFramePropPositions, o)
+		related.R.AnimationFramePropPosition = o
 	}
 
 	return nil
@@ -586,7 +558,7 @@ func AnimationFramePropPositions(mods ...qm.QueryMod) animationFramePropPosition
 
 // FindAnimationFramePropPosition retrieves a single record by ID with an executor.
 // If selectCols is empty Find will return all columns.
-func FindAnimationFramePropPosition(ctx context.Context, exec boil.ContextExecutor, animationFrameID int, partType PropType, selectCols ...string) (*AnimationFramePropPosition, error) {
+func FindAnimationFramePropPosition(ctx context.Context, exec boil.ContextExecutor, animationFrameID int, selectCols ...string) (*AnimationFramePropPosition, error) {
 	animationFramePropPositionObj := &AnimationFramePropPosition{}
 
 	sel := "*"
@@ -594,10 +566,10 @@ func FindAnimationFramePropPosition(ctx context.Context, exec boil.ContextExecut
 		sel = strings.Join(strmangle.IdentQuoteSlice(dialect.LQ, dialect.RQ, selectCols), ",")
 	}
 	query := fmt.Sprintf(
-		"select %s from \"animation_frame_prop_position\" where \"animation_frame_id\"=$1 AND \"part_type\"=$2", sel,
+		"select %s from \"animation_frame_prop_position\" where \"animation_frame_id\"=$1", sel,
 	)
 
-	q := queries.Raw(query, animationFrameID, partType)
+	q := queries.Raw(query, animationFrameID)
 
 	err := q.Bind(ctx, exec, animationFramePropPositionObj)
 	if err != nil {
@@ -949,7 +921,7 @@ func (o *AnimationFramePropPosition) Delete(ctx context.Context, exec boil.Conte
 	}
 
 	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), animationFramePropPositionPrimaryKeyMapping)
-	sql := "DELETE FROM \"animation_frame_prop_position\" WHERE \"animation_frame_id\"=$1 AND \"part_type\"=$2"
+	sql := "DELETE FROM \"animation_frame_prop_position\" WHERE \"animation_frame_id\"=$1"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -1046,7 +1018,7 @@ func (o AnimationFramePropPositionSlice) DeleteAll(ctx context.Context, exec boi
 // Reload refetches the object from the database
 // using the primary keys with an executor.
 func (o *AnimationFramePropPosition) Reload(ctx context.Context, exec boil.ContextExecutor) error {
-	ret, err := FindAnimationFramePropPosition(ctx, exec, o.AnimationFrameID, o.PartType)
+	ret, err := FindAnimationFramePropPosition(ctx, exec, o.AnimationFrameID)
 	if err != nil {
 		return err
 	}
@@ -1085,16 +1057,16 @@ func (o *AnimationFramePropPositionSlice) ReloadAll(ctx context.Context, exec bo
 }
 
 // AnimationFramePropPositionExists checks if the AnimationFramePropPosition row exists.
-func AnimationFramePropPositionExists(ctx context.Context, exec boil.ContextExecutor, animationFrameID int, partType PropType) (bool, error) {
+func AnimationFramePropPositionExists(ctx context.Context, exec boil.ContextExecutor, animationFrameID int) (bool, error) {
 	var exists bool
-	sql := "select exists(select 1 from \"animation_frame_prop_position\" where \"animation_frame_id\"=$1 AND \"part_type\"=$2 limit 1)"
+	sql := "select exists(select 1 from \"animation_frame_prop_position\" where \"animation_frame_id\"=$1 limit 1)"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
 		fmt.Fprintln(writer, sql)
-		fmt.Fprintln(writer, animationFrameID, partType)
+		fmt.Fprintln(writer, animationFrameID)
 	}
-	row := exec.QueryRowContext(ctx, sql, animationFrameID, partType)
+	row := exec.QueryRowContext(ctx, sql, animationFrameID)
 
 	err := row.Scan(&exists)
 	if err != nil {

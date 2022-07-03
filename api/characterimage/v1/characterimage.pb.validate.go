@@ -812,49 +812,32 @@ func (m *Frame) validate(all bool) error {
 		}
 	}
 
-	{
-		sorted_keys := make([]string, len(m.GetPropPositioning()))
-		i := 0
-		for key := range m.GetPropPositioning() {
-			sorted_keys[i] = key
-			i++
-		}
-		sort.Slice(sorted_keys, func(i, j int) bool { return sorted_keys[i] < sorted_keys[j] })
-		for _, key := range sorted_keys {
-			val := m.GetPropPositioning()[key]
-			_ = val
-
-			// no validation rules for PropPositioning[key]
-
-			if all {
-				switch v := interface{}(val).(type) {
-				case interface{ ValidateAll() error }:
-					if err := v.ValidateAll(); err != nil {
-						errors = append(errors, FrameValidationError{
-							field:  fmt.Sprintf("PropPositioning[%v]", key),
-							reason: "embedded message failed validation",
-							cause:  err,
-						})
-					}
-				case interface{ Validate() error }:
-					if err := v.Validate(); err != nil {
-						errors = append(errors, FrameValidationError{
-							field:  fmt.Sprintf("PropPositioning[%v]", key),
-							reason: "embedded message failed validation",
-							cause:  err,
-						})
-					}
-				}
-			} else if v, ok := interface{}(val).(interface{ Validate() error }); ok {
-				if err := v.Validate(); err != nil {
-					return FrameValidationError{
-						field:  fmt.Sprintf("PropPositioning[%v]", key),
-						reason: "embedded message failed validation",
-						cause:  err,
-					}
-				}
+	if all {
+		switch v := interface{}(m.GetPropPositioning()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, FrameValidationError{
+					field:  "PropPositioning",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
 			}
-
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, FrameValidationError{
+					field:  "PropPositioning",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetPropPositioning()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return FrameValidationError{
+				field:  "PropPositioning",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
 		}
 	}
 

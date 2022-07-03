@@ -341,7 +341,7 @@ type CharacterImageDatabase interface {
 	AddAnimation(ctx context.Context, a *pb.Animation, bodyID ID) (ID, error)
 	ListAnimations(context.Context, *AnimationsFilter) (map[string]*pb.Animation, error)
 
-	AddFrame(ctx context.Context, f *pb.Frame, animationID ID) (ID, error)
+	AddFrame(ctx context.Context, f *pb.Frame, animationID ID, image []byte) (ID, error)
 
 	AddProp(context.Context, *pb.Prop) (ID, error)
 	ListProps(context.Context, *PropsFilter) (map[string]*pb.Prop, error)

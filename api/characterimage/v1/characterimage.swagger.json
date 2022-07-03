@@ -161,10 +161,7 @@
           }
         },
         "propPositioning": {
-          "type": "object",
-          "additionalProperties": {
-            "$ref": "#/definitions/characterimagePositioning"
-          }
+          "$ref": "#/definitions/characterimagePositioning"
         },
         "expression": {
           "$ref": "#/definitions/characterimageExpressionType"

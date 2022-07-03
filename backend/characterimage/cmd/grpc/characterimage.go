@@ -171,6 +171,31 @@ func (r CharacterImageServer) AddDynamic(
 	}, nil
 }
 
+func (r CharacterImageServer) ListDynamics(
+	ctx context.Context,
+	req *api.ListDynamicsRequest,
+) (*api.ListDynamicsResponse, error) {
+	_, span := otel.Tracer("CharacterImageServer").Start(ctx, "ListDynamics")
+	defer span.End()
+
+	err := req.Validate()
+	if err != nil {
+		r.l.Printf("error validating: %v", err)
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	dynamics, thumbnails, err := r.s.ListDynamics(ctx, req)
+	if err != nil {
+		r.l.Println("error listing dynamics:", err)
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &api.ListDynamicsResponse{
+		Dynamics:   dynamics,
+		Thumbnails: thumbnails,
+	}, nil
+}
+
 func (r CharacterImageServer) AddStatic(
 	ctx context.Context,
 	req *api.AddStaticRequest,

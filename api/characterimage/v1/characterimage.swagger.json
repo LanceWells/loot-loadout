@@ -205,7 +205,8 @@
         "thumbnails": {
           "type": "object",
           "additionalProperties": {
-            "$ref": "#/definitions/characterimageDynamic"
+            "type": "string",
+            "format": "byte"
           }
         }
       }

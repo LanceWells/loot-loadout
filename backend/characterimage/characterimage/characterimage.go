@@ -118,20 +118,19 @@ func (s CharacterImageService) AddDynamic(
 	return id, nil
 }
 
-// TODO: Implement
 func (s CharacterImageService) ListDynamics(
 	ctx context.Context,
 	req *api.ListDynamicsRequest,
-) (map[string]*api.Dynamic, error) {
+) (map[string]*api.Dynamic, map[string][]byte, error) {
 	_, span := otel.Tracer("CharacterImageService").Start(ctx, "ListDynamics")
 	defer span.End()
 
-	dynamics, _, err := s.db.ListDynamics(ctx, nil)
+	dynamics, thumbnails, err := s.db.ListDynamics(ctx, nil)
 	if err != nil {
 		s.l.Println("error listing dynamics:", err)
 	}
 
-	return dynamics, nil
+	return dynamics, thumbnails, nil
 }
 
 func (s CharacterImageService) AddStatic(

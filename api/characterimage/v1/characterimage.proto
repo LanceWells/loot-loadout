@@ -153,7 +153,7 @@ message ListDynamicsRequest {}
 message ListDynamicsResponse {
   option (validate.disabled) = true;
   map<string, Dynamic> dynamics = 1;
-  map<string, Dynamic> thumbnails = 2;
+  map<string, bytes> thumbnails = 2;
 }
 
 message AddAnimationRequest {

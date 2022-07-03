@@ -1381,7 +1381,7 @@ type ListDynamicsResponse struct {
 	unknownFields protoimpl.UnknownFields
 
 	Dynamics   map[string]*Dynamic `protobuf:"bytes,1,rep,name=dynamics,proto3" json:"dynamics,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	Thumbnails map[string]*Dynamic `protobuf:"bytes,2,rep,name=thumbnails,proto3" json:"thumbnails,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	Thumbnails map[string][]byte   `protobuf:"bytes,2,rep,name=thumbnails,proto3" json:"thumbnails,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 }
 
 func (x *ListDynamicsResponse) Reset() {
@@ -1423,7 +1423,7 @@ func (x *ListDynamicsResponse) GetDynamics() map[string]*Dynamic {
 	return nil
 }
 
-func (x *ListDynamicsResponse) GetThumbnails() map[string]*Dynamic {
+func (x *ListDynamicsResponse) GetThumbnails() map[string][]byte {
 	if x != nil {
 		return x.Thumbnails
 	}
@@ -2089,7 +2089,7 @@ var file_characterimage_v1_characterimage_proto_rawDesc = []byte{
 	0x22, 0x24, 0x0a, 0x12, 0x41, 0x64, 0x64, 0x44, 0x79, 0x6e, 0x61, 0x6d, 0x69, 0x63, 0x52, 0x65,
 	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01,
 	0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x22, 0x15, 0x0a, 0x13, 0x4c, 0x69, 0x73, 0x74, 0x44, 0x79,
-	0x6e, 0x61, 0x6d, 0x69, 0x63, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0xcb, 0x03,
+	0x6e, 0x61, 0x6d, 0x69, 0x63, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x9b, 0x03,
 	0x0a, 0x14, 0x4c, 0x69, 0x73, 0x74, 0x44, 0x79, 0x6e, 0x61, 0x6d, 0x69, 0x63, 0x73, 0x52, 0x65,
 	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x65, 0x0a, 0x08, 0x64, 0x79, 0x6e, 0x61, 0x6d, 0x69,
 	0x63, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x49, 0x2e, 0x6c, 0x61, 0x6e, 0x74, 0x73,
@@ -2111,13 +2111,10 @@ var file_characterimage_v1_characterimage_proto_rawDesc = []byte{
 	0x61, 0x6e, 0x74, 0x73, 0x70, 0x61, 0x6e, 0x74, 0x73, 0x2e, 0x6c, 0x6f, 0x6f, 0x74, 0x6c, 0x6f,
 	0x61, 0x64, 0x6f, 0x75, 0x74, 0x2e, 0x63, 0x68, 0x61, 0x72, 0x61, 0x63, 0x74, 0x65, 0x72, 0x69,
 	0x6d, 0x61, 0x67, 0x65, 0x2e, 0x44, 0x79, 0x6e, 0x61, 0x6d, 0x69, 0x63, 0x52, 0x05, 0x76, 0x61,
-	0x6c, 0x75, 0x65, 0x3a, 0x02, 0x38, 0x01, 0x1a, 0x6d, 0x0a, 0x0f, 0x54, 0x68, 0x75, 0x6d, 0x62,
+	0x6c, 0x75, 0x65, 0x3a, 0x02, 0x38, 0x01, 0x1a, 0x3d, 0x0a, 0x0f, 0x54, 0x68, 0x75, 0x6d, 0x62,
 	0x6e, 0x61, 0x69, 0x6c, 0x73, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65,
-	0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x44, 0x0a, 0x05,
-	0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x2e, 0x2e, 0x6c, 0x61,
-	0x6e, 0x74, 0x73, 0x70, 0x61, 0x6e, 0x74, 0x73, 0x2e, 0x6c, 0x6f, 0x6f, 0x74, 0x6c, 0x6f, 0x61,
-	0x64, 0x6f, 0x75, 0x74, 0x2e, 0x63, 0x68, 0x61, 0x72, 0x61, 0x63, 0x74, 0x65, 0x72, 0x69, 0x6d,
-	0x61, 0x67, 0x65, 0x2e, 0x44, 0x79, 0x6e, 0x61, 0x6d, 0x69, 0x63, 0x52, 0x05, 0x76, 0x61, 0x6c,
+	0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x14, 0x0a, 0x05,
+	0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x05, 0x76, 0x61, 0x6c,
 	0x75, 0x65, 0x3a, 0x02, 0x38, 0x01, 0x3a, 0x03, 0xf8, 0x42, 0x01, 0x22, 0x7d, 0x0a, 0x13, 0x41,
 	0x64, 0x64, 0x41, 0x6e, 0x69, 0x6d, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65,
 	0x73, 0x74, 0x12, 0x4e, 0x0a, 0x09, 0x61, 0x6e, 0x69, 0x6d, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18,
@@ -2396,38 +2393,37 @@ var file_characterimage_v1_characterimage_proto_depIdxs = []int32{
 	6,  // 26: lantspants.lootloadout.characterimage.ListBodiesResponse.BodiesEntry.value:type_name -> lantspants.lootloadout.characterimage.Body
 	8,  // 27: lantspants.lootloadout.characterimage.ListStaticsResponse.StaticsEntry.value:type_name -> lantspants.lootloadout.characterimage.Static
 	9,  // 28: lantspants.lootloadout.characterimage.ListDynamicsResponse.DynamicsEntry.value:type_name -> lantspants.lootloadout.characterimage.Dynamic
-	9,  // 29: lantspants.lootloadout.characterimage.ListDynamicsResponse.ThumbnailsEntry.value:type_name -> lantspants.lootloadout.characterimage.Dynamic
-	11, // 30: lantspants.lootloadout.characterimage.ListAnimationsResponse.AnimationsEntry.value:type_name -> lantspants.lootloadout.characterimage.Animation
-	12, // 31: lantspants.lootloadout.characterimage.ListPropsResponse.PropsEntry.value:type_name -> lantspants.lootloadout.characterimage.Prop
-	13, // 32: lantspants.lootloadout.characterimage.Images.AddBody:input_type -> lantspants.lootloadout.characterimage.AddBodyRequest
-	15, // 33: lantspants.lootloadout.characterimage.Images.ListBodies:input_type -> lantspants.lootloadout.characterimage.ListBodiesRequest
-	17, // 34: lantspants.lootloadout.characterimage.Images.AddDynamicMapping:input_type -> lantspants.lootloadout.characterimage.AddDynamicMappingRequest
-	19, // 35: lantspants.lootloadout.characterimage.Images.AddStatic:input_type -> lantspants.lootloadout.characterimage.AddStaticRequest
-	21, // 36: lantspants.lootloadout.characterimage.Images.ListStatics:input_type -> lantspants.lootloadout.characterimage.ListStaticRequest
-	23, // 37: lantspants.lootloadout.characterimage.Images.AddDynamic:input_type -> lantspants.lootloadout.characterimage.AddDynamicRequest
-	25, // 38: lantspants.lootloadout.characterimage.Images.ListDynamics:input_type -> lantspants.lootloadout.characterimage.ListDynamicsRequest
-	27, // 39: lantspants.lootloadout.characterimage.Images.AddAnimation:input_type -> lantspants.lootloadout.characterimage.AddAnimationRequest
-	29, // 40: lantspants.lootloadout.characterimage.Images.ListAnimations:input_type -> lantspants.lootloadout.characterimage.ListAnimationsRequest
-	31, // 41: lantspants.lootloadout.characterimage.Images.AddFrame:input_type -> lantspants.lootloadout.characterimage.AddFrameRequest
-	33, // 42: lantspants.lootloadout.characterimage.Images.AddProp:input_type -> lantspants.lootloadout.characterimage.AddPropRequest
-	35, // 43: lantspants.lootloadout.characterimage.Images.ListProps:input_type -> lantspants.lootloadout.characterimage.ListPropsRequest
-	14, // 44: lantspants.lootloadout.characterimage.Images.AddBody:output_type -> lantspants.lootloadout.characterimage.AddBodyResponse
-	16, // 45: lantspants.lootloadout.characterimage.Images.ListBodies:output_type -> lantspants.lootloadout.characterimage.ListBodiesResponse
-	18, // 46: lantspants.lootloadout.characterimage.Images.AddDynamicMapping:output_type -> lantspants.lootloadout.characterimage.AddDynamicMappingResponse
-	20, // 47: lantspants.lootloadout.characterimage.Images.AddStatic:output_type -> lantspants.lootloadout.characterimage.AddStaticResponse
-	22, // 48: lantspants.lootloadout.characterimage.Images.ListStatics:output_type -> lantspants.lootloadout.characterimage.ListStaticsResponse
-	24, // 49: lantspants.lootloadout.characterimage.Images.AddDynamic:output_type -> lantspants.lootloadout.characterimage.AddDynamicResponse
-	26, // 50: lantspants.lootloadout.characterimage.Images.ListDynamics:output_type -> lantspants.lootloadout.characterimage.ListDynamicsResponse
-	28, // 51: lantspants.lootloadout.characterimage.Images.AddAnimation:output_type -> lantspants.lootloadout.characterimage.AddAnimationResponse
-	30, // 52: lantspants.lootloadout.characterimage.Images.ListAnimations:output_type -> lantspants.lootloadout.characterimage.ListAnimationsResponse
-	32, // 53: lantspants.lootloadout.characterimage.Images.AddFrame:output_type -> lantspants.lootloadout.characterimage.AddFrameResponse
-	34, // 54: lantspants.lootloadout.characterimage.Images.AddProp:output_type -> lantspants.lootloadout.characterimage.AddPropResponse
-	36, // 55: lantspants.lootloadout.characterimage.Images.ListProps:output_type -> lantspants.lootloadout.characterimage.ListPropsResponse
-	44, // [44:56] is the sub-list for method output_type
-	32, // [32:44] is the sub-list for method input_type
-	32, // [32:32] is the sub-list for extension type_name
-	32, // [32:32] is the sub-list for extension extendee
-	0,  // [0:32] is the sub-list for field type_name
+	11, // 29: lantspants.lootloadout.characterimage.ListAnimationsResponse.AnimationsEntry.value:type_name -> lantspants.lootloadout.characterimage.Animation
+	12, // 30: lantspants.lootloadout.characterimage.ListPropsResponse.PropsEntry.value:type_name -> lantspants.lootloadout.characterimage.Prop
+	13, // 31: lantspants.lootloadout.characterimage.Images.AddBody:input_type -> lantspants.lootloadout.characterimage.AddBodyRequest
+	15, // 32: lantspants.lootloadout.characterimage.Images.ListBodies:input_type -> lantspants.lootloadout.characterimage.ListBodiesRequest
+	17, // 33: lantspants.lootloadout.characterimage.Images.AddDynamicMapping:input_type -> lantspants.lootloadout.characterimage.AddDynamicMappingRequest
+	19, // 34: lantspants.lootloadout.characterimage.Images.AddStatic:input_type -> lantspants.lootloadout.characterimage.AddStaticRequest
+	21, // 35: lantspants.lootloadout.characterimage.Images.ListStatics:input_type -> lantspants.lootloadout.characterimage.ListStaticRequest
+	23, // 36: lantspants.lootloadout.characterimage.Images.AddDynamic:input_type -> lantspants.lootloadout.characterimage.AddDynamicRequest
+	25, // 37: lantspants.lootloadout.characterimage.Images.ListDynamics:input_type -> lantspants.lootloadout.characterimage.ListDynamicsRequest
+	27, // 38: lantspants.lootloadout.characterimage.Images.AddAnimation:input_type -> lantspants.lootloadout.characterimage.AddAnimationRequest
+	29, // 39: lantspants.lootloadout.characterimage.Images.ListAnimations:input_type -> lantspants.lootloadout.characterimage.ListAnimationsRequest
+	31, // 40: lantspants.lootloadout.characterimage.Images.AddFrame:input_type -> lantspants.lootloadout.characterimage.AddFrameRequest
+	33, // 41: lantspants.lootloadout.characterimage.Images.AddProp:input_type -> lantspants.lootloadout.characterimage.AddPropRequest
+	35, // 42: lantspants.lootloadout.characterimage.Images.ListProps:input_type -> lantspants.lootloadout.characterimage.ListPropsRequest
+	14, // 43: lantspants.lootloadout.characterimage.Images.AddBody:output_type -> lantspants.lootloadout.characterimage.AddBodyResponse
+	16, // 44: lantspants.lootloadout.characterimage.Images.ListBodies:output_type -> lantspants.lootloadout.characterimage.ListBodiesResponse
+	18, // 45: lantspants.lootloadout.characterimage.Images.AddDynamicMapping:output_type -> lantspants.lootloadout.characterimage.AddDynamicMappingResponse
+	20, // 46: lantspants.lootloadout.characterimage.Images.AddStatic:output_type -> lantspants.lootloadout.characterimage.AddStaticResponse
+	22, // 47: lantspants.lootloadout.characterimage.Images.ListStatics:output_type -> lantspants.lootloadout.characterimage.ListStaticsResponse
+	24, // 48: lantspants.lootloadout.characterimage.Images.AddDynamic:output_type -> lantspants.lootloadout.characterimage.AddDynamicResponse
+	26, // 49: lantspants.lootloadout.characterimage.Images.ListDynamics:output_type -> lantspants.lootloadout.characterimage.ListDynamicsResponse
+	28, // 50: lantspants.lootloadout.characterimage.Images.AddAnimation:output_type -> lantspants.lootloadout.characterimage.AddAnimationResponse
+	30, // 51: lantspants.lootloadout.characterimage.Images.ListAnimations:output_type -> lantspants.lootloadout.characterimage.ListAnimationsResponse
+	32, // 52: lantspants.lootloadout.characterimage.Images.AddFrame:output_type -> lantspants.lootloadout.characterimage.AddFrameResponse
+	34, // 53: lantspants.lootloadout.characterimage.Images.AddProp:output_type -> lantspants.lootloadout.characterimage.AddPropResponse
+	36, // 54: lantspants.lootloadout.characterimage.Images.ListProps:output_type -> lantspants.lootloadout.characterimage.ListPropsResponse
+	43, // [43:55] is the sub-list for method output_type
+	31, // [31:43] is the sub-list for method input_type
+	31, // [31:31] is the sub-list for extension type_name
+	31, // [31:31] is the sub-list for extension extendee
+	0,  // [0:31] is the sub-list for field type_name
 }
 
 func init() { file_characterimage_v1_characterimage_proto_init() }

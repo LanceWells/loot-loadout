@@ -93,11 +93,16 @@ func NewImageDatabase(
 func (db CharacterImageDB) AddBody(
 	ctx context.Context,
 	b *api.Body,
-) (characterimage.ID, error) {
+) (id characterimage.ID, err error) {
 	_, span := otel.Tracer("CharacterImageDB").Start(ctx, "AddBody")
 	tx, err := db.db.BeginTx(ctx, nil)
 
 	defer func() {
+		if r := recover(); r != nil {
+			err := fmt.Errorf("CRITICAL: recovered from panic: %v", r)
+			fmt.Println(err)
+		}
+
 		if err != nil {
 			tx.Rollback()
 		} else {
@@ -111,7 +116,7 @@ func (db CharacterImageDB) AddBody(
 		DisplayName: b.DisplayName,
 	}
 
-	err = body.Insert(ctx, db.db, boil.Infer())
+	err = body.Insert(ctx, tx, boil.Infer())
 	if err != nil {
 		fmt.Println("error inserting body:", err)
 		return "", err
@@ -125,11 +130,16 @@ func (db CharacterImageDB) AddBody(
 func (db CharacterImageDB) ListBodies(
 	ctx context.Context,
 	f *characterimage.BodyTypesFilter,
-) (map[string]*api.Body, error) {
+) (apiBodies map[string]*api.Body, err error) {
 	_, span := otel.Tracer("CharacterImageDB").Start(ctx, "ListBodies")
 	tx, err := db.db.BeginTx(ctx, nil)
 
 	defer func() {
+		if r := recover(); r != nil {
+			err := fmt.Errorf("CRITICAL: recovered from panic: %v", r)
+			fmt.Println(err)
+		}
+
 		if err != nil {
 			tx.Rollback()
 		} else {
@@ -139,13 +149,13 @@ func (db CharacterImageDB) ListBodies(
 		span.End()
 	}()
 
-	bodies, err := models.BodyTypes().All(ctx, db.db)
+	bodies, err := models.BodyTypes().All(ctx, tx)
 	if err != nil {
 		fmt.Println("error getting bodies:", err)
 		return nil, err
 	}
 
-	apiBodies := make(map[string]*api.Body, len(bodies))
+	apiBodies = make(map[string]*api.Body, len(bodies))
 	for _, v := range bodies {
 		apiBodies[strconv.Itoa(v.ID)] = &api.Body{
 			DisplayName: v.DisplayName,
@@ -168,6 +178,11 @@ func (db CharacterImageDB) AddDynamicMapping(
 	tx, err := db.db.BeginTx(ctx, nil)
 
 	defer func() {
+		if r := recover(); r != nil {
+			err := fmt.Errorf("CRITICAL: recovered from panic: %v", r)
+			fmt.Println(err)
+		}
+
 		if err != nil {
 			tx.Rollback()
 		} else {
@@ -214,7 +229,7 @@ func (db CharacterImageDB) AddDynamicMapping(
 		PartType:   partType,
 	}
 
-	err = mapping.Insert(ctx, db.db, boil.Infer())
+	err = mapping.Insert(ctx, tx, boil.Infer())
 	if err != nil {
 		fmt.Println("error inserting dynamic mapping", err)
 		return "", err
@@ -225,10 +240,10 @@ func (db CharacterImageDB) AddDynamicMapping(
 	// of those pixels (inserting if any given pixel does not yet exist).
 	colors := []string{}
 	pixels := map[string]*models.DynamicPartMappingPixel{}
-	b := img.Bounds()
-	for x := b.Min.X; x < b.Max.X; x++ {
-		for y := b.Min.Y; y < b.Max.Y; y++ {
-			c := color.NRGBAModel.Convert(b.RGBA64At(x, y)).(color.NRGBA)
+	bounds := img.Bounds()
+	for x := bounds.Min.X; x < bounds.Max.X; x++ {
+		for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
+			c := color.NRGBAModel.Convert(img.At(x, y)).(color.NRGBA)
 			r := c.R
 			g := c.G
 			b := c.B
@@ -249,14 +264,14 @@ func (db CharacterImageDB) AddDynamicMapping(
 		}
 	}
 
-	colorStrings, err := db.insertMissingColors(ctx, colors)
+	colorStrings, err := insertMissingColors(ctx, colors, tx)
 
 	// Actually insert the mapping's pixels at this point.
 	for _, c := range colorStrings {
 		pixel := pixels[c.Hexstring]
 		pixel.ColorStringID = c.ID
 
-		err = pixel.Insert(ctx, db.db, boil.Infer())
+		err = pixel.Insert(ctx, tx, boil.Infer())
 		if err != nil {
 			db.l.Println("error inserting mapping pixel:", err)
 			return "", err
@@ -277,6 +292,11 @@ func (db CharacterImageDB) AddStatic(
 	tx, err := db.db.BeginTx(ctx, nil)
 
 	defer func() {
+		if r := recover(); r != nil {
+			err := fmt.Errorf("CRITICAL: recovered from panic: %v", r)
+			fmt.Println(err)
+		}
+
 		if err != nil {
 			tx.Rollback()
 		} else {
@@ -312,7 +332,7 @@ func (db CharacterImageDB) AddStatic(
 		PartType:    staticType,
 	}
 
-	err = static.Insert(ctx, db.db, boil.Infer())
+	err = static.Insert(ctx, tx, boil.Infer())
 	if err != nil {
 		fmt.Println("error inserting static:", err)
 		return "", err
@@ -325,7 +345,7 @@ func (db CharacterImageDB) AddStatic(
 		StaticPartID: static.ID,
 	}
 
-	err = staticImage.Insert(ctx, db.db, boil.Infer())
+	err = staticImage.Insert(ctx, tx, boil.Infer())
 	if err != nil {
 		fmt.Println("error inserting staticImage:", err)
 		return "", err
@@ -339,11 +359,16 @@ func (db CharacterImageDB) AddStatic(
 func (db CharacterImageDB) ListStatics(
 	ctx context.Context,
 	f *characterimage.StaticPartsFilter,
-) (map[string]*api.Static, error) {
+) (apiStatics map[string]*api.Static, err error) {
 	_, span := otel.Tracer("CharacterImageDB").Start(ctx, "ListProps")
 	tx, err := db.db.BeginTx(ctx, nil)
 
 	defer func() {
+		if r := recover(); r != nil {
+			err := fmt.Errorf("CRITICAL: recovered from panic: %v", r)
+			fmt.Println(err)
+		}
+
 		if err != nil {
 			tx.Rollback()
 		} else {
@@ -355,13 +380,13 @@ func (db CharacterImageDB) ListStatics(
 
 	statics, err := models.StaticParts(
 		qm.Load(models.StaticPartRels.StaticPartImage),
-	).All(ctx, db.db)
+	).All(ctx, tx)
 	if err != nil {
 		fmt.Println("error getting statics:", err)
 		return nil, err
 	}
 
-	apiStatics := make(map[string]*api.Static, len(statics))
+	apiStatics = make(map[string]*api.Static, len(statics))
 	for _, v := range statics {
 		staticType, ok := api.StaticPartType_value[v.PartType.String()]
 		if !ok {
@@ -397,6 +422,11 @@ func (db CharacterImageDB) AddDynamic(
 	tx, err := db.db.BeginTx(ctx, nil)
 
 	defer func() {
+		if r := recover(); r != nil {
+			err := fmt.Errorf("CRITICAL: recovered from panic: %v", r)
+			fmt.Println(err)
+		}
+
 		if err != nil {
 			tx.Rollback()
 		} else {
@@ -435,7 +465,7 @@ func (db CharacterImageDB) AddDynamic(
 	mapping, err := models.DynamicPartMappings(
 		qm.Where(fmt.Sprintf("%v = ?", models.DynamicPartMappingColumns.BodyTypeID), bodyID),
 		qm.And(fmt.Sprintf("%v = ?", models.DynamicPartMappingColumns.PartType), partType),
-	).One(ctx, db.db)
+	).One(ctx, tx)
 	if err != nil {
 		err = fmt.Errorf("could not find matching part mapping:%v", err)
 		db.l.Println(err)
@@ -449,7 +479,7 @@ func (db CharacterImageDB) AddDynamic(
 		PartType:             partType,
 	}
 
-	err = dynamic.Insert(ctx, db.db, boil.Infer())
+	err = dynamic.Insert(ctx, tx, boil.Infer())
 	if err != nil {
 		err = fmt.Errorf("error inserting dynamic part:%v", err)
 		db.l.Println(err)
@@ -460,7 +490,7 @@ func (db CharacterImageDB) AddDynamic(
 	// that the provided input doesn't accidentally contain info that we won't use.
 	mappingPixels, err := models.DynamicPartMappingPixels(
 		qm.Where(fmt.Sprintf("%v = ?", models.DynamicPartMappingPixelColumns.DynamicPartMappingID), mapping.ID),
-	).All(ctx, db.db)
+	).All(ctx, tx)
 	if err != nil {
 		err = fmt.Errorf("error getting mapping pixels:%v", err)
 		db.l.Println(err)
@@ -478,15 +508,21 @@ func (db CharacterImageDB) AddDynamic(
 		}] = p
 	}
 
-	// Go over the incoming image. We want to get info about its layout s.t. we have all of its colors
-	// normalized, and we have an auto-crop space to crop our thumbnail to.
-	var cropRect *image.Rectangle = nil
 	colors := []string{}
-	pixels := map[string]*models.DynamicPartPixel{}
-	b := img.Bounds()
-	for x := b.Min.X; x < b.Max.X; x++ {
-		for y := b.Min.Y; y < b.Max.Y; y++ {
-			c := color.NRGBAModel.Convert(b.RGBA64At(x, y)).(color.NRGBA)
+	pixels := map[string][]*models.DynamicPartPixel{}
+	bounds := img.Bounds()
+
+	// Go over the incoming image. We want to get info about its layout s.t. we have all of its colors
+	// normalized, and we have an auto-crop space to crop our thumbnail to. Note that this strategy
+	// only works if our image isn't completely transparent. That's a fix TODO: in future.
+	var cropRect *image.Rectangle = &image.Rectangle{
+		Min: image.Pt(bounds.Max.X, bounds.Max.Y),
+		Max: image.Pt(bounds.Min.X, bounds.Min.Y),
+	}
+
+	for x := bounds.Min.X; x < bounds.Max.X; x++ {
+		for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
+			c := color.NRGBAModel.Convert(img.At(x, y)).(color.NRGBA)
 			r := c.R
 			g := c.G
 			b := c.B
@@ -497,22 +533,20 @@ func (db CharacterImageDB) AddDynamic(
 				continue
 			}
 
-			// If we haven't yet encountered a pixel, set this as our top-left.
-			if cropRect == nil {
-				cropRect = &image.Rectangle{
-					Min: image.Point{
-						X: x,
-						Y: y,
-					},
-				}
+			// Max is always just the last pixel we've encountered that isn't transparent. We add 1 to
+			// each because the max points are exclusive, whereas the Min points are inclusive. This
+			// ensures that we're referencing the correct row/column.
+			if cropRect.Min.X > x {
+				cropRect.Min.X = x
 			}
-
-			// Max is always just the last pixel we've encountered that isn't transparent.
-			// We add 1 to each because the max points are exclusive, whereas the Min points are
-			// inclusive. This ensures that we're referencing the correct row/column.
-			cropRect.Max = image.Point{
-				X: x + 1,
-				Y: y + 1,
+			if cropRect.Min.Y > y {
+				cropRect.Min.Y = y
+			}
+			if cropRect.Max.X < (x + 1) {
+				cropRect.Max.X = (x + 1)
+			}
+			if cropRect.Max.Y < (y + 1) {
+				cropRect.Max.Y = (y + 1)
 			}
 
 			_, ok := mappingPixelMap[image.Point{
@@ -532,21 +566,33 @@ func (db CharacterImageDB) AddDynamic(
 
 			hexString := fmt.Sprintf("#%02x%02x%02x%02x", r, g, b, a)
 			colors = append(colors, hexString)
-			pixels[hexString] = &models.DynamicPartPixel{
+			pixelListAtColor, ok := pixels[hexString]
+			if !ok {
+				pixelListAtColor = []*models.DynamicPartPixel{}
+			}
+
+			pixels[hexString] = append(pixelListAtColor, &models.DynamicPartPixel{
 				DynamicPartID: dynamic.ID,
 				X:             int16(x),
 				Y:             int16(y),
-			}
+			})
 		}
 	}
 
-	colorStrings, err := db.insertMissingColors(ctx, colors)
+	colorStrings, err := insertMissingColors(ctx, colors, tx)
 	if err != nil {
+		fmt.Println("error inserting colors:", err)
 		return "", err
+	}
+
+	colorStringMap := map[string]int{}
+	for _, c := range colorStrings {
+		colorStringMap[c.Hexstring] = c.ID
 	}
 
 	croppedImage, err := db.cropImage(ctx, img, *cropRect)
 	if err != nil {
+		fmt.Println("error cropping image:", err)
 		return "", err
 	}
 
@@ -557,27 +603,39 @@ func (db CharacterImageDB) AddDynamic(
 		return "", err
 	}
 
+	// cropBytes := cropBuf.Bytes()
+	// thumbEncodedLen := base64.StdEncoding.EncodedLen(len(cropBytes))
+	// thumbDst := make([]byte, thumbEncodedLen)
+	// base64.StdEncoding.Encode(thumbDst, cropBytes)
+
 	// Insert the auto-cropped thumbnail.
 	thumbnail := models.DynamicPartThumbnail{
 		DynamicPartID: dynamic.ID,
 		ImageBytes:    cropBuf.Bytes(),
 	}
 
-	err = thumbnail.Insert(ctx, db.db, boil.Infer())
+	err = thumbnail.Insert(ctx, tx, boil.Infer())
 	if err != nil {
 		err = fmt.Errorf("error inserting dynamic thumbnail:%v", err)
 		db.l.Println(err)
 		return "", err
 	}
 
-	for _, c := range colorStrings {
-		pixel := pixels[c.Hexstring]
-		pixel.ColorStringID = c.ID
-
-		err = pixel.Insert(ctx, db.db, boil.Infer())
-		if err != nil {
-			db.l.Println("error inserting dynamic pixel:", err)
+	for k, v := range pixels {
+		colorStringID, ok := colorStringMap[k]
+		if !ok {
+			err = fmt.Errorf("could not find color for hex %v", k)
+			db.l.Println(err)
 			return "", err
+		}
+
+		for _, p := range v {
+			p.ColorStringID = colorStringID
+			err = p.Insert(ctx, tx, boil.Infer())
+			if err != nil {
+				db.l.Println("error inserting dynamic pixel", err)
+				return "", err
+			}
 		}
 	}
 
@@ -589,11 +647,16 @@ func (db CharacterImageDB) AddDynamic(
 func (db CharacterImageDB) ListDynamics(
 	ctx context.Context,
 	f *characterimage.DynamicPartsFilter,
-) (map[string]*api.Dynamic, map[string][]byte, error) {
+) (apiDynamics map[string]*api.Dynamic, apiThumbnails map[string][]byte, err error) {
 	_, span := otel.Tracer("CharacterImageDB").Start(ctx, "ListDynamics")
 	tx, err := db.db.BeginTx(ctx, nil)
 
 	defer func() {
+		if r := recover(); r != nil {
+			err := fmt.Errorf("CRITICAL: recovered from panic: %v", r)
+			fmt.Println(err)
+		}
+
 		if err != nil {
 			tx.Rollback()
 		} else {
@@ -605,14 +668,14 @@ func (db CharacterImageDB) ListDynamics(
 
 	dynamics, err := models.DynamicParts(
 		qm.Load(models.DynamicPartRels.DynamicPartThumbnail),
-	).All(ctx, db.db)
+	).All(ctx, tx)
 	if err != nil {
 		fmt.Println("error getting dynamics:", err)
 		return nil, nil, err
 	}
 
-	apiDynamics := make(map[string]*api.Dynamic, len(dynamics))
-	apiThumbnails := make(map[string][]byte, len(dynamics))
+	apiDynamics = make(map[string]*api.Dynamic, len(dynamics))
+	apiThumbnails = make(map[string][]byte, len(dynamics))
 	for _, v := range dynamics {
 		dynamicPartType, ok := api.DynamicPartType_value[v.PartType.String()]
 		if !ok {
@@ -646,6 +709,11 @@ func (db CharacterImageDB) AddAnimation(
 	tx, err := db.db.BeginTx(ctx, nil)
 
 	defer func() {
+		if r := recover(); r != nil {
+			err := fmt.Errorf("CRITICAL: recovered from panic: %v", r)
+			fmt.Println(err)
+		}
+
 		if err != nil {
 			tx.Rollback()
 		} else {
@@ -680,7 +748,7 @@ func (db CharacterImageDB) AddAnimation(
 		PartType:    partTypes,
 	}
 
-	err = animation.Insert(ctx, db.db, boil.Infer())
+	err = animation.Insert(ctx, tx, boil.Infer())
 	if err != nil {
 		fmt.Println("error inserting animation:", err)
 		return "", err
@@ -694,11 +762,16 @@ func (db CharacterImageDB) AddAnimation(
 func (db CharacterImageDB) ListAnimations(
 	ctx context.Context,
 	f *characterimage.AnimationsFilter,
-) (map[string]*api.Animation, error) {
+) (apiAnimations map[string]*api.Animation, err error) {
 	_, span := otel.Tracer("CharacterImageDB").Start(ctx, "ListAnimations")
 	tx, err := db.db.BeginTx(ctx, nil)
 
 	defer func() {
+		if r := recover(); r != nil {
+			err := fmt.Errorf("CRITICAL: recovered from panic: %v", r)
+			fmt.Println(err)
+		}
+
 		if err != nil {
 			tx.Rollback()
 		} else {
@@ -708,13 +781,13 @@ func (db CharacterImageDB) ListAnimations(
 		span.End()
 	}()
 
-	animations, err := models.Animations().All(ctx, db.db)
+	animations, err := models.Animations().All(ctx, tx)
 	if err != nil {
 		fmt.Println("error listing animations:", err)
 		return nil, err
 	}
 
-	apiAnimations := make(map[string]*api.Animation, len(animations))
+	apiAnimations = make(map[string]*api.Animation, len(animations))
 	for _, a := range animations {
 		allowed := []api.PropType{}
 		for _, pt := range a.PartType {
@@ -748,6 +821,11 @@ func (db CharacterImageDB) AddFrame(
 	tx, err := db.db.BeginTx(ctx, nil)
 
 	defer func() {
+		if r := recover(); r != nil {
+			err := fmt.Errorf("CRITICAL: recovered from panic: %v", r)
+			fmt.Println(err)
+		}
+
 		if err != nil {
 			tx.Rollback()
 		} else {
@@ -782,7 +860,7 @@ func (db CharacterImageDB) AddFrame(
 	lastFrame, err := models.AnimationFrames(
 		qm.Where(fmt.Sprintf("%v = ?", models.AnimationFrameColumns.AnimationID), animationID),
 		qm.OrderBy(fmt.Sprintf("%v DESC", models.AnimationFrameColumns.FrameIndex)),
-	).One(ctx, db.db)
+	).One(ctx, tx)
 	if err != nil && err != sql.ErrNoRows {
 		db.l.Println("error getting last animation frame:", err)
 		return "", err
@@ -807,7 +885,7 @@ func (db CharacterImageDB) AddFrame(
 		Expression:  expression,
 	}
 
-	err = frame.Insert(ctx, db.db, boil.Infer())
+	err = frame.Insert(ctx, tx, boil.Infer())
 	if err != nil {
 		db.l.Println("error inserting animation frame:", err)
 		return "", err
@@ -820,7 +898,7 @@ func (db CharacterImageDB) AddFrame(
 		Rotation:         int16(f.PropPositioning.Rotation),
 	}
 
-	propPos.Insert(ctx, db.db, boil.Infer())
+	propPos.Insert(ctx, tx, boil.Infer())
 	if err != nil {
 		db.l.Println("error inserting prop pos:", err)
 		return "", err
@@ -843,7 +921,7 @@ func (db CharacterImageDB) AddFrame(
 			Rotation:         int16(v.Rotation),
 		}
 
-		err = staticPos.Insert(ctx, db.db, boil.Infer())
+		err = staticPos.Insert(ctx, tx, boil.Infer())
 		if err != nil {
 			db.l.Println("error inserting static part pos:", err)
 			return "", err
@@ -852,10 +930,10 @@ func (db CharacterImageDB) AddFrame(
 
 	colors := []string{}
 	pixels := map[string]*models.AnimationFramePixel{}
-	b := img.Bounds()
-	for x := b.Min.X; x < b.Max.X; x++ {
-		for y := b.Min.Y; y < b.Max.Y; y++ {
-			c := color.NRGBAModel.Convert(b.RGBA64At(x, y)).(color.NRGBA)
+	bounds := img.Bounds()
+	for x := bounds.Min.X; x < bounds.Max.X; x++ {
+		for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
+			c := color.NRGBAModel.Convert(img.At(x, y)).(color.NRGBA)
 			r := c.R
 			g := c.G
 			b := c.B
@@ -876,7 +954,7 @@ func (db CharacterImageDB) AddFrame(
 		}
 	}
 
-	colorStrings, err := db.insertMissingColors(ctx, colors)
+	colorStrings, err := insertMissingColors(ctx, colors, tx)
 	if err != nil {
 		return "", err
 	}
@@ -885,7 +963,7 @@ func (db CharacterImageDB) AddFrame(
 		pixel := pixels[c.Hexstring]
 		pixel.ColorStringID = c.ID
 
-		err = pixel.Insert(ctx, db.db, boil.Infer())
+		err = pixel.Insert(ctx, tx, boil.Infer())
 		if err != nil {
 			db.l.Println("error inserting frame pixel:", err)
 			return "", err
@@ -899,11 +977,16 @@ func (db CharacterImageDB) AddFrame(
 func (db CharacterImageDB) AddProp(
 	ctx context.Context,
 	p *api.Prop,
-) (characterimage.ID, error) {
+) (id characterimage.ID, err error) {
 	_, span := otel.Tracer("CharacterImageDB").Start(ctx, "CreateProp")
 	tx, err := db.db.BeginTx(ctx, nil)
 
 	defer func() {
+		if r := recover(); r != nil {
+			err := fmt.Errorf("CRITICAL: recovered from panic: %v", r)
+			fmt.Println(err)
+		}
+
 		if err != nil {
 			tx.Rollback()
 		} else {
@@ -932,7 +1015,7 @@ func (db CharacterImageDB) AddProp(
 		PartType:    propType,
 	}
 
-	err = prop.Insert(ctx, db.db, boil.Infer())
+	err = prop.Insert(ctx, tx, boil.Infer())
 	if err != nil {
 		fmt.Println("error inserting prop:", err)
 		return "", err
@@ -945,7 +1028,7 @@ func (db CharacterImageDB) AddProp(
 		PropID:     prop.ID,
 	}
 
-	err = propImage.Insert(ctx, db.db, boil.Infer())
+	err = propImage.Insert(ctx, tx, boil.Infer())
 	if err != nil {
 		fmt.Println("error inserting propType:", err)
 		return "", err
@@ -959,11 +1042,16 @@ func (db CharacterImageDB) AddProp(
 func (db CharacterImageDB) ListProps(
 	ctx context.Context,
 	f *characterimage.PropsFilter,
-) (map[string]*api.Prop, error) {
+) (apiProps map[string]*api.Prop, err error) {
 	_, span := otel.Tracer("CharacterImageDB").Start(ctx, "ListProps")
 	tx, err := db.db.BeginTx(ctx, nil)
 
 	defer func() {
+		if r := recover(); r != nil {
+			err := fmt.Errorf("CRITICAL: recovered from panic: %v", r)
+			fmt.Println(err)
+		}
+
 		if err != nil {
 			tx.Rollback()
 		} else {
@@ -975,13 +1063,13 @@ func (db CharacterImageDB) ListProps(
 
 	props, err := models.Props(
 		qm.Load(models.PropRels.PropImage),
-	).All(ctx, db.db)
+	).All(ctx, tx)
 	if err != nil {
 		fmt.Println("error getting props:", err)
 		return nil, err
 	}
 
-	apiProps := make(map[string]*api.Prop, len(props))
+	apiProps = make(map[string]*api.Prop, len(props))
 	for _, v := range props {
 		partType, ok := api.PropType_value[v.PartType.String()]
 		if !ok {
@@ -1004,56 +1092,71 @@ func (db CharacterImageDB) ListProps(
 	return apiProps, nil
 }
 
+func (db CharacterImageDB) GenerateAnimation(
+	ctx context.Context,
+	animationID string,
+	dynamicPartIDs map[*api.DynamicPartType]string,
+	staticPartIDs map[*api.StaticPartType]string,
+	propID string,
+) (animations *characterimage.GeneratedAnimation, err error) {
+	return nil, nil
+}
+
 // insertMissingColors is a helper method that accepts a list of colors, then returns the DB color
 // strings associated with those colors. This method will also insert any colors into the DB that do
 // not already exist.
-func (db CharacterImageDB) insertMissingColors(
+func insertMissingColors(
 	ctx context.Context,
 	colors []string,
+	tx *sql.Tx,
 ) (models.ColorStringSlice, error) {
-	colorInterfaces := make([]interface{}, len(colors))
+	uniqueColors := map[string]bool{}
 	for _, c := range colors {
-		colorInterfaces = append(colorInterfaces, c)
+		uniqueColors[c] = true
+	}
+
+	colorInterfaces := []interface{}{}
+	for k := range uniqueColors {
+		colorInterfaces = append(colorInterfaces, k)
 	}
 
 	colorStrings, err := models.ColorStrings(
 		qm.WhereIn(
-			fmt.Sprintf("%v in ?", models.ColorStringColumns.Hexstring),
+			fmt.Sprintf("%v IN ?", models.ColorStringColumns.Hexstring),
 			colorInterfaces...,
 		),
-	).All(ctx, db.db)
+	).All(ctx, tx)
 	if err != nil {
-		db.l.Println("error getting colorstrings:", err)
 		return nil, err
 	}
 
-	// This feels a little extra, but it could save us a lot of loops, so why not?
-	if len(colors) != len(colorStrings) {
-		colorStringMap := map[string]bool{}
+	if len(uniqueColors) != len(colorStrings) {
 		for _, c := range colorStrings {
-			colorStringMap[c.Hexstring] = true
+			uniqueColors[c.Hexstring] = false
 		}
 
-		for _, c := range colors {
-			if _, ok := colorStringMap[c]; !ok {
-				colorString := &models.ColorString{
-					Hexstring: c,
-				}
-
-				err = colorString.Insert(ctx, db.db, boil.Infer())
-				if err != nil {
-					db.l.Println("error inserting color", err)
-					return nil, err
-				}
-
-				colorStrings = append(colorStrings, colorString)
+		for k, v := range uniqueColors {
+			if !v {
+				continue
 			}
+
+			colorString := &models.ColorString{
+				Hexstring: k,
+			}
+
+			err = colorString.Insert(ctx, tx, boil.Infer())
+			if err != nil {
+				return nil, err
+			}
+
+			colorStrings = append(colorStrings, colorString)
 		}
 	}
 
 	return colorStrings, nil
 }
 
+// cropImage crops the given image only if that image format type supports cropping.
 func (db CharacterImageDB) cropImage(
 	ctx context.Context,
 	img image.Image,

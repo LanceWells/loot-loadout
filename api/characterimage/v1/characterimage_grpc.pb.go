@@ -57,6 +57,10 @@ type ImagesClient interface {
 	// ListProps returns a list of all available props.
 	// TODO: Add filter.
 	ListProps(ctx context.Context, in *ListPropsRequest, opts ...grpc.CallOption) (*ListPropsResponse, error)
+	// GenerateAnimation accepts a series of parameters to return all of the data necessary to render
+	// a complete animation. This is the "selection" phase after all of the components have been added
+	// to the system.
+	GenerateAnimation(ctx context.Context, in *GenerateAnimationRequest, opts ...grpc.CallOption) (*GenerateAnimationResponse, error)
 }
 
 type imagesClient struct {
@@ -175,6 +179,15 @@ func (c *imagesClient) ListProps(ctx context.Context, in *ListPropsRequest, opts
 	return out, nil
 }
 
+func (c *imagesClient) GenerateAnimation(ctx context.Context, in *GenerateAnimationRequest, opts ...grpc.CallOption) (*GenerateAnimationResponse, error) {
+	out := new(GenerateAnimationResponse)
+	err := c.cc.Invoke(ctx, "/lantspants.lootloadout.characterimage.Images/GenerateAnimation", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ImagesServer is the server API for Images service.
 // All implementations must embed UnimplementedImagesServer
 // for forward compatibility
@@ -214,6 +227,10 @@ type ImagesServer interface {
 	// ListProps returns a list of all available props.
 	// TODO: Add filter.
 	ListProps(context.Context, *ListPropsRequest) (*ListPropsResponse, error)
+	// GenerateAnimation accepts a series of parameters to return all of the data necessary to render
+	// a complete animation. This is the "selection" phase after all of the components have been added
+	// to the system.
+	GenerateAnimation(context.Context, *GenerateAnimationRequest) (*GenerateAnimationResponse, error)
 	mustEmbedUnimplementedImagesServer()
 }
 
@@ -256,6 +273,9 @@ func (UnimplementedImagesServer) AddProp(context.Context, *AddPropRequest) (*Add
 }
 func (UnimplementedImagesServer) ListProps(context.Context, *ListPropsRequest) (*ListPropsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListProps not implemented")
+}
+func (UnimplementedImagesServer) GenerateAnimation(context.Context, *GenerateAnimationRequest) (*GenerateAnimationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GenerateAnimation not implemented")
 }
 func (UnimplementedImagesServer) mustEmbedUnimplementedImagesServer() {}
 
@@ -486,6 +506,24 @@ func _Images_ListProps_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Images_GenerateAnimation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GenerateAnimationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ImagesServer).GenerateAnimation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/lantspants.lootloadout.characterimage.Images/GenerateAnimation",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ImagesServer).GenerateAnimation(ctx, req.(*GenerateAnimationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Images_ServiceDesc is the grpc.ServiceDesc for Images service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -540,6 +578,10 @@ var Images_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListProps",
 			Handler:    _Images_ListProps_Handler,
+		},
+		{
+			MethodName: "GenerateAnimation",
+			Handler:    _Images_GenerateAnimation_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

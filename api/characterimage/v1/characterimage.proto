@@ -57,13 +57,13 @@ message Body {
 
 message DynamicMapping {
   DynamicPartType part = 1 [(validate.rules).enum.defined_only = true];
-  bytes image = 2 [(validate.rules).bytes = { max_len: 1024 }];
+  bytes image = 2 [(validate.rules).bytes = { max_len: 4096 }];
 }
 
 message Static {
   string displayName = 1 [(validate.rules).string = { min_len: 1 } ];
   StaticPartType part = 2 [(validate.rules).enum.defined_only = true];
-  bytes image = 3 [(validate.rules).bytes = { max_len: 1024 }];
+  bytes image = 3 [(validate.rules).bytes = { max_len: 4096 }];
   Coordinates anchor = 4 [(validate.rules).message.required = true];
 }
 
@@ -76,6 +76,7 @@ message Frame {
   map<string, Positioning> staticPositioning = 1;
   Positioning propPositioning = 2 [(validate.rules).message.required = true];
   ExpressionType expression = 3 [(validate.rules).enum.defined_only = true];
+  uint32 duration = 4 [(validate.rules).uint32 = { gte: 15 }];
 }
 
 message Animation {
@@ -86,7 +87,7 @@ message Animation {
 message Prop {
   string displayName = 1 [(validate.rules).string = { min_len: 1 } ];
   PropType prop = 2 [(validate.rules).enum.defined_only = true];
-  bytes image = 3 [(validate.rules).bytes = { max_len: 1024 }];
+  bytes image = 3 [(validate.rules).bytes = { max_len: 4096 }];
   Coordinates anchor = 4 [(validate.rules).message.required = true];
 }
 
@@ -137,6 +138,11 @@ service Images {
   // ListProps returns a list of all available props.
   // TODO: Add filter.
   rpc ListProps(ListPropsRequest) returns (ListPropsResponse);
+
+  // GenerateAnimation accepts a series of parameters to return all of the data necessary to render
+  // a complete animation. This is the "selection" phase after all of the components have been added
+  // to the system.
+  rpc GenerateAnimation(GenerateAnimationRequest) returns (GenerateAnimationResponse);
 }
 
 message AddBodyRequest {
@@ -177,7 +183,7 @@ message ListStaticsResponse {
 message AddDynamicRequest {
   Dynamic dynamic = 1 [(validate.rules).message.required = true];
   string bodyID = 2 [(validate.rules).string = { min_len: 1 } ];
-  bytes image = 3 [(validate.rules).bytes = { max_len: 1024 }];
+  bytes image = 3 [(validate.rules).bytes = { max_len: 4096 }];
 }
 message AddDynamicResponse {
   string id = 1;
@@ -207,7 +213,7 @@ message ListAnimationsResponse {
 message AddFrameRequest {
   Frame frame = 1 [(validate.rules).message.required = true];
   string animationID = 2 [(validate.rules).string = { min_len: 1 } ];
-  bytes image = 3 [(validate.rules).bytes = { max_len: 1024 }];
+  bytes image = 3 [(validate.rules).bytes = { max_len: 4096 }];
 }
 message AddFrameResponse {
   string id = 1;
@@ -224,4 +230,48 @@ message ListPropsRequest {}
 message ListPropsResponse {
   option (validate.disabled) = true;
   map<string, Prop> props = 1;
+}
+
+message GenerateAnimationRequest {
+  string animationID = 1 [(validate.rules).string = { min_len: 1 }];
+  // dynamicPartIDs is the mapping of dynamicPart types to the IDs that we're targeting for each of
+  // those types.
+  // key = dynamicPartType
+  // val = dynamicID
+  map<string, string> dynamicPartIDs = 2;
+
+  // staticPartIDs is the mapping of staticPart types to those IDs that we're targeting for eacho of
+  // those types.
+  // key = staticPartType
+  // val = staticID
+  map<string, string> staticPartIDs = 3;
+  string propID = 4;
+}
+
+message GenerateAnimationResponse {
+  option (validate.disabled) = true;
+  message FrameImage {
+    // frame is the metadata for the individual frame. This includes information like positioning,
+    // and the expression for a given frame.
+    Frame frame = 1;
+
+    // image is the set of calculated pixels for each dynamic part type. We do this s.t. the FE can
+    // determine the order in which to draw layers (i.e. draw the right side, then the statics, the
+    // prop, and the left side).
+    map<string, bytes> image = 2;
+  }
+
+  // frames is the set of metadata and calculated dynamic pixel positioning for each frame.
+  repeated FrameImage frames = 1;
+
+  // statics is the set of static parts that are used in each frame. The coordinates for each static
+  // part should be used by the coordinates for that part in each frame to determine where the
+  // static part should be rendered.
+  repeated Static statics = 2;
+
+  // prop is the lone prop associated with this animation. Note that only a single prop is available
+  // for an animation. This prevents us from rendering multiple props at once, but this dramatically
+  // simplifies the process, and at the low resolution we're targeting, it's more ideal to use a
+  // single prop at a time (it reads much better, and simplifies the silhouette.)
+  Prop prop = 3;
 }

@@ -448,10 +448,10 @@ func (m *DynamicMapping) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if len(m.GetImage()) > 1024 {
+	if len(m.GetImage()) > 4096 {
 		err := DynamicMappingValidationError{
 			field:  "Image",
-			reason: "value length must be at most 1024 bytes",
+			reason: "value length must be at most 4096 bytes",
 		}
 		if !all {
 			return err
@@ -580,10 +580,10 @@ func (m *Static) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if len(m.GetImage()) > 1024 {
+	if len(m.GetImage()) > 4096 {
 		err := StaticValidationError{
 			field:  "Image",
-			reason: "value length must be at most 1024 bytes",
+			reason: "value length must be at most 4096 bytes",
 		}
 		if !all {
 			return err
@@ -946,6 +946,17 @@ func (m *Frame) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
+	if m.GetDuration() < 15 {
+		err := FrameValidationError{
+			field:  "Duration",
+			reason: "value must be greater than or equal to 15",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
 	if len(errors) > 0 {
 		return FrameMultiError(errors)
 	}
@@ -1176,10 +1187,10 @@ func (m *Prop) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if len(m.GetImage()) > 1024 {
+	if len(m.GetImage()) > 4096 {
 		err := PropValidationError{
 			field:  "Image",
-			reason: "value length must be at most 1024 bytes",
+			reason: "value length must be at most 4096 bytes",
 		}
 		if !all {
 			return err
@@ -2511,10 +2522,10 @@ func (m *AddDynamicRequest) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if len(m.GetImage()) > 1024 {
+	if len(m.GetImage()) > 4096 {
 		err := AddDynamicRequestValidationError{
 			field:  "Image",
-			reason: "value length must be at most 1024 bytes",
+			reason: "value length must be at most 4096 bytes",
 		}
 		if !all {
 			return err
@@ -3418,10 +3429,10 @@ func (m *AddFrameRequest) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if len(m.GetImage()) > 1024 {
+	if len(m.GetImage()) > 4096 {
 		err := AddFrameRequestValidationError{
 			field:  "Image",
-			reason: "value length must be at most 1024 bytes",
+			reason: "value length must be at most 4096 bytes",
 		}
 		if !all {
 			return err
@@ -4038,3 +4049,347 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ListPropsResponseValidationError{}
+
+// Validate checks the field values on GenerateAnimationRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GenerateAnimationRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GenerateAnimationRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GenerateAnimationRequestMultiError, or nil if none found.
+func (m *GenerateAnimationRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GenerateAnimationRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetAnimationID()) < 1 {
+		err := GenerateAnimationRequestValidationError{
+			field:  "AnimationID",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for DynamicPartIDs
+
+	// no validation rules for StaticPartIDs
+
+	// no validation rules for PropID
+
+	if len(errors) > 0 {
+		return GenerateAnimationRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// GenerateAnimationRequestMultiError is an error wrapping multiple validation
+// errors returned by GenerateAnimationRequest.ValidateAll() if the designated
+// constraints aren't met.
+type GenerateAnimationRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GenerateAnimationRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GenerateAnimationRequestMultiError) AllErrors() []error { return m }
+
+// GenerateAnimationRequestValidationError is the validation error returned by
+// GenerateAnimationRequest.Validate if the designated constraints aren't met.
+type GenerateAnimationRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GenerateAnimationRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GenerateAnimationRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GenerateAnimationRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GenerateAnimationRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GenerateAnimationRequestValidationError) ErrorName() string {
+	return "GenerateAnimationRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GenerateAnimationRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGenerateAnimationRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GenerateAnimationRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GenerateAnimationRequestValidationError{}
+
+// Validate is disabled for GenerateAnimationResponse. This method will always
+// return nil.
+func (m *GenerateAnimationResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll is disabled for GenerateAnimationResponse. This method will
+// always return nil.
+func (m *GenerateAnimationResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GenerateAnimationResponse) validate(all bool) error {
+	return nil
+}
+
+// GenerateAnimationResponseMultiError is an error wrapping multiple validation
+// errors returned by GenerateAnimationResponse.ValidateAll() if the
+// designated constraints aren't met.
+type GenerateAnimationResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GenerateAnimationResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GenerateAnimationResponseMultiError) AllErrors() []error { return m }
+
+// GenerateAnimationResponseValidationError is the validation error returned by
+// GenerateAnimationResponse.Validate if the designated constraints aren't met.
+type GenerateAnimationResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GenerateAnimationResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GenerateAnimationResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GenerateAnimationResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GenerateAnimationResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GenerateAnimationResponseValidationError) ErrorName() string {
+	return "GenerateAnimationResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GenerateAnimationResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGenerateAnimationResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GenerateAnimationResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GenerateAnimationResponseValidationError{}
+
+// Validate checks the field values on GenerateAnimationResponse_FrameImage
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the first error encountered is returned, or nil if
+// there are no violations.
+func (m *GenerateAnimationResponse_FrameImage) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GenerateAnimationResponse_FrameImage
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the result is a list of violation errors wrapped in
+// GenerateAnimationResponse_FrameImageMultiError, or nil if none found.
+func (m *GenerateAnimationResponse_FrameImage) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GenerateAnimationResponse_FrameImage) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetFrame()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, GenerateAnimationResponse_FrameImageValidationError{
+					field:  "Frame",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, GenerateAnimationResponse_FrameImageValidationError{
+					field:  "Frame",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetFrame()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GenerateAnimationResponse_FrameImageValidationError{
+				field:  "Frame",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Image
+
+	if len(errors) > 0 {
+		return GenerateAnimationResponse_FrameImageMultiError(errors)
+	}
+
+	return nil
+}
+
+// GenerateAnimationResponse_FrameImageMultiError is an error wrapping multiple
+// validation errors returned by
+// GenerateAnimationResponse_FrameImage.ValidateAll() if the designated
+// constraints aren't met.
+type GenerateAnimationResponse_FrameImageMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GenerateAnimationResponse_FrameImageMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GenerateAnimationResponse_FrameImageMultiError) AllErrors() []error { return m }
+
+// GenerateAnimationResponse_FrameImageValidationError is the validation error
+// returned by GenerateAnimationResponse_FrameImage.Validate if the designated
+// constraints aren't met.
+type GenerateAnimationResponse_FrameImageValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GenerateAnimationResponse_FrameImageValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GenerateAnimationResponse_FrameImageValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GenerateAnimationResponse_FrameImageValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GenerateAnimationResponse_FrameImageValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GenerateAnimationResponse_FrameImageValidationError) ErrorName() string {
+	return "GenerateAnimationResponse_FrameImageValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GenerateAnimationResponse_FrameImageValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGenerateAnimationResponse_FrameImage.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GenerateAnimationResponse_FrameImageValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GenerateAnimationResponse_FrameImageValidationError{}

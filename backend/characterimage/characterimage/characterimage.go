@@ -163,7 +163,6 @@ func (s CharacterImageService) ListStatics(
 	return statics, nil
 }
 
-// TODO: Implement
 func (s CharacterImageService) AddAnimation(
 	ctx context.Context,
 	req *api.AddAnimationRequest,
@@ -179,7 +178,6 @@ func (s CharacterImageService) AddAnimation(
 	return id, nil
 }
 
-// TODO: Implement
 func (s CharacterImageService) ListAnimations(
 	ctx context.Context,
 	req *api.ListAnimationsRequest,
@@ -195,7 +193,6 @@ func (s CharacterImageService) ListAnimations(
 	return animations, nil
 }
 
-// TODO: Implement
 func (s CharacterImageService) AddFrame(
 	ctx context.Context,
 	req *api.AddFrameRequest,
@@ -209,4 +206,14 @@ func (s CharacterImageService) AddFrame(
 	}
 
 	return id, nil
+}
+
+func (s CharacterImageService) GenerateAnimation(
+	ctx context.Context,
+	req *api.GenerateAnimationRequest,
+) (*characterimage.GeneratedAnimation, error) {
+	_, span := otel.Tracer("CharacterImageService").Start(ctx, "GenerateAnimation")
+	defer span.End()
+
+	return nil, nil
 }

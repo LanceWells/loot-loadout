@@ -60,7 +60,7 @@ func (r CharacterImageServer) ListProps(
 
 	err := req.Validate()
 	if err != nil {
-		r.l.Printf("error validating: %v", err)
+		r.l.Println("error validating:", err)
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
@@ -108,7 +108,7 @@ func (r CharacterImageServer) ListBodies(
 
 	err := req.Validate()
 	if err != nil {
-		r.l.Printf("error validating: %v", err)
+		r.l.Println("error validating:", err)
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
@@ -132,7 +132,7 @@ func (r CharacterImageServer) AddDynamicMapping(
 
 	err := req.Validate()
 	if err != nil {
-		r.l.Printf("error validating: %v", err)
+		r.l.Println("error validating:", err)
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
@@ -156,7 +156,7 @@ func (r CharacterImageServer) AddDynamic(
 
 	err := req.Validate()
 	if err != nil {
-		r.l.Printf("error validating: %v", err)
+		r.l.Println("error validating:", err)
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
@@ -180,7 +180,7 @@ func (r CharacterImageServer) ListDynamics(
 
 	err := req.Validate()
 	if err != nil {
-		r.l.Printf("error validating: %v", err)
+		r.l.Println("error validating:", err)
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
@@ -205,7 +205,7 @@ func (r CharacterImageServer) AddStatic(
 
 	err := req.Validate()
 	if err != nil {
-		r.l.Printf("error validating: %v", err)
+		r.l.Println("error validating:", err)
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
@@ -229,7 +229,7 @@ func (r CharacterImageServer) ListStatics(
 
 	err := req.Validate()
 	if err != nil {
-		r.l.Printf("error validating: %v", err)
+		r.l.Println("error validating:", err)
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
@@ -253,7 +253,7 @@ func (r CharacterImageServer) AddAnimation(
 
 	err := req.Validate()
 	if err != nil {
-		r.l.Printf("error validating: %v", err)
+		r.l.Println("error validating:", err)
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
@@ -277,7 +277,7 @@ func (r CharacterImageServer) ListAnimations(
 
 	err := req.Validate()
 	if err != nil {
-		r.l.Printf("error validating: %v", err)
+		r.l.Println("error validating:", err)
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
@@ -301,7 +301,7 @@ func (r CharacterImageServer) AddFrame(
 
 	err := req.Validate()
 	if err != nil {
-		r.l.Printf("error validating: %v", err)
+		r.l.Println("error validating:", err)
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
@@ -313,5 +313,44 @@ func (r CharacterImageServer) AddFrame(
 
 	return &api.AddFrameResponse{
 		Id: id,
+	}, nil
+}
+
+func (r CharacterImageServer) GenerateAnimation(
+	ctx context.Context,
+	req *api.GenerateAnimationRequest,
+) (*api.GenerateAnimationResponse, error) {
+	_, span := otel.Tracer("CharacterImageServer").Start(ctx, "GenerateAnimation")
+	defer span.End()
+
+	err := req.Validate()
+	if err != nil {
+		r.l.Println("error validating:", err)
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	a, err := r.s.GenerateAnimation(ctx, req)
+	if err != nil {
+		r.l.Println("error generating animation:", err)
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	frames := []*api.GenerateAnimationResponse_FrameImage{}
+	for _, f := range a.Frames {
+		dynamicImages := make(map[string][]byte, len(f.Images))
+		for ik, iv := range f.Images {
+			dynamicImages[ik.Enum().String()] = iv
+		}
+
+		frames = append(frames, &api.GenerateAnimationResponse_FrameImage{
+			Frame: f.Frame,
+			Image: dynamicImages,
+		})
+	}
+
+	return &api.GenerateAnimationResponse{
+		Statics: a.Statics,
+		Prop:    a.Prop,
+		Frames:  frames,
 	}, nil
 }

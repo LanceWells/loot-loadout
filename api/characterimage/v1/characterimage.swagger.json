@@ -17,6 +17,23 @@
   ],
   "paths": {},
   "definitions": {
+    "GenerateAnimationResponseFrameImage": {
+      "type": "object",
+      "properties": {
+        "frame": {
+          "$ref": "#/definitions/characterimageFrame",
+          "description": "frame is the metadata for the individual frame. This includes information like positioning,\nand the expression for a given frame."
+        },
+        "image": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "format": "byte"
+          },
+          "description": "image is the set of calculated pixels for each dynamic part type. We do this s.t. the FE can\ndetermine the order in which to draw layers (i.e. draw the right side, then the statics, the\nprop, and the left side)."
+        }
+      }
+    },
     "characterimageAddAnimationResponse": {
       "type": "object",
       "properties": {
@@ -165,6 +182,33 @@
         },
         "expression": {
           "$ref": "#/definitions/characterimageExpressionType"
+        },
+        "duration": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "characterimageGenerateAnimationResponse": {
+      "type": "object",
+      "properties": {
+        "frames": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GenerateAnimationResponseFrameImage"
+          },
+          "description": "frames is the set of metadata and calculated dynamic pixel positioning for each frame."
+        },
+        "statics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/characterimageStatic"
+          },
+          "description": "statics is the set of static parts that are used in each frame. The coordinates for each static\npart should be used by the coordinates for that part in each frame to determine where the\nstatic part should be rendered."
+        },
+        "prop": {
+          "$ref": "#/definitions/characterimageProp",
+          "title": "prop is the lone prop associated with this animation. Note that only a single prop is available\nfor an animation. This prevents us from rendering multiple props at once, but this dramatically\nsimplifies the process, and at the low resolution we're targeting, it's more ideal to use a\nsingle prop at a time (it reads much better, and simplifies the silhouette.)"
         }
       }
     },

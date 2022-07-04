@@ -109,6 +109,14 @@
       "properties": {
         "displayName": {
           "type": "string"
+        },
+        "width": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "height": {
+          "type": "integer",
+          "format": "int64"
         }
       }
     },

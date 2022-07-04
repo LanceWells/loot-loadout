@@ -23,6 +23,7 @@ import (
 
 // DynamicPartPixel is an object representing the database table.
 type DynamicPartPixel struct {
+	ID            int   `boil:"id" json:"id" toml:"id" yaml:"id"`
 	ColorStringID int   `boil:"color_string_id" json:"color_string_id" toml:"color_string_id" yaml:"color_string_id"`
 	DynamicPartID int   `boil:"dynamic_part_id" json:"dynamic_part_id" toml:"dynamic_part_id" yaml:"dynamic_part_id"`
 	X             int16 `boil:"x" json:"x" toml:"x" yaml:"x"`
@@ -33,11 +34,13 @@ type DynamicPartPixel struct {
 }
 
 var DynamicPartPixelColumns = struct {
+	ID            string
 	ColorStringID string
 	DynamicPartID string
 	X             string
 	Y             string
 }{
+	ID:            "id",
 	ColorStringID: "color_string_id",
 	DynamicPartID: "dynamic_part_id",
 	X:             "x",
@@ -45,11 +48,13 @@ var DynamicPartPixelColumns = struct {
 }
 
 var DynamicPartPixelTableColumns = struct {
+	ID            string
 	ColorStringID string
 	DynamicPartID string
 	X             string
 	Y             string
 }{
+	ID:            "dynamic_part_pixel.id",
 	ColorStringID: "dynamic_part_pixel.color_string_id",
 	DynamicPartID: "dynamic_part_pixel.dynamic_part_id",
 	X:             "dynamic_part_pixel.x",
@@ -59,11 +64,13 @@ var DynamicPartPixelTableColumns = struct {
 // Generated where
 
 var DynamicPartPixelWhere = struct {
+	ID            whereHelperint
 	ColorStringID whereHelperint
 	DynamicPartID whereHelperint
 	X             whereHelperint16
 	Y             whereHelperint16
 }{
+	ID:            whereHelperint{field: "\"dynamic_part_pixel\".\"id\""},
 	ColorStringID: whereHelperint{field: "\"dynamic_part_pixel\".\"color_string_id\""},
 	DynamicPartID: whereHelperint{field: "\"dynamic_part_pixel\".\"dynamic_part_id\""},
 	X:             whereHelperint16{field: "\"dynamic_part_pixel\".\"x\""},
@@ -108,10 +115,10 @@ func (r *dynamicPartPixelR) GetDynamicPart() *DynamicPart {
 type dynamicPartPixelL struct{}
 
 var (
-	dynamicPartPixelAllColumns            = []string{"color_string_id", "dynamic_part_id", "x", "y"}
+	dynamicPartPixelAllColumns            = []string{"id", "color_string_id", "dynamic_part_id", "x", "y"}
 	dynamicPartPixelColumnsWithoutDefault = []string{"color_string_id", "dynamic_part_id", "x", "y"}
-	dynamicPartPixelColumnsWithDefault    = []string{}
-	dynamicPartPixelPrimaryKeyColumns     = []string{"color_string_id", "dynamic_part_id"}
+	dynamicPartPixelColumnsWithDefault    = []string{"id"}
+	dynamicPartPixelPrimaryKeyColumns     = []string{"id"}
 	dynamicPartPixelGeneratedColumns      = []string{}
 )
 
@@ -639,7 +646,7 @@ func (o *DynamicPartPixel) SetColorString(ctx context.Context, exec boil.Context
 		strmangle.SetParamNames("\"", "\"", 1, []string{"color_string_id"}),
 		strmangle.WhereClause("\"", "\"", 2, dynamicPartPixelPrimaryKeyColumns),
 	)
-	values := []interface{}{related.ID, o.ColorStringID, o.DynamicPartID}
+	values := []interface{}{related.ID, o.ID}
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -686,7 +693,7 @@ func (o *DynamicPartPixel) SetDynamicPart(ctx context.Context, exec boil.Context
 		strmangle.SetParamNames("\"", "\"", 1, []string{"dynamic_part_id"}),
 		strmangle.WhereClause("\"", "\"", 2, dynamicPartPixelPrimaryKeyColumns),
 	)
-	values := []interface{}{related.ID, o.ColorStringID, o.DynamicPartID}
+	values := []interface{}{related.ID, o.ID}
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -730,7 +737,7 @@ func DynamicPartPixels(mods ...qm.QueryMod) dynamicPartPixelQuery {
 
 // FindDynamicPartPixel retrieves a single record by ID with an executor.
 // If selectCols is empty Find will return all columns.
-func FindDynamicPartPixel(ctx context.Context, exec boil.ContextExecutor, colorStringID int, dynamicPartID int, selectCols ...string) (*DynamicPartPixel, error) {
+func FindDynamicPartPixel(ctx context.Context, exec boil.ContextExecutor, iD int, selectCols ...string) (*DynamicPartPixel, error) {
 	dynamicPartPixelObj := &DynamicPartPixel{}
 
 	sel := "*"
@@ -738,10 +745,10 @@ func FindDynamicPartPixel(ctx context.Context, exec boil.ContextExecutor, colorS
 		sel = strings.Join(strmangle.IdentQuoteSlice(dialect.LQ, dialect.RQ, selectCols), ",")
 	}
 	query := fmt.Sprintf(
-		"select %s from \"dynamic_part_pixel\" where \"color_string_id\"=$1 AND \"dynamic_part_id\"=$2", sel,
+		"select %s from \"dynamic_part_pixel\" where \"id\"=$1", sel,
 	)
 
-	q := queries.Raw(query, colorStringID, dynamicPartID)
+	q := queries.Raw(query, iD)
 
 	err := q.Bind(ctx, exec, dynamicPartPixelObj)
 	if err != nil {
@@ -1093,7 +1100,7 @@ func (o *DynamicPartPixel) Delete(ctx context.Context, exec boil.ContextExecutor
 	}
 
 	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), dynamicPartPixelPrimaryKeyMapping)
-	sql := "DELETE FROM \"dynamic_part_pixel\" WHERE \"color_string_id\"=$1 AND \"dynamic_part_id\"=$2"
+	sql := "DELETE FROM \"dynamic_part_pixel\" WHERE \"id\"=$1"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -1190,7 +1197,7 @@ func (o DynamicPartPixelSlice) DeleteAll(ctx context.Context, exec boil.ContextE
 // Reload refetches the object from the database
 // using the primary keys with an executor.
 func (o *DynamicPartPixel) Reload(ctx context.Context, exec boil.ContextExecutor) error {
-	ret, err := FindDynamicPartPixel(ctx, exec, o.ColorStringID, o.DynamicPartID)
+	ret, err := FindDynamicPartPixel(ctx, exec, o.ID)
 	if err != nil {
 		return err
 	}
@@ -1229,16 +1236,16 @@ func (o *DynamicPartPixelSlice) ReloadAll(ctx context.Context, exec boil.Context
 }
 
 // DynamicPartPixelExists checks if the DynamicPartPixel row exists.
-func DynamicPartPixelExists(ctx context.Context, exec boil.ContextExecutor, colorStringID int, dynamicPartID int) (bool, error) {
+func DynamicPartPixelExists(ctx context.Context, exec boil.ContextExecutor, iD int) (bool, error) {
 	var exists bool
-	sql := "select exists(select 1 from \"dynamic_part_pixel\" where \"color_string_id\"=$1 AND \"dynamic_part_id\"=$2 limit 1)"
+	sql := "select exists(select 1 from \"dynamic_part_pixel\" where \"id\"=$1 limit 1)"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
 		fmt.Fprintln(writer, sql)
-		fmt.Fprintln(writer, colorStringID, dynamicPartID)
+		fmt.Fprintln(writer, iD)
 	}
-	row := exec.QueryRowContext(ctx, sql, colorStringID, dynamicPartID)
+	row := exec.QueryRowContext(ctx, sql, iD)
 
 	err := row.Scan(&exists)
 	if err != nil {

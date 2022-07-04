@@ -25,6 +25,8 @@ import (
 type BodyType struct {
 	ID          int    `boil:"id" json:"id" toml:"id" yaml:"id"`
 	DisplayName string `boil:"display_name" json:"display_name" toml:"display_name" yaml:"display_name"`
+	Height      int16  `boil:"height" json:"height" toml:"height" yaml:"height"`
+	Width       int16  `boil:"width" json:"width" toml:"width" yaml:"width"`
 
 	R *bodyTypeR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L bodyTypeL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -33,17 +35,25 @@ type BodyType struct {
 var BodyTypeColumns = struct {
 	ID          string
 	DisplayName string
+	Height      string
+	Width       string
 }{
 	ID:          "id",
 	DisplayName: "display_name",
+	Height:      "height",
+	Width:       "width",
 }
 
 var BodyTypeTableColumns = struct {
 	ID          string
 	DisplayName string
+	Height      string
+	Width       string
 }{
 	ID:          "body_type.id",
 	DisplayName: "body_type.display_name",
+	Height:      "body_type.height",
+	Width:       "body_type.width",
 }
 
 // Generated where
@@ -51,9 +61,13 @@ var BodyTypeTableColumns = struct {
 var BodyTypeWhere = struct {
 	ID          whereHelperint
 	DisplayName whereHelperstring
+	Height      whereHelperint16
+	Width       whereHelperint16
 }{
 	ID:          whereHelperint{field: "\"body_type\".\"id\""},
 	DisplayName: whereHelperstring{field: "\"body_type\".\"display_name\""},
+	Height:      whereHelperint16{field: "\"body_type\".\"height\""},
+	Width:       whereHelperint16{field: "\"body_type\".\"width\""},
 }
 
 // BodyTypeRels is where relationship names are stored.
@@ -104,8 +118,8 @@ func (r *bodyTypeR) GetStaticParts() StaticPartSlice {
 type bodyTypeL struct{}
 
 var (
-	bodyTypeAllColumns            = []string{"id", "display_name"}
-	bodyTypeColumnsWithoutDefault = []string{"display_name"}
+	bodyTypeAllColumns            = []string{"id", "display_name", "height", "width"}
+	bodyTypeColumnsWithoutDefault = []string{"display_name", "height", "width"}
 	bodyTypeColumnsWithDefault    = []string{"id"}
 	bodyTypePrimaryKeyColumns     = []string{"id"}
 	bodyTypeGeneratedColumns      = []string{}

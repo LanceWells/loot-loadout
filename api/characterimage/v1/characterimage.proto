@@ -52,43 +52,45 @@ enum ExpressionType {
 }
 
 message Body {
-  string displayName = 1 [(validate.rules).string = { min_len: 1 } ];
+  string displayName =  1 [(validate.rules).string = { min_len: 1 } ];
+  uint32 width =        2 [(validate.rules).uint32 = { gt: 0 }];
+  uint32 height =       3 [(validate.rules).uint32 = { gt: 0 }];
 }
 
 message DynamicMapping {
-  DynamicPartType part = 1 [(validate.rules).enum.defined_only = true];
-  bytes image = 2 [(validate.rules).bytes = { max_len: 4096 }];
+  DynamicPartType part =  1 [(validate.rules).enum.defined_only = true];
+  bytes image =           2 [(validate.rules).bytes = { max_len: 4096 }];
 }
 
 message Static {
-  string displayName = 1 [(validate.rules).string = { min_len: 1 } ];
-  StaticPartType part = 2 [(validate.rules).enum.defined_only = true];
-  bytes image = 3 [(validate.rules).bytes = { max_len: 4096 }];
-  Coordinates anchor = 4 [(validate.rules).message.required = true];
+  string displayName =    1 [(validate.rules).string = { min_len: 1 } ];
+  StaticPartType part =   2 [(validate.rules).enum.defined_only = true];
+  bytes image =           3 [(validate.rules).bytes = { max_len: 4096 }];
+  Coordinates anchor =    4 [(validate.rules).message.required = true];
 }
 
 message Dynamic {
-  string displayName = 1 [(validate.rules).string = { min_len: 1 } ];
-  DynamicPartType part = 2 [(validate.rules).enum.defined_only = true];
+  string displayName =    1 [(validate.rules).string = { min_len: 1 } ];
+  DynamicPartType part =  2 [(validate.rules).enum.defined_only = true];
 }
 
 message Frame {
   map<string, Positioning> staticPositioning = 1;
-  Positioning propPositioning = 2 [(validate.rules).message.required = true];
-  ExpressionType expression = 3 [(validate.rules).enum.defined_only = true];
-  uint32 duration = 4 [(validate.rules).uint32 = { gte: 15 }];
+  Positioning propPositioning =   2 [(validate.rules).message.required = true];
+  ExpressionType expression =     3 [(validate.rules).enum.defined_only = true];
+  uint32 duration =               4 [(validate.rules).uint32 = { gte: 15 }];
 }
 
 message Animation {
-  string displayName = 1 [(validate.rules).string = { min_len: 1 } ];
-  repeated PropType allowed = 2;
+  string displayName =          1 [(validate.rules).string = { min_len: 1 } ];
+  repeated PropType allowed =   2;
 }
 
 message Prop {
-  string displayName = 1 [(validate.rules).string = { min_len: 1 } ];
-  PropType prop = 2 [(validate.rules).enum.defined_only = true];
-  bytes image = 3 [(validate.rules).bytes = { max_len: 4096 }];
-  Coordinates anchor = 4 [(validate.rules).message.required = true];
+  string displayName =    1 [(validate.rules).string = { min_len: 1 } ];
+  PropType prop =         2 [(validate.rules).enum.defined_only = true];
+  bytes image =           3 [(validate.rules).bytes = { max_len: 4096 }];
+  Coordinates anchor =    4 [(validate.rules).message.required = true];
 }
 
 service Images {
@@ -246,6 +248,7 @@ message GenerateAnimationRequest {
   // val = staticID
   map<string, string> staticPartIDs = 3;
   string propID = 4;
+  string bodyID = 5 [(validate.rules).string = { min_len: 1 }];
 }
 
 message GenerateAnimationResponse {

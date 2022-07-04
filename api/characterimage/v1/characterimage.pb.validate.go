@@ -338,6 +338,28 @@ func (m *Body) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
+	if m.GetWidth() <= 0 {
+		err := BodyValidationError{
+			field:  "Width",
+			reason: "value must be greater than 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if m.GetHeight() <= 0 {
+		err := BodyValidationError{
+			field:  "Height",
+			reason: "value must be greater than 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
 	if len(errors) > 0 {
 		return BodyMultiError(errors)
 	}
@@ -4088,6 +4110,17 @@ func (m *GenerateAnimationRequest) validate(all bool) error {
 	// no validation rules for StaticPartIDs
 
 	// no validation rules for PropID
+
+	if utf8.RuneCountInString(m.GetBodyID()) < 1 {
+		err := GenerateAnimationRequestValidationError{
+			field:  "BodyID",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return GenerateAnimationRequestMultiError(errors)

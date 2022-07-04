@@ -878,7 +878,7 @@ func (o *DynamicPart) AddDynamicPartPixels(ctx context.Context, exec boil.Contex
 				strmangle.SetParamNames("\"", "\"", 1, []string{"dynamic_part_id"}),
 				strmangle.WhereClause("\"", "\"", 2, dynamicPartPixelPrimaryKeyColumns),
 			)
-			values := []interface{}{o.ID, rel.ColorStringID, rel.DynamicPartID}
+			values := []interface{}{o.ID, rel.ID}
 
 			if boil.IsDebug(ctx) {
 				writer := boil.DebugWriterFrom(ctx)

@@ -149,7 +149,7 @@ func testDynamicPartPixelsExists(t *testing.T) {
 		t.Error(err)
 	}
 
-	e, err := DynamicPartPixelExists(ctx, tx, o.ColorStringID, o.DynamicPartID)
+	e, err := DynamicPartPixelExists(ctx, tx, o.ID)
 	if err != nil {
 		t.Errorf("Unable to check if DynamicPartPixel exists: %s", err)
 	}
@@ -175,7 +175,7 @@ func testDynamicPartPixelsFind(t *testing.T) {
 		t.Error(err)
 	}
 
-	dynamicPartPixelFound, err := FindDynamicPartPixel(ctx, tx, o.ColorStringID, o.DynamicPartID)
+	dynamicPartPixelFound, err := FindDynamicPartPixel(ctx, tx, o.ID)
 	if err != nil {
 		t.Error(err)
 	}
@@ -641,12 +641,16 @@ func testDynamicPartPixelToOneSetOpColorStringUsingColorString(t *testing.T) {
 			t.Error("foreign key was wrong value", a.ColorStringID)
 		}
 
-		if exists, err := DynamicPartPixelExists(ctx, tx, a.ColorStringID, a.DynamicPartID); err != nil {
-			t.Fatal(err)
-		} else if !exists {
-			t.Error("want 'a' to exist")
+		zero := reflect.Zero(reflect.TypeOf(a.ColorStringID))
+		reflect.Indirect(reflect.ValueOf(&a.ColorStringID)).Set(zero)
+
+		if err = a.Reload(ctx, tx); err != nil {
+			t.Fatal("failed to reload", err)
 		}
 
+		if a.ColorStringID != x.ID {
+			t.Error("foreign key was wrong value", a.ColorStringID, x.ID)
+		}
 	}
 }
 func testDynamicPartPixelToOneSetOpDynamicPartUsingDynamicPart(t *testing.T) {
@@ -694,12 +698,16 @@ func testDynamicPartPixelToOneSetOpDynamicPartUsingDynamicPart(t *testing.T) {
 			t.Error("foreign key was wrong value", a.DynamicPartID)
 		}
 
-		if exists, err := DynamicPartPixelExists(ctx, tx, a.ColorStringID, a.DynamicPartID); err != nil {
-			t.Fatal(err)
-		} else if !exists {
-			t.Error("want 'a' to exist")
+		zero := reflect.Zero(reflect.TypeOf(a.DynamicPartID))
+		reflect.Indirect(reflect.ValueOf(&a.DynamicPartID)).Set(zero)
+
+		if err = a.Reload(ctx, tx); err != nil {
+			t.Fatal("failed to reload", err)
 		}
 
+		if a.DynamicPartID != x.ID {
+			t.Error("foreign key was wrong value", a.DynamicPartID, x.ID)
+		}
 	}
 }
 
@@ -777,7 +785,7 @@ func testDynamicPartPixelsSelect(t *testing.T) {
 }
 
 var (
-	dynamicPartPixelDBTypes = map[string]string{`ColorStringID`: `integer`, `DynamicPartID`: `integer`, `X`: `smallint`, `Y`: `smallint`}
+	dynamicPartPixelDBTypes = map[string]string{`ID`: `integer`, `ColorStringID`: `integer`, `DynamicPartID`: `integer`, `X`: `smallint`, `Y`: `smallint`}
 	_                       = bytes.MinRead
 )
 

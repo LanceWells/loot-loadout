@@ -11,11 +11,13 @@ import (
 // ID is an alias for an identifier that refers to a specific resour.ce
 type ID = string
 
+type GeneratedFrame struct {
+	Frame  *api.Frame
+	Images map[api.DynamicPartType][]byte
+}
+
 type GeneratedAnimation struct {
-	Frames []struct {
-		Frame  *api.Frame
-		Images map[*api.DynamicPartType][]byte
-	}
+	Frames  []GeneratedFrame
 	Statics []*api.Static
 	Prop    *api.Prop
 }
@@ -67,9 +69,10 @@ type CharacterImageDatabase interface {
 
 	GenerateAnimation(
 		ctx context.Context,
+		bodyID string,
 		animationID string,
-		dynamicPartIDs map[*api.DynamicPartType]string,
-		staticPartIDs map[*api.StaticPartType]string,
+		dynamicPartIDs map[api.DynamicPartType]string,
+		staticPartIDs map[api.StaticPartType]string,
 		propID string,
 	) (*GeneratedAnimation, error)
 }

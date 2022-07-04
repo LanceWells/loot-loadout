@@ -2,6 +2,7 @@ package characterimage
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	api "github.com/lantspants/lootloadout/api/characterimage/v1"
@@ -215,5 +216,42 @@ func (s CharacterImageService) GenerateAnimation(
 	_, span := otel.Tracer("CharacterImageService").Start(ctx, "GenerateAnimation")
 	defer span.End()
 
-	return nil, nil
+	dynamicIDs := map[api.DynamicPartType]string{}
+	for k, v := range req.DynamicPartIDs {
+		dynamicID, ok := api.DynamicPartType_value[k]
+		if !ok {
+			err := fmt.Errorf("provided dynamic part type %v is not valid", k)
+			s.l.Println(err)
+			return nil, err
+		}
+
+		dynamicIDs[api.DynamicPartType(dynamicID)] = v
+	}
+
+	staticIDs := map[api.StaticPartType]string{}
+	for k, v := range req.StaticPartIDs {
+		staticID, ok := api.StaticPartType_value[k]
+		if !ok {
+			err := fmt.Errorf("provided static part type %v is not valid", k)
+			s.l.Println(err)
+			return nil, err
+		}
+
+		staticIDs[api.StaticPartType(staticID)] = v
+	}
+
+	a, err := s.db.GenerateAnimation(
+		ctx,
+		req.BodyID,
+		req.AnimationID,
+		dynamicIDs,
+		staticIDs,
+		req.PropID,
+	)
+	if err != nil {
+		s.l.Println("error generating animation:", err)
+		return nil, err
+	}
+
+	return a, nil
 }

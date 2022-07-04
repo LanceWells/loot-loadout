@@ -1028,7 +1028,7 @@ func testBodyTypesSelect(t *testing.T) {
 }
 
 var (
-	bodyTypeDBTypes = map[string]string{`ID`: `integer`, `DisplayName`: `character varying`}
+	bodyTypeDBTypes = map[string]string{`ID`: `integer`, `DisplayName`: `character varying`, `Height`: `smallint`, `Width`: `smallint`}
 	_               = bytes.MinRead
 )
 

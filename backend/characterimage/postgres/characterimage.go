@@ -5,6 +5,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/base64"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"image"
@@ -30,6 +31,14 @@ var _ characterimage.CharacterImageDatabase = CharacterImageDB{}
 type CharacterImageDB struct {
 	l  *log.Logger
 	db *sql.DB
+}
+
+type GeneratedAnimationPixel struct {
+	HexString  string                 `boil:"color_string.hexstring"`
+	X          int                    `boil:"animation_frame_pixel.x"`
+	Y          int                    `boil:"animation_frame_pixel.y"`
+	PartType   models.DynamicPartType `boil:"dynamic_part.part_type"`
+	FrameIndex int                    `boil:"animation_frame.frame_index"`
 }
 
 // NewImageDatabase creates a new instance of a CharacterImageDB.
@@ -100,7 +109,7 @@ func (db CharacterImageDB) AddBody(
 	defer func() {
 		if r := recover(); r != nil {
 			err := fmt.Errorf("CRITICAL: recovered from panic: %v", r)
-			fmt.Println(err)
+			db.l.Println(err)
 		}
 
 		if err != nil {
@@ -114,11 +123,13 @@ func (db CharacterImageDB) AddBody(
 
 	body := models.BodyType{
 		DisplayName: b.DisplayName,
+		Height:      int16(b.Height),
+		Width:       int16(b.Width),
 	}
 
 	err = body.Insert(ctx, tx, boil.Infer())
 	if err != nil {
-		fmt.Println("error inserting body:", err)
+		db.l.Println("error inserting body:", err)
 		return "", err
 	}
 
@@ -137,7 +148,7 @@ func (db CharacterImageDB) ListBodies(
 	defer func() {
 		if r := recover(); r != nil {
 			err := fmt.Errorf("CRITICAL: recovered from panic: %v", r)
-			fmt.Println(err)
+			db.l.Println(err)
 		}
 
 		if err != nil {
@@ -151,7 +162,7 @@ func (db CharacterImageDB) ListBodies(
 
 	bodies, err := models.BodyTypes().All(ctx, tx)
 	if err != nil {
-		fmt.Println("error getting bodies:", err)
+		db.l.Println("error getting bodies:", err)
 		return nil, err
 	}
 
@@ -159,6 +170,8 @@ func (db CharacterImageDB) ListBodies(
 	for _, v := range bodies {
 		apiBodies[strconv.Itoa(v.ID)] = &api.Body{
 			DisplayName: v.DisplayName,
+			Width:       uint32(v.Width),
+			Height:      uint32(v.Height),
 		}
 	}
 
@@ -180,7 +193,7 @@ func (db CharacterImageDB) AddDynamicMapping(
 	defer func() {
 		if r := recover(); r != nil {
 			err := fmt.Errorf("CRITICAL: recovered from panic: %v", r)
-			fmt.Println(err)
+			db.l.Println(err)
 		}
 
 		if err != nil {
@@ -196,14 +209,14 @@ func (db CharacterImageDB) AddDynamicMapping(
 	dst := make([]byte, base64.StdEncoding.DecodedLen(len(m.Image)))
 	_, err = base64.StdEncoding.Decode(dst, []byte(m.Image))
 	if err != nil {
-		fmt.Println("decoding error:", err)
+		db.l.Println("decoding error:", err)
 		return "", err
 	}
 
 	r := bytes.NewReader(dst)
 	img, err := png.Decode(r)
 	if err != nil {
-		fmt.Println("invalid png:", err)
+		db.l.Println("invalid png:", err)
 		return "", err
 	}
 
@@ -211,7 +224,7 @@ func (db CharacterImageDB) AddDynamicMapping(
 	bodyIDVal, err := strconv.Atoi(bodyID)
 	if err != nil {
 		err := fmt.Errorf("provided ID %v is invalid, %v", bodyID, err)
-		fmt.Println(err)
+		db.l.Println(err)
 		return "", err
 	}
 
@@ -231,7 +244,7 @@ func (db CharacterImageDB) AddDynamicMapping(
 
 	err = mapping.Insert(ctx, tx, boil.Infer())
 	if err != nil {
-		fmt.Println("error inserting dynamic mapping", err)
+		db.l.Println("error inserting dynamic mapping", err)
 		return "", err
 	}
 
@@ -294,7 +307,7 @@ func (db CharacterImageDB) AddStatic(
 	defer func() {
 		if r := recover(); r != nil {
 			err := fmt.Errorf("CRITICAL: recovered from panic: %v", r)
-			fmt.Println(err)
+			db.l.Println(err)
 		}
 
 		if err != nil {
@@ -309,7 +322,7 @@ func (db CharacterImageDB) AddStatic(
 	dst := make([]byte, base64.StdEncoding.DecodedLen(len(s.Image)))
 	_, err = base64.StdEncoding.Decode(dst, []byte(s.Image))
 	if err != nil {
-		fmt.Println("decoding error:", err)
+		db.l.Println("decoding error:", err)
 		return "", err
 	}
 
@@ -334,7 +347,7 @@ func (db CharacterImageDB) AddStatic(
 
 	err = static.Insert(ctx, tx, boil.Infer())
 	if err != nil {
-		fmt.Println("error inserting static:", err)
+		db.l.Println("error inserting static:", err)
 		return "", err
 	}
 
@@ -347,7 +360,7 @@ func (db CharacterImageDB) AddStatic(
 
 	err = staticImage.Insert(ctx, tx, boil.Infer())
 	if err != nil {
-		fmt.Println("error inserting staticImage:", err)
+		db.l.Println("error inserting staticImage:", err)
 		return "", err
 	}
 
@@ -366,7 +379,7 @@ func (db CharacterImageDB) ListStatics(
 	defer func() {
 		if r := recover(); r != nil {
 			err := fmt.Errorf("CRITICAL: recovered from panic: %v", r)
-			fmt.Println(err)
+			db.l.Println(err)
 		}
 
 		if err != nil {
@@ -382,7 +395,7 @@ func (db CharacterImageDB) ListStatics(
 		qm.Load(models.StaticPartRels.StaticPartImage),
 	).All(ctx, tx)
 	if err != nil {
-		fmt.Println("error getting statics:", err)
+		db.l.Println("error getting statics:", err)
 		return nil, err
 	}
 
@@ -391,7 +404,7 @@ func (db CharacterImageDB) ListStatics(
 		staticType, ok := api.StaticPartType_value[v.PartType.String()]
 		if !ok {
 			err = fmt.Errorf("staticType %v does not exist", v.PartType.String())
-			fmt.Println("error getting statics:", err)
+			db.l.Println("error getting statics:", err)
 			return nil, err
 		}
 
@@ -424,7 +437,7 @@ func (db CharacterImageDB) AddDynamic(
 	defer func() {
 		if r := recover(); r != nil {
 			err := fmt.Errorf("CRITICAL: recovered from panic: %v", r)
-			fmt.Println(err)
+			db.l.Println(err)
 		}
 
 		if err != nil {
@@ -440,14 +453,14 @@ func (db CharacterImageDB) AddDynamic(
 	dst := make([]byte, base64.StdEncoding.DecodedLen(len(imageBytes)))
 	_, err = base64.StdEncoding.Decode(dst, []byte(imageBytes))
 	if err != nil {
-		fmt.Println("decoding error:", err)
+		db.l.Println("decoding error:", err)
 		return "", err
 	}
 
 	r := bytes.NewReader(dst)
 	img, err := png.Decode(r)
 	if err != nil {
-		fmt.Println("invalid png:", err)
+		db.l.Println("invalid png:", err)
 		return "", err
 	}
 
@@ -581,7 +594,7 @@ func (db CharacterImageDB) AddDynamic(
 
 	colorStrings, err := insertMissingColors(ctx, colors, tx)
 	if err != nil {
-		fmt.Println("error inserting colors:", err)
+		db.l.Println("error inserting colors:", err)
 		return "", err
 	}
 
@@ -592,21 +605,16 @@ func (db CharacterImageDB) AddDynamic(
 
 	croppedImage, err := db.cropImage(ctx, img, *cropRect)
 	if err != nil {
-		fmt.Println("error cropping image:", err)
+		db.l.Println("error cropping image:", err)
 		return "", err
 	}
 
 	cropBuf := bytes.Buffer{}
 	err = png.Encode(&cropBuf, croppedImage)
 	if err != nil {
-		fmt.Println("error cropping thumbnail:", err)
+		db.l.Println("error cropping thumbnail:", err)
 		return "", err
 	}
-
-	// cropBytes := cropBuf.Bytes()
-	// thumbEncodedLen := base64.StdEncoding.EncodedLen(len(cropBytes))
-	// thumbDst := make([]byte, thumbEncodedLen)
-	// base64.StdEncoding.Encode(thumbDst, cropBytes)
 
 	// Insert the auto-cropped thumbnail.
 	thumbnail := models.DynamicPartThumbnail{
@@ -654,7 +662,7 @@ func (db CharacterImageDB) ListDynamics(
 	defer func() {
 		if r := recover(); r != nil {
 			err := fmt.Errorf("CRITICAL: recovered from panic: %v", r)
-			fmt.Println(err)
+			db.l.Println(err)
 		}
 
 		if err != nil {
@@ -670,7 +678,7 @@ func (db CharacterImageDB) ListDynamics(
 		qm.Load(models.DynamicPartRels.DynamicPartThumbnail),
 	).All(ctx, tx)
 	if err != nil {
-		fmt.Println("error getting dynamics:", err)
+		db.l.Println("error getting dynamics:", err)
 		return nil, nil, err
 	}
 
@@ -680,7 +688,7 @@ func (db CharacterImageDB) ListDynamics(
 		dynamicPartType, ok := api.DynamicPartType_value[v.PartType.String()]
 		if !ok {
 			err = fmt.Errorf("dyanmicType %v does not exist", v.PartType.String())
-			fmt.Println("error getting dynamics:", err)
+			db.l.Println("error getting dynamics:", err)
 			return nil, nil, err
 		}
 
@@ -711,7 +719,7 @@ func (db CharacterImageDB) AddAnimation(
 	defer func() {
 		if r := recover(); r != nil {
 			err := fmt.Errorf("CRITICAL: recovered from panic: %v", r)
-			fmt.Println(err)
+			db.l.Println(err)
 		}
 
 		if err != nil {
@@ -750,7 +758,7 @@ func (db CharacterImageDB) AddAnimation(
 
 	err = animation.Insert(ctx, tx, boil.Infer())
 	if err != nil {
-		fmt.Println("error inserting animation:", err)
+		db.l.Println("error inserting animation:", err)
 		return "", err
 	}
 
@@ -769,7 +777,7 @@ func (db CharacterImageDB) ListAnimations(
 	defer func() {
 		if r := recover(); r != nil {
 			err := fmt.Errorf("CRITICAL: recovered from panic: %v", r)
-			fmt.Println(err)
+			db.l.Println(err)
 		}
 
 		if err != nil {
@@ -783,7 +791,7 @@ func (db CharacterImageDB) ListAnimations(
 
 	animations, err := models.Animations().All(ctx, tx)
 	if err != nil {
-		fmt.Println("error listing animations:", err)
+		db.l.Println("error listing animations:", err)
 		return nil, err
 	}
 
@@ -794,7 +802,7 @@ func (db CharacterImageDB) ListAnimations(
 			ptVal, ok := api.PropType_value[pt]
 			if !ok {
 				err = fmt.Errorf("propType %v does not exist", pt)
-				fmt.Println("error getting statics:", err)
+				db.l.Println("error getting statics:", err)
 				return nil, err
 			}
 
@@ -823,7 +831,7 @@ func (db CharacterImageDB) AddFrame(
 	defer func() {
 		if r := recover(); r != nil {
 			err := fmt.Errorf("CRITICAL: recovered from panic: %v", r)
-			fmt.Println(err)
+			db.l.Println(err)
 		}
 
 		if err != nil {
@@ -837,7 +845,7 @@ func (db CharacterImageDB) AddFrame(
 	animationIDVal, err := strconv.Atoi(animationID)
 	if err != nil {
 		err := fmt.Errorf("provided ID %v is invalid, %v", animationID, err)
-		fmt.Println(err)
+		db.l.Println(err)
 		return "", err
 	}
 
@@ -846,14 +854,14 @@ func (db CharacterImageDB) AddFrame(
 	dst := make([]byte, base64.StdEncoding.DecodedLen(len(imageBytes)))
 	_, err = base64.StdEncoding.Decode(dst, []byte(imageBytes))
 	if err != nil {
-		fmt.Println("decoding error:", err)
+		db.l.Println("decoding error:", err)
 		return "", err
 	}
 
 	r := bytes.NewReader(dst)
 	img, err := png.Decode(r)
 	if err != nil {
-		fmt.Println("invalid png:", err)
+		db.l.Println("invalid png:", err)
 		return "", err
 	}
 
@@ -883,6 +891,7 @@ func (db CharacterImageDB) AddFrame(
 		AnimationID: animationIDVal,
 		FrameIndex:  lastFrameIndex,
 		Expression:  expression,
+		Duration:    int16(f.Duration),
 	}
 
 	err = frame.Insert(ctx, tx, boil.Infer())
@@ -984,7 +993,7 @@ func (db CharacterImageDB) AddProp(
 	defer func() {
 		if r := recover(); r != nil {
 			err := fmt.Errorf("CRITICAL: recovered from panic: %v", r)
-			fmt.Println(err)
+			db.l.Println(err)
 		}
 
 		if err != nil {
@@ -999,7 +1008,7 @@ func (db CharacterImageDB) AddProp(
 	dst := make([]byte, base64.StdEncoding.DecodedLen(len(p.Image)))
 	_, err = base64.StdEncoding.Decode(dst, []byte(p.Image))
 	if err != nil {
-		fmt.Println("decoding error:", err)
+		db.l.Println("decoding error:", err)
 		return "", err
 	}
 
@@ -1017,7 +1026,7 @@ func (db CharacterImageDB) AddProp(
 
 	err = prop.Insert(ctx, tx, boil.Infer())
 	if err != nil {
-		fmt.Println("error inserting prop:", err)
+		db.l.Println("error inserting prop:", err)
 		return "", err
 	}
 
@@ -1030,7 +1039,7 @@ func (db CharacterImageDB) AddProp(
 
 	err = propImage.Insert(ctx, tx, boil.Infer())
 	if err != nil {
-		fmt.Println("error inserting propType:", err)
+		db.l.Println("error inserting propType:", err)
 		return "", err
 	}
 
@@ -1049,7 +1058,7 @@ func (db CharacterImageDB) ListProps(
 	defer func() {
 		if r := recover(); r != nil {
 			err := fmt.Errorf("CRITICAL: recovered from panic: %v", r)
-			fmt.Println(err)
+			db.l.Println(err)
 		}
 
 		if err != nil {
@@ -1065,7 +1074,7 @@ func (db CharacterImageDB) ListProps(
 		qm.Load(models.PropRels.PropImage),
 	).All(ctx, tx)
 	if err != nil {
-		fmt.Println("error getting props:", err)
+		db.l.Println("error getting props:", err)
 		return nil, err
 	}
 
@@ -1074,7 +1083,7 @@ func (db CharacterImageDB) ListProps(
 		partType, ok := api.PropType_value[v.PartType.String()]
 		if !ok {
 			err = fmt.Errorf("proptype %v does not exist in API", v.PartType.String())
-			fmt.Println("error getting props:", err)
+			db.l.Println("error getting props:", err)
 			return nil, err
 		}
 
@@ -1094,12 +1103,394 @@ func (db CharacterImageDB) ListProps(
 
 func (db CharacterImageDB) GenerateAnimation(
 	ctx context.Context,
+	bodyID string,
 	animationID string,
-	dynamicPartIDs map[*api.DynamicPartType]string,
-	staticPartIDs map[*api.StaticPartType]string,
+	dynamicPartIDMap map[api.DynamicPartType]string,
+	staticPartIDMap map[api.StaticPartType]string,
 	propID string,
-) (animations *characterimage.GeneratedAnimation, err error) {
-	return nil, nil
+) (animation *characterimage.GeneratedAnimation, err error) {
+	_, span := otel.Tracer("CharacterImageDB").Start(ctx, "GenerateAnimation")
+	tx, err := db.db.BeginTx(ctx, nil)
+
+	defer func() {
+		if r := recover(); r != nil {
+			err := fmt.Errorf("CRITICAL: recovered from panic: %v", r)
+			db.l.Println(err)
+		} else {
+			if err != nil {
+				tx.Rollback()
+			} else {
+				tx.Commit()
+			}
+
+			span.End()
+		}
+	}()
+
+	// Convert the lists of IDs to []interface{}. We do this because the sqlboiler ORM requires this
+	// type specifically as opposed to a list of the corresponding type. I'm assuming this might
+	// change in future once generics (hopefully) are implemented in sqlboiler.
+	dynamicPartIDs := []interface{}{}
+	for _, v := range dynamicPartIDMap {
+		dynamicPartID, err := strconv.Atoi(v)
+		if err != nil {
+			db.l.Println("error getting dynamic part ID for animation generation:", err)
+			return nil, err
+		}
+		dynamicPartIDs = append(dynamicPartIDs, dynamicPartID)
+	}
+
+	staticPartIDs := []interface{}{}
+	for _, v := range staticPartIDMap {
+		staticPartID, err := strconv.Atoi(v)
+		if err != nil {
+			db.l.Println("error getting static part ID for animation generation:", err)
+			return nil, err
+		}
+		staticPartIDs = append(staticPartIDs, staticPartID)
+	}
+
+	bodyIDVal, err := strconv.Atoi(bodyID)
+	if err != nil {
+		db.l.Println("error getting body ID for animation generation:", err)
+		return nil, err
+	}
+
+	propIDVal, err := strconv.Atoi(propID)
+	if err != nil && len(propID) > 0 {
+		db.l.Println("error getting prop ID for animation generation:", err)
+		return nil, err
+	}
+
+	// Fetch all of the static bits first.
+	staticParts, err := models.StaticParts(
+		qm.Load(models.StaticPartRels.StaticPartImage),
+		qm.WhereIn(
+			fmt.Sprintf("%v in ?", models.StaticPartColumns.ID),
+			staticPartIDs...,
+		),
+	).All(ctx, tx)
+	if err != nil {
+		db.l.Println("error getting static parts for animation generation:", err)
+		return nil, err
+	}
+
+	apiStatics := []*api.Static{}
+	for _, s := range staticParts {
+		staticType, ok := api.StaticPartType_value[s.PartType.String()]
+		if !ok {
+			err = fmt.Errorf("staticType %v does not exist", s.PartType.String())
+			db.l.Println("error getting statics for generating animation:", err)
+			return nil, err
+		}
+
+		apiStatics = append(apiStatics, &api.Static{
+			DisplayName: s.DisplayName,
+			Part:        api.StaticPartType(staticType),
+			Image:       s.R.StaticPartImage.ImageBytes,
+		})
+	}
+
+	var apiProp *api.Prop
+	if len(propID) > 0 {
+		prop, err := models.Props(
+			qm.Load(models.PropRels.PropImage),
+			qm.Where(
+				fmt.Sprintf("%v = ?", models.PropColumns.ID),
+				propIDVal,
+			),
+		).One(ctx, tx)
+		if err != nil {
+			db.l.Println("error getting prop for animation generation:", err)
+			return nil, err
+		}
+
+		if prop != nil {
+			apiPropType, ok := api.PropType_value[prop.PartType.String()]
+			if !ok {
+				err = fmt.Errorf("propType %v does not exist", prop.PartType)
+				db.l.Println("error getting prop for generating animation:", err)
+				return nil, err
+			}
+
+			apiProp = &api.Prop{
+				DisplayName: prop.DisplayName,
+				Prop:        api.PropType(apiPropType),
+				Image:       prop.R.PropImage.ImageBytes,
+			}
+		}
+	}
+
+	body, err := models.BodyTypes(
+		qm.Where(
+			fmt.Sprintf("%v = ?", models.BodyTypeColumns.ID),
+			bodyIDVal,
+		),
+	).One(ctx, tx)
+	if err != nil {
+		db.l.Println("error getting body for animation generation:", err)
+		return nil, err
+	}
+
+	// Each frame has some extra metadata that we'll need. Note that we get this separately rather
+	// than in the larger query s.t. we're not returning a copy of all animation frame metadata for
+	// each pixel in each frame.
+	frames, err := models.AnimationFrames(
+		qm.Load(models.AnimationFrameRels.AnimationFrameStaticPositions),
+		qm.Load(models.AnimationFrameRels.AnimationFramePropPosition),
+		qm.Where(
+			fmt.Sprintf("%v = ?", models.AnimationFrameColumns.AnimationID),
+			animationID,
+		),
+	).All(ctx, tx)
+	if err != nil {
+		db.l.Println("error getting frames for animation generation:", err)
+		return nil, err
+	}
+
+	// Get the dynamic images now.
+	generatedPixels := []*GeneratedAnimationPixel{}
+	err = models.NewQuery(
+		qm.Select(
+			models.ColorStringTableColumns.Hexstring,
+			models.AnimationFramePixelTableColumns.X,
+			models.AnimationFramePixelTableColumns.Y,
+			models.DynamicPartTableColumns.PartType,
+			models.AnimationFrameTableColumns.FrameIndex,
+		),
+		qm.From(
+			models.TableNames.DynamicPartPixel,
+		),
+		qm.InnerJoin(
+			fmt.Sprintf(
+				"%v ON %v = %v",
+				// Table
+				models.TableNames.DynamicPart,
+				models.DynamicPartPixelTableColumns.DynamicPartID,
+				models.DynamicPartTableColumns.ID,
+			),
+		),
+		qm.InnerJoin(
+			fmt.Sprintf(
+				"%v ON %v = %v",
+				// Table
+				models.TableNames.DynamicPartMapping,
+				// Match by ID
+				models.DynamicPartTableColumns.DynamicPartMappingID,
+				models.DynamicPartMappingTableColumns.ID,
+			),
+		),
+		qm.InnerJoin(
+			fmt.Sprintf(
+				"%v ON %v = %v AND %v = %v AND %v = %v",
+				// Table
+				models.TableNames.DynamicPartMappingPixel,
+				// Match by ID
+				models.DynamicPartMappingTableColumns.ID,
+				models.DynamicPartMappingPixelTableColumns.DynamicPartMappingID,
+				// Match by x-coord
+				models.DynamicPartMappingPixelTableColumns.X,
+				models.DynamicPartPixelTableColumns.X,
+				// Match by y-coord
+				models.DynamicPartMappingPixelTableColumns.Y,
+				models.DynamicPartPixelTableColumns.Y,
+			),
+		),
+		qm.InnerJoin(
+			fmt.Sprintf(
+				"%v ON %v = %v",
+				// Table
+				models.TableNames.AnimationFramePixel,
+				// Match by ID
+				models.AnimationFramePixelTableColumns.ColorStringID,
+				models.DynamicPartMappingPixelTableColumns.ColorStringID,
+			),
+		),
+		qm.InnerJoin(
+			fmt.Sprintf(
+				"%v ON %v = %v",
+				// Table
+				models.TableNames.AnimationFrame,
+				// Match by ID
+				models.AnimationFrameTableColumns.ID,
+				models.AnimationFramePixelColumns.AnimationFrameID,
+			),
+		),
+		qm.InnerJoin(
+			fmt.Sprintf(
+				"%v ON %v = %v",
+				// Table
+				models.TableNames.Animation,
+				// Match by ID
+				models.AnimationTableColumns.ID,
+				models.AnimationFrameTableColumns.AnimationID,
+			),
+		),
+		qm.InnerJoin(
+			fmt.Sprintf(
+				"%v ON %v = %v",
+				// Table
+				models.TableNames.ColorString,
+				// Match by ID
+				models.ColorStringTableColumns.ID,
+				models.DynamicPartPixelTableColumns.ColorStringID,
+			),
+		),
+		qm.WhereIn(
+			fmt.Sprintf(
+				"%v IN ?",
+				models.DynamicPartPixelColumns.DynamicPartID,
+			),
+			dynamicPartIDs...,
+		),
+		qm.And(
+			fmt.Sprintf(
+				"%v = ?",
+				models.AnimationTableColumns.ID,
+			),
+			animationID,
+		),
+	).Bind(ctx, tx, &generatedPixels)
+
+	if err != nil {
+		db.l.Println("error generating the animation pixels:", err)
+		return nil, err
+	}
+
+	if len(generatedPixels) == 0 {
+		err = fmt.Errorf("could not fetch pixels for animation generation")
+		db.l.Println(err)
+		return nil, err
+	}
+
+	pixelsByFrame := map[int]map[string][]*GeneratedAnimationPixel{}
+	for _, v := range generatedPixels {
+		pixelsByPart, ok := pixelsByFrame[v.FrameIndex]
+		if !ok {
+			pixelsByPart = map[string][]*GeneratedAnimationPixel{}
+			pixelsByFrame[v.FrameIndex] = pixelsByPart
+		}
+
+		pixels, ok := pixelsByPart[string(v.PartType)]
+		if !ok {
+			pixels = []*GeneratedAnimationPixel{}
+		}
+
+		pixelsByPart[string(v.PartType)] = append(pixels, v)
+	}
+
+	generatedFrames := []characterimage.GeneratedFrame{}
+
+	colors := map[string]color.Color{}
+	for _, f := range frames {
+		apiExpression, ok := api.ExpressionType_value[f.Expression.String()]
+		if !ok {
+			err = fmt.Errorf("expressionType %v does not exist", f.Expression.String())
+		}
+
+		staticsPositioning := map[string]*api.Positioning{}
+		for _, fPos := range f.R.AnimationFrameStaticPositions {
+			staticsPositioning[fPos.PartType.String()] = &api.Positioning{
+				Coordinates: &api.Coordinates{
+					X: uint32(fPos.X),
+					Y: uint32(fPos.Y),
+				},
+				Rotation: uint32(fPos.Rotation),
+			}
+		}
+
+		propPositioning := &api.Positioning{
+			Coordinates: &api.Coordinates{
+				X: uint32(f.R.AnimationFramePropPosition.X),
+				Y: uint32(f.R.AnimationFramePropPosition.Y),
+			},
+			Rotation: uint32(f.R.AnimationFramePropPosition.Rotation),
+		}
+
+		dynamicImages := map[api.DynamicPartType][]byte{}
+
+		pixelsForThisFrame, ok := pixelsByFrame[f.FrameIndex]
+		if !ok {
+			err = fmt.Errorf("error getting pixels for frame %v", f.FrameIndex)
+			db.l.Println(err)
+			return nil, err
+		}
+
+		for partType, pixels := range pixelsForThisFrame {
+			img := image.NewNRGBA(
+				image.Rect(0, 0, int(body.Width), int(body.Height)),
+			)
+
+			for _, pixel := range pixels {
+				pixelColor, ok := colors[pixel.HexString]
+				if !ok {
+					hexString := pixel.HexString[1:len(pixel.HexString)]
+					b, err := hex.DecodeString(hexString)
+					if err != nil {
+						db.l.Println("error decoding pixel hexstring:", err)
+						return nil, err
+					}
+
+					// The hex string must be R, G, B, A; each byte representing one of those fields.
+					if len(b) != 4 {
+						err = fmt.Errorf(
+							"the number of bytes for the hex string %v is %v, not 4",
+							hexString,
+							len(b),
+						)
+						db.l.Println(err)
+						return nil, err
+					}
+
+					pixelColor = color.NRGBA{
+						R: b[0],
+						G: b[1],
+						B: b[2],
+						A: b[3],
+					}
+				}
+
+				img.Set(pixel.X, pixel.Y, pixelColor)
+			}
+
+			dynamicType, ok := api.DynamicPartType_value[partType]
+			if !ok {
+				err = fmt.Errorf("error getting dynamic part type in generating animation")
+				db.l.Println(err)
+				return nil, err
+			}
+
+			imgBuf := bytes.Buffer{}
+			err = png.Encode(&imgBuf, img)
+			if err != nil {
+				db.l.Println("error encoding png image while generating animation:", err)
+				db.l.Println(err)
+				return nil, err
+			}
+
+			dynamicImages[api.DynamicPartType(dynamicType)] = imgBuf.Bytes()
+		}
+
+		apiFrame := &api.Frame{
+			Expression:        api.ExpressionType(apiExpression),
+			Duration:          uint32(f.Duration),
+			StaticPositioning: staticsPositioning,
+			PropPositioning:   propPositioning,
+		}
+
+		generatedFrames = append(generatedFrames, characterimage.GeneratedFrame{
+			Frame:  apiFrame,
+			Images: dynamicImages,
+		})
+	}
+
+	apiAnimation := &characterimage.GeneratedAnimation{
+		Frames:  generatedFrames,
+		Statics: apiStatics,
+		Prop:    apiProp,
+	}
+
+	return apiAnimation, nil
 }
 
 // insertMissingColors is a helper method that accepts a list of colors, then returns the DB color

@@ -1095,7 +1095,7 @@ func testAnimationFramesSelect(t *testing.T) {
 }
 
 var (
-	animationFrameDBTypes = map[string]string{`ID`: `integer`, `AnimationID`: `integer`, `FrameIndex`: `integer`, `Expression`: `enum.expression_type('NEUTRAL')`}
+	animationFrameDBTypes = map[string]string{`ID`: `integer`, `AnimationID`: `integer`, `FrameIndex`: `integer`, `Expression`: `enum.expression_type('NEUTRAL')`, `Duration`: `smallint`}
 	_                     = bytes.MinRead
 )
 

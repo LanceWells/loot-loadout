@@ -27,6 +27,7 @@ type AnimationFrame struct {
 	AnimationID int            `boil:"animation_id" json:"animation_id" toml:"animation_id" yaml:"animation_id"`
 	FrameIndex  int            `boil:"frame_index" json:"frame_index" toml:"frame_index" yaml:"frame_index"`
 	Expression  ExpressionType `boil:"expression" json:"expression" toml:"expression" yaml:"expression"`
+	Duration    int16          `boil:"duration" json:"duration" toml:"duration" yaml:"duration"`
 
 	R *animationFrameR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L animationFrameL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -37,11 +38,13 @@ var AnimationFrameColumns = struct {
 	AnimationID string
 	FrameIndex  string
 	Expression  string
+	Duration    string
 }{
 	ID:          "id",
 	AnimationID: "animation_id",
 	FrameIndex:  "frame_index",
 	Expression:  "expression",
+	Duration:    "duration",
 }
 
 var AnimationFrameTableColumns = struct {
@@ -49,11 +52,13 @@ var AnimationFrameTableColumns = struct {
 	AnimationID string
 	FrameIndex  string
 	Expression  string
+	Duration    string
 }{
 	ID:          "animation_frame.id",
 	AnimationID: "animation_frame.animation_id",
 	FrameIndex:  "animation_frame.frame_index",
 	Expression:  "animation_frame.expression",
+	Duration:    "animation_frame.duration",
 }
 
 // Generated where
@@ -79,16 +84,41 @@ func (w whereHelperExpressionType) GTE(x ExpressionType) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.GTE, x)
 }
 
+type whereHelperint16 struct{ field string }
+
+func (w whereHelperint16) EQ(x int16) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.EQ, x) }
+func (w whereHelperint16) NEQ(x int16) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.NEQ, x) }
+func (w whereHelperint16) LT(x int16) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.LT, x) }
+func (w whereHelperint16) LTE(x int16) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.LTE, x) }
+func (w whereHelperint16) GT(x int16) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.GT, x) }
+func (w whereHelperint16) GTE(x int16) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.GTE, x) }
+func (w whereHelperint16) IN(slice []int16) qm.QueryMod {
+	values := make([]interface{}, 0, len(slice))
+	for _, value := range slice {
+		values = append(values, value)
+	}
+	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
+}
+func (w whereHelperint16) NIN(slice []int16) qm.QueryMod {
+	values := make([]interface{}, 0, len(slice))
+	for _, value := range slice {
+		values = append(values, value)
+	}
+	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
+}
+
 var AnimationFrameWhere = struct {
 	ID          whereHelperint
 	AnimationID whereHelperint
 	FrameIndex  whereHelperint
 	Expression  whereHelperExpressionType
+	Duration    whereHelperint16
 }{
 	ID:          whereHelperint{field: "\"animation_frame\".\"id\""},
 	AnimationID: whereHelperint{field: "\"animation_frame\".\"animation_id\""},
 	FrameIndex:  whereHelperint{field: "\"animation_frame\".\"frame_index\""},
 	Expression:  whereHelperExpressionType{field: "\"animation_frame\".\"expression\""},
+	Duration:    whereHelperint16{field: "\"animation_frame\".\"duration\""},
 }
 
 // AnimationFrameRels is where relationship names are stored.
@@ -149,8 +179,8 @@ func (r *animationFrameR) GetAnimationFrameStaticPositions() AnimationFrameStati
 type animationFrameL struct{}
 
 var (
-	animationFrameAllColumns            = []string{"id", "animation_id", "frame_index", "expression"}
-	animationFrameColumnsWithoutDefault = []string{"animation_id", "frame_index", "expression"}
+	animationFrameAllColumns            = []string{"id", "animation_id", "frame_index", "expression", "duration"}
+	animationFrameColumnsWithoutDefault = []string{"animation_id", "frame_index", "expression", "duration"}
 	animationFrameColumnsWithDefault    = []string{"id"}
 	animationFramePrimaryKeyColumns     = []string{"id"}
 	animationFrameGeneratedColumns      = []string{}

@@ -4,6 +4,10 @@ metadata:
   name: frontend
   labels:
     name: frontend
+  annotations:
+    dev.okteto.com/generate-host: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
   - http:

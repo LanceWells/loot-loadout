@@ -14,6 +14,19 @@ spec:
     app: character-image
   type: ClusterIP
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: character-image-db
+spec:
+  ports:
+  - name: psql-port
+    port: 5432
+    protocol: TCP
+  selector:
+    app: character-image-db
+  type: ClusterIP
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -29,13 +42,120 @@ spec:
         app: character-image
     spec:
       containers:
-      - image: ghcr.io/lancewells/loot-loadout/character-image:latest
+      - env:
+        - name: POSTGRES_DB
+          value: $CHARIMAGE_DB_DBNAME
+          valueFrom:
+            secretKeyRef:
+              key: dbname
+              name: character-image-db
+        - name: POSTGRES_USER
+          value: $CHARIMAGE_DB_USER
+          valueFrom:
+            secretKeyRef:
+              key: username
+              name: character-image-db
+        - name: POSTGRES_PASSWORD
+          value: $CHARIMAGE_DB_PASS
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: character-image-db
+        - name: POSTGRES_PORT
+          value: $CHARIMAGE_DB_PORT
+        image: ghcr.io/lancewells/loot-loadout/character-image:latest
         name: character-image
         ports:
         - containerPort: 8888
           name: http-port
         - containerPort: 9999
           name: grpc-port
+        resources:
+          limits:
+            cpu: 500m
+            memory: 128Mi
+      initContainers:
+      - args:
+        - -database=postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@character-image-db:5432/$(POSTGRES_DB)?sslmode=disable
+        - -path=/migrations
+        - up
+        env:
+        - name: POSTGRES_DB
+          value: $CHARIMAGE_DB_DBNAME
+          valueFrom:
+            secretKeyRef:
+              key: dbname
+              name: character-image-db
+        - name: POSTGRES_USER
+          value: $CHARIMAGE_DB_USER
+          valueFrom:
+            secretKeyRef:
+              key: username
+              name: character-image-db
+        - name: POSTGRES_PASSWORD
+          value: $CHARIMAGE_DB_PASS
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: character-image-db
+        - name: POSTGRES_PORT
+          value: $CHARIMAGE_DB_PORT
+        image: ghcr.io/lancewells/loot-loadout/character-image-migration:latest
+        name: character-image-db-migrate
+        resources:
+          limits:
+            cpu: 500m
+            memory: 128Mi
+      - command:
+        - sh
+        - -c
+        - until nslookup character-image-db.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local;
+          do echo waiting for db; sleep 2; done
+        image: busybox:1.28
+        name: character-image-db-init
+      volumes:
+      - hostPath:
+          path: migrations
+        name: character-image-db-migrate
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: character-image-db
+spec:
+  selector:
+    matchLabels:
+      app: character-image-db
+  template:
+    metadata:
+      labels:
+        app: character-image-db
+    spec:
+      containers:
+      - env:
+        - name: POSTGRES_DB
+          value: $CHARIMAGE_DB_DBNAME
+          valueFrom:
+            secretKeyRef:
+              key: dbname
+              name: character-image-db
+        - name: POSTGRES_USER
+          value: $CHARIMAGE_DB_USER
+          valueFrom:
+            secretKeyRef:
+              key: username
+              name: character-image-db
+        - name: POSTGRES_PASSWORD
+          value: $CHARIMAGE_DB_PASS
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: character-image-db
+        image: postgres:14.4
+        name: character-image-db
+        ports:
+        - containerPort: 5432
+          name: psql-port
         resources:
           limits:
             cpu: 500m
@@ -66,21 +186,20 @@ spec:
         pathType: Prefix
 ---
 apiVersion: networking.k8s.io/v1
-kind: Ingress
+kind: NetworkPolicy
 metadata:
-  annotations:
-    dev.okteto.com/generate-host: "true"
-  labels:
-    name: character-image-http
-  name: character-image-http
+  name: character-image-db
 spec:
-  rules:
-  - http:
-      paths:
-      - backend:
-          service:
-            name: character-image
-            port:
-              number: 8888
-        path: /api/
-        pathType: Prefix
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          db: character-image
+    ports:
+    - port: 5432
+      protocol: TCP
+  podSelector:
+    matchLabels:
+      db: character-image
+  policyTypes:
+  - Ingress

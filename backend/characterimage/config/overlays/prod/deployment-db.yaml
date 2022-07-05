@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: character-image-db
+spec:
+  selector:
+    matchLabels:
+      app: character-image-db
+  template:
+    metadata:
+      labels:
+        app: character-image-db
+    spec:
+      containers:
+      - name: character-image-db
+        image: postgres:14.4
+        env:
+          - name: POSTGRES_DB
+            value: $CHARIMAGE_DB_DBNAME
+          - name: POSTGRES_USER
+            value: $CHARIMAGE_DB_USER
+          - name: POSTGRES_PASSWORD
+            value: $CHARIMAGE_DB_PASS
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+          - containerPort: 5432
+            name: psql-port

@@ -21,13 +21,13 @@ spec:
             cpu: "500m"
         env:
           - name: POSTGRES_DB
-            value: $CHARIMAGE_DB_DBNAME
+            value: $(CHARIMAGE_DB_DBNAME)
           - name: POSTGRES_USER
-            value: $CHARIMAGE_DB_USER
+            value: $(CHARIMAGE_DB_USER)
           - name: POSTGRES_PASSWORD
-            value: $CHARIMAGE_DB_PASS
+            value: $(CHARIMAGE_DB_PASS)
           - name: POSTGRES_PORT
-            value: $CHARIMAGE_DB_PORT
+            value: $(CHARIMAGE_DB_PORT)
       initContainers:
         - name: character-image-db-migrate
           image: ghcr.io/lancewells/loot-loadout/character-image-migration:latest
@@ -37,10 +37,11 @@ spec:
               cpu: "500m"
           env:
           - name: POSTGRES_DB
-            value: $CHARIMAGE_DB_DBNAME
+            value: $(CHARIMAGE_DB_DBNAME)
           - name: POSTGRES_USER
-            value: $CHARIMAGE_DB_USER
+            value: $(CHARIMAGE_DB_USER)
           - name: POSTGRES_PASSWORD
-            value: $CHARIMAGE_DB_PASS
+            value: $(CHARIMAGE_DB_PASS)
           - name: POSTGRES_PORT
-            value: $CHARIMAGE_DB_PORT
+            value: $(CHARIMAGE_DB_PORT)
+

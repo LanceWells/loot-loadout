@@ -110,15 +110,15 @@ func (db CharacterImageDB) AddBody(
 		if r := recover(); r != nil {
 			err := fmt.Errorf("CRITICAL: recovered from panic: %v", r)
 			db.l.Println(err)
-		}
-
-		if err != nil {
-			tx.Rollback()
 		} else {
-			tx.Commit()
-		}
+			if err != nil {
+				tx.Rollback()
+			} else {
+				tx.Commit()
+			}
 
-		span.End()
+			span.End()
+		}
 	}()
 
 	body := models.BodyType{
@@ -149,15 +149,15 @@ func (db CharacterImageDB) ListBodies(
 		if r := recover(); r != nil {
 			err := fmt.Errorf("CRITICAL: recovered from panic: %v", r)
 			db.l.Println(err)
-		}
-
-		if err != nil {
-			tx.Rollback()
 		} else {
-			tx.Commit()
-		}
+			if err != nil {
+				tx.Rollback()
+			} else {
+				tx.Commit()
+			}
 
-		span.End()
+			span.End()
+		}
 	}()
 
 	bodies, err := models.BodyTypes().All(ctx, tx)
@@ -194,14 +194,15 @@ func (db CharacterImageDB) AddDynamicMapping(
 		if r := recover(); r != nil {
 			err := fmt.Errorf("CRITICAL: recovered from panic: %v", r)
 			db.l.Println(err)
-		}
-
-		if err != nil {
-			tx.Rollback()
 		} else {
-			tx.Commit()
+			if err != nil {
+				tx.Rollback()
+			} else {
+				tx.Commit()
+			}
+
+			span.End()
 		}
-		span.End()
 	}()
 
 	// First, ensure that the provided PNG is properly base64-encoded, and that it is also a valid
@@ -308,15 +309,15 @@ func (db CharacterImageDB) AddStatic(
 		if r := recover(); r != nil {
 			err := fmt.Errorf("CRITICAL: recovered from panic: %v", r)
 			db.l.Println(err)
-		}
-
-		if err != nil {
-			tx.Rollback()
 		} else {
-			tx.Commit()
-		}
+			if err != nil {
+				tx.Rollback()
+			} else {
+				tx.Commit()
+			}
 
-		span.End()
+			span.End()
+		}
 	}()
 
 	dst := make([]byte, base64.StdEncoding.DecodedLen(len(s.Image)))
@@ -380,15 +381,15 @@ func (db CharacterImageDB) ListStatics(
 		if r := recover(); r != nil {
 			err := fmt.Errorf("CRITICAL: recovered from panic: %v", r)
 			db.l.Println(err)
-		}
-
-		if err != nil {
-			tx.Rollback()
 		} else {
-			tx.Commit()
-		}
+			if err != nil {
+				tx.Rollback()
+			} else {
+				tx.Commit()
+			}
 
-		span.End()
+			span.End()
+		}
 	}()
 
 	statics, err := models.StaticParts(
@@ -438,14 +439,15 @@ func (db CharacterImageDB) AddDynamic(
 		if r := recover(); r != nil {
 			err := fmt.Errorf("CRITICAL: recovered from panic: %v", r)
 			db.l.Println(err)
-		}
-
-		if err != nil {
-			tx.Rollback()
 		} else {
-			tx.Commit()
+			if err != nil {
+				tx.Rollback()
+			} else {
+				tx.Commit()
+			}
+
+			span.End()
 		}
-		span.End()
 	}()
 
 	// First, ensure that the provided PNG is properly base64-encoded, and that it is also a valid
@@ -663,15 +665,15 @@ func (db CharacterImageDB) ListDynamics(
 		if r := recover(); r != nil {
 			err := fmt.Errorf("CRITICAL: recovered from panic: %v", r)
 			db.l.Println(err)
-		}
-
-		if err != nil {
-			tx.Rollback()
 		} else {
-			tx.Commit()
-		}
+			if err != nil {
+				tx.Rollback()
+			} else {
+				tx.Commit()
+			}
 
-		span.End()
+			span.End()
+		}
 	}()
 
 	dynamics, err := models.DynamicParts(
@@ -720,14 +722,15 @@ func (db CharacterImageDB) AddAnimation(
 		if r := recover(); r != nil {
 			err := fmt.Errorf("CRITICAL: recovered from panic: %v", r)
 			db.l.Println(err)
-		}
-
-		if err != nil {
-			tx.Rollback()
 		} else {
-			tx.Commit()
+			if err != nil {
+				tx.Rollback()
+			} else {
+				tx.Commit()
+			}
+
+			span.End()
 		}
-		span.End()
 	}()
 
 	bodyIDVal, err := strconv.Atoi(bodyID)
@@ -778,15 +781,15 @@ func (db CharacterImageDB) ListAnimations(
 		if r := recover(); r != nil {
 			err := fmt.Errorf("CRITICAL: recovered from panic: %v", r)
 			db.l.Println(err)
-		}
-
-		if err != nil {
-			tx.Rollback()
 		} else {
-			tx.Commit()
-		}
+			if err != nil {
+				tx.Rollback()
+			} else {
+				tx.Commit()
+			}
 
-		span.End()
+			span.End()
+		}
 	}()
 
 	animations, err := models.Animations().All(ctx, tx)
@@ -832,14 +835,15 @@ func (db CharacterImageDB) AddFrame(
 		if r := recover(); r != nil {
 			err := fmt.Errorf("CRITICAL: recovered from panic: %v", r)
 			db.l.Println(err)
-		}
-
-		if err != nil {
-			tx.Rollback()
 		} else {
-			tx.Commit()
+			if err != nil {
+				tx.Rollback()
+			} else {
+				tx.Commit()
+			}
+
+			span.End()
 		}
-		span.End()
 	}()
 
 	animationIDVal, err := strconv.Atoi(animationID)
@@ -994,15 +998,15 @@ func (db CharacterImageDB) AddProp(
 		if r := recover(); r != nil {
 			err := fmt.Errorf("CRITICAL: recovered from panic: %v", r)
 			db.l.Println(err)
-		}
-
-		if err != nil {
-			tx.Rollback()
 		} else {
-			tx.Commit()
-		}
+			if err != nil {
+				tx.Rollback()
+			} else {
+				tx.Commit()
+			}
 
-		span.End()
+			span.End()
+		}
 	}()
 
 	dst := make([]byte, base64.StdEncoding.DecodedLen(len(p.Image)))
@@ -1059,15 +1063,15 @@ func (db CharacterImageDB) ListProps(
 		if r := recover(); r != nil {
 			err := fmt.Errorf("CRITICAL: recovered from panic: %v", r)
 			db.l.Println(err)
-		}
-
-		if err != nil {
-			tx.Rollback()
 		} else {
-			tx.Commit()
-		}
+			if err != nil {
+				tx.Rollback()
+			} else {
+				tx.Commit()
+			}
 
-		span.End()
+			span.End()
+		}
 	}()
 
 	props, err := models.Props(

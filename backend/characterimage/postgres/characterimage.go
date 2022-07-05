@@ -70,12 +70,7 @@ func NewImageDatabase(
 		return nil, errors.New(err)
 	}
 
-	port, ok := os.LookupEnv("POSTGRES_PORT")
-	if !ok {
-		err := "POSTGRES_PORT env var is not set"
-		l.Println(err)
-		return nil, errors.New(err)
-	}
+	port := 5432
 
 	dsn := strings.Join([]string{
 		"host=character-image-db",
@@ -83,7 +78,7 @@ func NewImageDatabase(
 		fmt.Sprintf("user=%s", user),
 		fmt.Sprintf("password=%s", pass),
 		fmt.Sprintf("dbname=%s", dbName),
-		fmt.Sprintf("port=%s", port),
+		fmt.Sprintf("port=%v", port),
 	}, " ")
 
 	db, err := sql.Open("postgres", dsn)

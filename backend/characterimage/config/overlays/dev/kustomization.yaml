@@ -3,5 +3,6 @@ bases:
   - ../../base
 patchesStrategicMerge:
   - deployment-character-image.yaml
+  - deployment-db.yaml
 resources:
   - secret.yaml

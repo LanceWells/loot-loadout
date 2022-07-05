@@ -14,22 +14,6 @@ spec:
       containers:
       - name: character-image-db
         image: postgres:14.4
-        env:
-          - name: POSTGRES_DB
-            valueFrom:
-              secretKeyRef:
-                name: character-image-db
-                key: dbname
-          - name: POSTGRES_USER
-            valueFrom:
-              secretKeyRef:
-                name: character-image-db
-                key: username
-          - name: POSTGRES_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: character-image-db
-                key: password
         resources:
           limits:
             memory: "128Mi"

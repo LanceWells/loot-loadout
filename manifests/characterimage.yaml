@@ -45,22 +45,10 @@ spec:
       - env:
         - name: POSTGRES_DB
           value: $CHARIMAGE_DB_DBNAME
-          valueFrom:
-            secretKeyRef:
-              key: dbname
-              name: character-image-db
         - name: POSTGRES_USER
           value: $CHARIMAGE_DB_USER
-          valueFrom:
-            secretKeyRef:
-              key: username
-              name: character-image-db
         - name: POSTGRES_PASSWORD
           value: $CHARIMAGE_DB_PASS
-          valueFrom:
-            secretKeyRef:
-              key: password
-              name: character-image-db
         - name: POSTGRES_PORT
           value: $CHARIMAGE_DB_PORT
         image: ghcr.io/lancewells/loot-loadout/character-image:latest
@@ -82,22 +70,10 @@ spec:
         env:
         - name: POSTGRES_DB
           value: $CHARIMAGE_DB_DBNAME
-          valueFrom:
-            secretKeyRef:
-              key: dbname
-              name: character-image-db
         - name: POSTGRES_USER
           value: $CHARIMAGE_DB_USER
-          valueFrom:
-            secretKeyRef:
-              key: username
-              name: character-image-db
         - name: POSTGRES_PASSWORD
           value: $CHARIMAGE_DB_PASS
-          valueFrom:
-            secretKeyRef:
-              key: password
-              name: character-image-db
         - name: POSTGRES_PORT
           value: $CHARIMAGE_DB_PORT
         image: ghcr.io/lancewells/loot-loadout/character-image-migration:latest
@@ -135,22 +111,10 @@ spec:
       - env:
         - name: POSTGRES_DB
           value: $CHARIMAGE_DB_DBNAME
-          valueFrom:
-            secretKeyRef:
-              key: dbname
-              name: character-image-db
         - name: POSTGRES_USER
           value: $CHARIMAGE_DB_USER
-          valueFrom:
-            secretKeyRef:
-              key: username
-              name: character-image-db
         - name: POSTGRES_PASSWORD
           value: $CHARIMAGE_DB_PASS
-          valueFrom:
-            secretKeyRef:
-              key: password
-              name: character-image-db
         image: postgres:14.4
         name: character-image-db
         ports:

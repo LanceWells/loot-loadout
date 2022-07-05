@@ -19,6 +19,24 @@ spec:
           limits:
             memory: "128Mi"
             cpu: "500m"
+        env:
+          - name: POSTGRES_DB
+            valueFrom:
+              secretKeyRef:
+                name: character-image-db
+                key: dbname
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name: character-image-db
+                key: username
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: character-image-db
+                key: password
+          - name: POSTGRES_PORT
+            value: "5432"
       initContainers:
         - name: character-image-db-migrate
           image: ghcr.io/lancewells/loot-loadout/character-image-migration:latest-dev
@@ -26,3 +44,21 @@ spec:
             limits:
               memory: "128Mi"
               cpu: "500m"
+          env:
+          - name: POSTGRES_DB
+            valueFrom:
+              secretKeyRef:
+                name: character-image-db
+                key: dbname
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name: character-image-db
+                key: username
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: character-image-db
+                key: password
+          - name: POSTGRES_PORT
+            value: "5432"

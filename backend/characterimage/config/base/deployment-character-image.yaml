@@ -24,24 +24,6 @@ spec:
             name: http-port
           - containerPort: 9999
             name: grpc-port
-        env:
-          - name: POSTGRES_DB
-            valueFrom:
-              secretKeyRef:
-                name: character-image-db
-                key: dbname
-          - name: POSTGRES_USER
-            valueFrom:
-              secretKeyRef:
-                name: character-image-db
-                key: username
-          - name: POSTGRES_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: character-image-db
-                key: password
-          - name: POSTGRES_PORT
-            value: "5432"
       initContainers:
         - name: character-image-db-init
           image: busybox:1.28
@@ -51,22 +33,6 @@ spec:
             - "until nslookup character-image-db.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for db; sleep 2; done"
         - name: character-image-db-migrate
           image: migrate/migrate:4
-          env:
-            - name: POSTGRES_DB
-              valueFrom:
-                secretKeyRef:
-                  name: character-image-db
-                  key: dbname
-            - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: character-image-db
-                  key: username
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: character-image-db
-                  key: password
           args:
             - "-database=postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@character-image-db:5432/$(POSTGRES_DB)?sslmode=disable"
             - "-path=/migrations"

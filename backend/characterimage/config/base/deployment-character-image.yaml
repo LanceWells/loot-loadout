@@ -37,7 +37,3 @@ spec:
             - "-database=postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@character-image-db:5432/$(POSTGRES_DB)?sslmode=disable"
             - "-path=/migrations"
             - "up"
-      volumes:
-        - name: character-image-db-migrate
-          hostPath:
-            path: migrations

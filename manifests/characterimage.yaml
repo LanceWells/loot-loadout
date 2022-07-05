@@ -89,10 +89,6 @@ spec:
           do echo waiting for db; sleep 2; done
         image: busybox:1.28
         name: character-image-db-init
-      volumes:
-      - hostPath:
-          path: migrations
-        name: character-image-db-migrate
 ---
 apiVersion: apps/v1
 kind: Deployment
